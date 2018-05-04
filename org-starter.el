@@ -34,6 +34,12 @@
 (require 'cl-lib)
 (require 'subr-x)
 
+(eval-and-compile
+  (when (version< emacs-version "26")
+    (with-no-warnings
+      (defalias 'when-let* #'when-let)
+      (function-put #'when-let* 'lisp-indent-function 1))))
+
 (defvar org-starter-known-files nil
   "List of files registered by `org-starter-define-file'.")
 
@@ -190,9 +196,9 @@ If ADD-TO-PATH is non-nil, the directory is added to `org-starter-path'."
 
 (defun org-starter-load-local-variables ()
   "Load local variables defined for the current buffer file by org-starter."
-  (when-let ((fpath (buffer-file-name))
-             (vars (cl-assoc fpath org-starter-file-local-variables
-                             :test #'file-equal-p)))
+  (when-let* ((fpath (buffer-file-name))
+              (vars (cl-assoc fpath org-starter-file-local-variables
+                              :test #'file-equal-p)))
     (cl-loop for (symbol . value) in vars
              do (cond
                  ((symbolp symbol) (set (make-local-variable symbol) value))
