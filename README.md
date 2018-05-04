@@ -2,15 +2,12 @@
 
 # org-starter
 
-Org-starter is a framework for basic configuration of Emacs Org Mode. It lets you configure Org Mode in the following manners:
+Org-starter is a framework for basic configuration of Emacs Org Mode. It allows you to configure Org Mode easily even with many files and directories. 
 
-- Declarative:
-- Incremental:
-- Orientated to files and directories: 
+The standard way to configure Org Mode is set a bunch of variables such as `org-agenda-files` and `org-refile-targets`. This makes it hard to add/delete files to/from the configuration. Org-starter lets you configure Org Mode in a file-centric and incremental manner, which scales well if you have many Org files and want to tweak the files. 
 
-In other words, org-starter allows you to configure Org Mode in a manner similar
-to use-package. The following is an example file configuration which is possible
-with org-starter:
+In other words, org-starter allows you to configure Org Mode in a manner which is similar
+to that of use-package. The following is an example file configuration with org-starter:
 
 ``` emacs-lisp
 (org-starter-define-file "subjects.org"
