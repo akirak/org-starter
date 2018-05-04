@@ -290,5 +290,38 @@ If ALL is non-nil, the following variables are also checked for missing entries:
                            (not (file-exists-p path)))))
                   org-refile-targets)))
 
+(defun org-starter--load-file (fpath)
+  "If there is no buffer visiting FPATH, load it into Emacs.
+
+Unlike `find-file-noselect', this function does not care about changes in files
+that are already loaded."
+  (unless (find-buffer-visiting fpath)
+    (find-file-noselect fpath)))
+
+(defun org-starter-load-all-known-files ()
+  "Load all files registered in `org-starter-known-files' into Emacs.
+
+This can be convenient in some situations where you want ensure that all org
+files are in buffers."
+  (interactive)
+  (mapc #'org-starter--load-file org-starter-known-files))
+
+(defun org-starter-get-all-files-in-path ()
+  "Get a list of org files in `org-starter-path'.
+
+`org-agenda-file-regexp' is used to match the files."
+  (cl-loop for dpath in org-starter-path
+           append (directory-files dpath t org-agenda-file-regexp)))
+
+(defun org-starter-load-all-files-in-path ()
+  "Load all org files in `org-starter-path' into Emacs.
+
+This can be convenient in some situations where you want ensure that all org
+files are in buffers.
+
+`org-starter-get-all-files-in-path' is used to get a list of org files."
+  (interactive)
+  (mapc #'org-starter--load-file (org-starter-get-all-files-in-path)))
+
 (provide 'org-starter)
 ;;; org-starter.el ends here
