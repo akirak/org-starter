@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/akirak/org-starter.svg?branch=master)](https://travis-ci.org/akirak/org-starter)
+
 # org-starter
 
 Org-starter is a framework for basic configuration of Emacs Org Mode. It lets you configure Org Mode in the following manners:
