@@ -85,10 +85,10 @@ The result is an alist."
                     (let ((fpath (buffer-file-name buf)))
                       (cond
                        ((null fpath) 'nonfile)
-                       ((cl-member fpath agenda-files :test #'file-equal-p)
-                        'agenda)
                        ((cl-member fpath org-starter-deprecated-files :test #'file-equal-p)
                         'deprecated)
+                       ((cl-member fpath agenda-files :test #'file-equal-p)
+                        'agenda)
                        ((cl-member fpath org-starter-known-files :test #'file-equal-p)
                         'known)
                        (t 'other))))
@@ -115,8 +115,8 @@ The result is an alist."
   "Build a list of Helm sources for Org buffers."
   (let ((groups (helm-org-starter--group-buffers))
         (captions '(("Org agenda files" . agenda)
-                    ("Known files (non-deprecated)" . known)
-                    ("Known files (deprecated)" . deprecated)
+                    ("Known files" . known)
+                    ("Deprecated" . deprecated)
                     ("Other file buffers" . other)
                     ("Non-file buffers" .nonfile))))
     (cl-loop for (name . symbol) in captions
