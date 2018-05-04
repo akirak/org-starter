@@ -32,6 +32,7 @@
 
 (require 'org)
 (require 'cl-lib)
+(require 'subr-x)
 
 (defvar org-starter-known-files nil
   "List of files registered by `org-starter-define-file'.")
@@ -184,13 +185,30 @@ If ADD-TO-PATH is non-nil, the directory is added to `org-starter-path'."
           (add-to-list 'org-refile-targets (cons func refile) 'append))))
     (add-to-list 'org-starter-known-directories dpath)))
 
+(defvar org-starter-file-local-variables nil
+  "Alist of file-local variable definitions.")
+
+(defun org-starter-load-local-variables ()
+  "Load local variables defined for the current buffer file by org-starter."
+  (when-let ((fpath (buffer-file-name))
+             (vars (cl-assoc fpath org-starter-file-local-variables
+                             :test #'file-equal-p)))
+    (cl-loop for (symbol . value) in vars
+             do (cond
+                 ((symbolp symbol) (set (make-local-variable symbol) value))
+                 (t (error "Not a symbol: %s in %s"
+                           (prin1-to-string symbol)
+                           (prin1-to-string value)))))))
+(add-hook 'org-mode-hook #'org-starter-load-local-variables t)
+
 (cl-defun org-starter-define-file (filename &key
                                             directory
                                             (required t)
                                             deprecated
                                             agenda
                                             refile
-                                            set-default)
+                                            set-default
+                                            local-variables)
   "Define an org file.
 
 FILENAME is the file name of the org file. This can be either a file name
@@ -216,7 +234,13 @@ value. For example, if you set REFILE to \"'(:maxlevel . 5)\", then
 If you specify variable names as a list of symbols in SET-DEFAULT, those
 variables are set to the path of the defined file using `set-default'.
 For example, you can use this function to set `org-default-notes-file' based
-on the actual path."
+on the actual path.
+
+LOCAL-VARIABLES allows you to specify file-local variables which should be set
+after org-mode is initialized. This can be done in the file footer, but it is
+sometimes convenient to be able to define them outside of the file, especially
+if you define a complex function. This option should be an alist of variable
+names and values."
   (declare (indent 1))
   (let ((fpath (org-starter-locate-file filename directory)))
     (cond
@@ -234,6 +258,8 @@ on the actual path."
                   (if pair
                       (setf (cdr pair) refile)
                     (add-to-list 'org-refile-targets (cons fpath refile) 'append))))
+              (when local-variables
+                (push (cons fpath local-variables) org-starter-file-local-variables))
               (add-to-list 'org-starter-known-files fpath)))
      ((and (not deprecated) required)
       (error "Required org file %s is not found" filename))
