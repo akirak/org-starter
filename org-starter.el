@@ -152,7 +152,8 @@ identify the directory."
                                               id
                                               origin
                                               ensure
-                                              add-to-path)
+                                              add-to-path
+                                              files)
   "Define a directory that contains org files.
 
 DPATH is a path to the directory. This option cannot be nil.
@@ -168,7 +169,10 @@ ORIGIN is a repository URL from which you want to clone the repository. If this
 option is set and ENSURE option is non-nil, this function automatically clones
 the repository when the directory does not exist.
 
-If ADD-TO-PATH is non-nil, the directory is added to `org-starter-path'."
+If ADD-TO-PATH is non-nil, the directory is added to `org-starter-path'.
+
+FILES is a list whose item accepts the same options as `org-starter-define-file',
+except for `:directory' option. You can define files in the directory."
   (declare (indent 1))
   (let ((exists (file-directory-p dpath)))
     (when (and ensure (not exists))
@@ -189,6 +193,9 @@ If ADD-TO-PATH is non-nil, the directory is added to `org-starter-path'."
         (if pair
             (setf (cdr pair) refile)
           (add-to-list 'org-refile-targets (cons func refile) 'append))))
+    (cl-loop for (filename . options) in files
+             do (apply #'org-starter-define-file filename :directory dpath
+                       options))
     (add-to-list 'org-starter-known-directories dpath)))
 
 (defvar org-starter-file-local-variables nil
