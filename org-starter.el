@@ -133,18 +133,15 @@ repository URL.")
                    ((symbolp id) (symbol-name id))
                    ((stringp id) id)))))
 
-(defun org-starter--define-glob-function (dpath id)
+(defmacro org-starter--define-glob-function (dpath id)
   "Define a function to glob entries in a directory.
 
 This function defines a function to glob a list of org files in a directory.
 DPATH is a path to the directory, and ID is a symbol/string to uniquely
 identify the directory."
-  (let ((name (org-starter--glob-function-name id)))
-    (macroexpand-1
-     `(defun ,name ()
-        (when (file-directory-p ,dpath)
-          (directory-files ,dpath t org-agenda-file-regexp))))
-    name))
+  `(defun ,(org-starter--glob-function-name id) ()
+     (when (file-directory-p ,dpath)
+       (directory-files ,dpath t org-agenda-file-regexp))))
 
 (cl-defun org-starter-define-directory (dpath &key
                                               agenda
