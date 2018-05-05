@@ -126,20 +126,16 @@ repository URL.")
            unless (file-directory-p dest)
            do (org-starter--clone origin dest)))
 
-(defun org-starter--glob-function-name (id)
-  "Generate the name for a function to glob entries in a directory with ID."
-  (intern (format "org-starter--glob-%s-for-refile"
-                  (cond
-                   ((symbolp id) (symbol-name id))
-                   ((stringp id) id)))))
-
 (defmacro org-starter--define-glob-function (dpath id)
   "Define a function to glob entries in a directory.
 
 This function defines a function to glob a list of org files in a directory.
 DPATH is a path to the directory, and ID is a symbol/string to uniquely
 identify the directory."
-  `(defun ,(org-starter--glob-function-name id) ()
+  `(defun ,(intern (format "org-starter--glob-%s-for-refile"
+                           (cond
+                            ((symbolp id) (symbol-name id))
+                            ((stringp id) id)))) ()
      (when (file-directory-p ,dpath)
        (directory-files ,dpath t org-agenda-file-regexp))))
 
