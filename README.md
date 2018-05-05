@@ -23,9 +23,40 @@ to use-package. The following is an example file configuration with org-starter:
 
 Not available on MELPA yet
 
+## Configuration
+
+### Load path for org files
+
+You can set up a "load path" for Org files. This path is later used to find an Org file
+with a specific file name. To set the load path, customize `org-starter-path`.
+
 ## Usage
 
-FIXME
+### Configure directories
+
+Use `org-starter-define-directory` function to define a directory that contains Org files. You can add agenda files and refile targets via its options. You can also add it the load path via `:add-to-path` option. Use `describe-function` to view the details. 
+
+### Configure files
+
+Use `org-starter-define-file` function to define an Org file. As with directory definitions, you can add agenda files and refile targets. Use `describe-function` to view the details. 
+
+You can also define Org files inside `org-starter-define-directory` form as `:files` option.
+
+### Extras
+
+#### Locate a file
+
+You can use `org-starter-locate-file` function to find an Org file in the load path. 
+
+    (org-starter-locate-file "tasks.org")
+
+#### Load all known files
+
+It is sometimes convenient to load a specific set of Org files into Emacs as buffers. For example, you can search headings in the Org buffers using `counsel-org-goto-all`.
+
+Use `org-starter-load-all-known-files` command to load all files registered by `org-starter-define-file` into Emacs.
+
+Use `org-starter-load-all-files-in-path` command to load all files in the load path into Emacs.
 
 ## License
 
