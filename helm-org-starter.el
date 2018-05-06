@@ -34,6 +34,12 @@
 (require 'seq)
 (require 'helm)
 
+(defcustom helm-org-starter-buffer-sort-method nil
+  "How to sort buffer entries in each Helm source."
+  :group 'helm-org-starter
+  :type '(choice (const :tag "Not sorted" nil)
+                 (const :tag "By file path" filepath)))
+
 (defun helm-org-starter--get-file-info (&optional buffer)
   "Get information on the Org BUFFER.
 
@@ -101,6 +107,14 @@ The result is an alist."
   '(("Switch to buffer" . switch-to-buffer)
     ("Switch to buffer (other-window)" . switch-to-buffer)))
 
+(defun helm-org-starter--sort-buffers (buffers method)
+  "Sort a list of BUFFERS with METHOD.
+
+METHOD is a symbol that is supported by `helm-org-starter-buffer-sort-method'."
+  (case method
+    (filepath (cl-sort buffers #'string< :key #'buffer-file-name))
+    (t buffers)))
+
 (defun helm-org-starter--make-source-from-buffers (name buffers)
   "Create a Helm source named NAME with BUFFERS as its candidates."
   (declare (indent 1))
@@ -109,7 +123,9 @@ The result is an alist."
     :candidates (mapcar (lambda (buf)
                           (cons (helm-org-starter--format-buffer-candidate buf)
                                 buf))
-                        buffers)))
+                        (helm-org-starter--sort-buffers
+                         buffers
+                         helm-org-starter-buffer-sort-method))))
 
 (defun helm-org-starter--sources-from-buffer ()
   "Build a list of Helm sources for Org buffers."
