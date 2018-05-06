@@ -4,9 +4,9 @@
 
 Org-starter is a framework for basic configuration of Emacs Org Mode. It allows you to configure Org Mode easily even with many files and directories. 
 
-The standard way to configure Org Mode is set a bunch of variables such as `org-agenda-files` and `org-refile-targets`. This makes it hard to add/delete files to/from the configuration. Org-starter lets you configure Org Mode in a file-centric and incremental manner, which scales well especially if you have many Org files and sometimes tweak the file list. 
+The standard way to configure Org Mode is set a bunch of variables such as `org-agenda-files` and `org-refile-targets`. This makes it hard to add/delete files to/from the configuration. Org-starter lets you configure Org Mode in a file-centric and incremental manner, which scales well especially if you have many Org files and sometimes have to tweak the file list. 
 
-In other words, org-starter allows you to configure Org Mode in a manner that is similar
+In other words, org-starter allows you to configure Org Mode in a manner similar
 to use-package. The following is an example file configuration with org-starter:
 
 ``` emacs-lisp
@@ -34,29 +34,34 @@ with a specific file name. To set the load path, customize `org-starter-path`.
 
 ### Configure directories
 
-Use `org-starter-define-directory` function to define a directory that contains Org files. You can add agenda files and refile targets via its options. You can also add it the load path via `:add-to-path` option. Use `describe-function` to view the details. 
+Use `org-starter-define-directory` function to define a directory that contains Org files. You can add the directory to agenda files and/or refile targets via its options. 
+
+You can also add it to the load path via `:add-to-path` option. 
+
+For details of options, run `C-h f org-starter-define-directory`.
 
 ### Configure files
 
-Use `org-starter-define-file` function to define an Org file. As with directory definitions, you can add agenda files and refile targets. Use `describe-function` to view the details. 
+Use `org-starter-define-file` function to define an Org file. As with directory definitions, you can add the file to agenda files and/or refile targets. 
 
 You can also define Org files inside `org-starter-define-directory` form as `:files` option.
+
+For details, run `C-h f org-starter-define-file`.
 
 ### Extras
 
 #### Locate a file
 
-You can use `org-starter-locate-file` function to find an Org file in the load path. 
+You can use `org-starter-locate-file` function to find an Org file contained in one of the directories in `org-starter-path`:
 
     (org-starter-locate-file "tasks.org")
 
 #### Load all known files
 
-It is sometimes convenient to load a specific set of Org files into Emacs as buffers. For example, you can search headings in the Org buffers using `counsel-org-goto-all`.
+It is sometimes convenient to load a specific set of Org files into Emacs as buffers. For example, you can search headings in the live Org buffers using `counsel-org-goto-all`.
 
-Use `org-starter-load-all-known-files` command to load all files registered by `org-starter-define-file` into Emacs.
-
-Use `org-starter-load-all-files-in-path` command to load all files in the load path into Emacs.
+- To load all files registered by `org-starter-define-file` into Emacs, use `org-starter-load-all-known-files` command.
+- To load all files in `org-starter-path` into Emacs, use `org-starter-load-all-files-in-path` command.
 
 ## License
 
