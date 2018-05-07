@@ -53,16 +53,20 @@
 
 (defvar org-starter-known-directories nil)
 
+(defun org-starter--lookup-known-file (filename)
+  "Look up a FILENAME (without a directory) in `org-starter-known-files'."
+  (car (cl-remove-if-not (lambda (fpath)
+                           (equal filename
+                                  (file-name-nondirectory fpath)))
+                         org-starter-known-files)))
+
 (defun org-starter--search-file (filename &optional check-known-files)
   "Search FILENAME from `org-starter-path'.
 
 If CHECK-KNOWN-FILES is non-nil, `org-starter-known-files' is first checked for
 the FILENAME."
   (or (and check-known-files
-           (car (cl-remove-if-not (lambda (fpath)
-                                    (equal filename
-                                           (file-name-nondirectory fpath)))
-                                  org-starter-known-files)))
+           (org-starter--lookup-known-file filename))
       (cl-loop for dir in org-starter-path
                for fpath = (expand-file-name filename dir)
                when (file-exists-p fpath)
