@@ -276,6 +276,20 @@ names and values."
      ((not deprecated)
       (message "org-starter: %s is missing" filename)))))
 
+(defun org-starter-undefine-file (filename)
+  "Delete an entry with FILENAME from the list of known files."
+  (interactive (list (completing-read "Known file to undefine: "
+                                      org-starter-known-files nil t)))
+  (let ((fpath (expand-file-name
+                (cond
+                 ((file-name-absolute-p filename) filename)
+                 (t (org-starter--lookup-known-file filename))))))
+    (cl-delete fpath org-starter-deprecated-files)
+    (cl-delete fpath org-agenda-files)
+    (cl-delete fpath org-refile-targets :key #'car)
+    (cl-delete fpath org-starter-known-files)
+    (message "Deleted %s from org-starter-known-files" fpath)))
+
 (defun org-starter-cleanup-entries (&optional all)
   "Remove missing files and directories from various variables.
 
