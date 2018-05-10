@@ -63,6 +63,10 @@ It is sometimes convenient to load a specific set of Org files into Emacs as buf
 - To load all files registered by `org-starter-define-file` into Emacs, use `org-starter-load-all-known-files` command.
 - To load all files in `org-starter-path` into Emacs, use `org-starter-load-all-files-in-path` command.
 
+### Helm interface to visit an Org file
+
+A separate package `helm-org-starter.el` provides a Helm command named `helm-org-starter` which you can use to select an Org file in various categories or create a new one in a known directory.
+
 ## License
 
 GPL v3
