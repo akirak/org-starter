@@ -33,6 +33,7 @@
 (require 'org-starter)
 (require 'seq)
 (require 'helm)
+(require 'cl-lib)
 
 (defcustom helm-org-starter-buffer-sort-method nil
   "How to sort buffer entries in each Helm source."
@@ -111,9 +112,9 @@ The result is an alist."
   "Sort a list of BUFFERS with METHOD.
 
 METHOD is a symbol that is supported by `helm-org-starter-buffer-sort-method'."
-  (case method
+  (cl-case method
     (filepath (cl-sort buffers #'string< :key #'buffer-file-name))
-    (t buffers)))
+    (otherwise buffers)))
 
 (defun helm-org-starter--make-source-from-buffers (name buffers)
   "Create a Helm source named NAME with BUFFERS as its candidates."
@@ -140,6 +141,7 @@ METHOD is a symbol that is supported by `helm-org-starter-buffer-sort-method'."
                        (alist-get symbol groups)))))
 
 (defun helm-org-starter-create-file-in-known-directory (filename)
+  "Create FILENAME in a known directory via a Helm interface."
   (let ((action (lambda (dpath) (find-file (expand-file-name filename dpath)))))
     (helm :prompt (format "Choose a directory to save %s: " filename)
           :sources
