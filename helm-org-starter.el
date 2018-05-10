@@ -65,7 +65,8 @@ The result is an alist."
 
 (defcustom helm-org-starter-column-width 40
   "The width of the first column."
-  :group 'helm-org-starter)
+  :group 'helm-org-starter
+  :type 'integer)
 
 (defun helm-org-starter--format-buffer-candidate (buf)
   "Generate a Helm candidate title from BUF."
