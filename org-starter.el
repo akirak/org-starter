@@ -40,6 +40,39 @@
       (defalias 'when-let* #'when-let)
       (function-put #'when-let* 'lisp-indent-function 1))))
 
+(defconst org-starter-error-buffer "*org-starter errors*")
+
+(defvar org-starter-found-errors nil
+  "Non-nil if an error is found while configuring org-starter.")
+
+(defun org-starter--clear-errors ()
+  "Reset the status of the error buffer."
+  (when-let* ((buf (get-buffer org-starter-error-buffer)))
+    (with-current-buffer buf
+      (let ((inhibit-read-only t))
+        (erase-buffer))))
+  (setq org-starter-found-errors nil))
+
+(defun org-starter--create-error-buffer ()
+  (or (get-buffer org-starter-error-buffer)
+      (with-current-buffer (generate-new-buffer org-starter-error-buffer)
+        (local-set-key "q" 'quit-window)
+        (setq buffer-read-only t)
+        (current-buffer))))
+
+(defun org-starter--log-error-no-newline (format-string &rest args)
+  "Variant of `org-starter--log-error' that does not append a newline."
+  (declare (indent 0))
+  (with-current-buffer (org-starter--create-error-buffer)
+    (let ((inhibit-read-only t))
+      (insert (apply 'format format-string args))))
+  (setq org-starter-found-errors (1+ (or org-starter-found-errors 0))))
+
+(defun org-starter--log-error (format-string &rest args)
+  "An alternative to `message' which logs a string to `org-starter-error-buffer'."
+  (declare (indent 0))
+  (org-starter--log-error-no-newline (concat format-string "\n") args))
+
 (defvar org-starter-known-files nil
   "List of files registered by `org-starter-define-file'.")
 
@@ -256,8 +289,8 @@ names and values."
     (cond
      (fpath (progn
               (when deprecated
-                (message "org-starter: %s file is deprecated"
-                         (abbreviate-file-name fpath))
+                (org-starter--log-error "%s file is deprecated"
+                                        (abbreviate-file-name fpath))
                 (add-to-list 'org-starter-deprecated-files fpath))
               (when agenda
                 (add-hook 'org-agenda-files fpath 'append))
@@ -274,7 +307,7 @@ names and values."
      ((and (not deprecated) required)
       (error "Required org file %s is not found" filename))
      ((not deprecated)
-      (message "org-starter: %s is missing" filename)))))
+      (org-starter--log-error "%s is missing" filename)))))
 
 (defun org-starter-undefine-file (filename)
   "Delete an entry with FILENAME from the list of known files."
