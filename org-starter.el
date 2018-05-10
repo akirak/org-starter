@@ -347,6 +347,21 @@ If ALL is non-nil, the following variables are also checked for missing entries:
                            (not (file-exists-p path)))))
                   org-refile-targets)))
 
+(defun org-starter-verify-configuration ()
+  "Check the current configuration."
+  (interactive)
+  (org-starter--clear-errors)
+  (when-let* ((deprecated-files (cl-remove-if-not #'file-exists-p
+                                                  org-starter-deprecated-files)))
+    (org-starter--log-error-no-newline "%d deprecated files still exist:\n%s"
+                                       (length deprecated-files)
+                                       (cl-loop for fpath in deprecated-files
+                                                concat (format "- %s\n"
+                                                               (abbreviate-file-name fpath)))))
+  (when org-starter-found-errors
+    (pop-to-buffer org-starter-error-buffer)
+    (message "%d errors found" org-starter-found-errors)))
+
 (defun org-starter--load-file (fpath)
   "If there is no buffer visiting FPATH, load it into Emacs.
 
