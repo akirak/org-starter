@@ -139,6 +139,22 @@ METHOD is a symbol that is supported by `helm-org-starter-buffer-sort-method'."
              collect (helm-org-starter--make-source-from-buffers name
                        (alist-get symbol groups)))))
 
+(defun helm-org-starter-create-file-in-known-directory (filename)
+  (let ((action (lambda (dpath) (find-file (expand-file-name filename dpath)))))
+    (helm :prompt (format "Choose a directory to save %s: " filename)
+          :sources
+          (list (helm-build-sync-source "Directories in the path"
+                  :candidates 'org-starter-path
+                  :action action)
+                (helm-build-sync-source "Other known directories"
+                  :candidates (seq-difference org-starter-known-directories
+                                              org-starter-path)
+                  :action action)))))
+
+(defvar helm-org-starter-dummy-file-source
+  (helm-build-dummy-source "New Org file"
+    :action 'helm-org-starter-create-file-in-known-directory))
+
 ;;;###autoload
 (defun helm-org-starter (&optional arg)
   "Helm for a bunch of Org files and buffers.
@@ -151,7 +167,8 @@ Otherwise, all known files are loaded."
     (org-starter-load-all-known-files))
   (helm :prompt "Org buffers: "
         :buffer "*helm-org-starter*"
-        :sources (helm-org-starter--sources-from-buffer)))
+        :sources (append (helm-org-starter--sources-from-buffer)
+                         (list 'helm-org-starter-dummy-file-source))))
 
 (provide 'helm-org-starter)
 ;;; helm-org-starter.el ends here
