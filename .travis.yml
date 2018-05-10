@@ -21,10 +21,8 @@ before_install:
   - curl -fsSkL https://raw.github.com/cask/cask/master/go | python
 install:
   - cask --verbose --debug install
-  - curl -OL https://gist.githubusercontent.com/akirak/f53d7a09b36ef40fa216631672e06582/raw/d6945f0a4690e2df2df3850d1816bdf6bf476dc7/run-package-lint.el
 script:
-  - cask emacs -Q --batch -l run-package-lint.el org-starter.el
-  - cask emacs -Q --batch --eval '(setq byte-compile-error-on-warn t)' -f batch-byte-compile org-starter.el
+  - make
 notifications:
   email:
     on_success: never
