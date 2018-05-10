@@ -152,7 +152,7 @@ METHOD is a symbol that is supported by `helm-org-starter-buffer-sort-method'."
                   :action action)))))
 
 (defvar helm-org-starter-dummy-file-source
-  (helm-build-dummy-source "New Org file"
+  (helm-build-dummy-source "New file in a known directory"
     :action 'helm-org-starter-create-file-in-known-directory))
 
 ;;;###autoload
