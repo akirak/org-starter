@@ -409,6 +409,11 @@ If ALL is non-nil, the following variables are also checked for missing entries:
   "Check the current configuration."
   (interactive)
   (org-starter--clear-errors)
+  (cl-loop for fpath in org-starter-known-files
+           unless (file-exists-p fpath)
+           do (when (yes-or-no-p (format "%s no longer exists. Delete it from the known file list?"
+                                         fpath))
+                (org-starter-undefine-file fpath)))
   (when-let* ((deprecated-files (cl-remove-if-not #'file-exists-p
                                                   org-starter-deprecated-files)))
     (org-starter--log-error-no-newline "%d deprecated files still exist:\n%s"
