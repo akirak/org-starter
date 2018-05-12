@@ -244,7 +244,7 @@ except for `:directory' option. You can define files in the directory."
                            (prin1-to-string value)))))))
 (add-hook 'org-mode-hook #'org-starter-load-local-variables t)
 
-(defvar org-starter-file-map (make-sparse-map)
+(defvar org-starter-file-map (make-sparse-keymap)
   "Keymap used to find a file.")
 
 (defcustom org-starter-define-file-commands 'with-keys
