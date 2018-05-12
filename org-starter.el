@@ -339,8 +339,10 @@ names and values."
   (let ((fpath (org-starter-locate-file filename directory)))
     (cond
      (fpath (progn
-              (when (or (and key (eq 'with-keys org-starter-define-file-commands))
-                        org-starter-define-file-commands)
+              (when (cl-ecase org-starter-define-file-commands
+                      (all t)
+                      (with-keys key)
+                      (nil nil))
                 (org-starter--define-file-command fpath))
               (when deprecated
                 (org-starter--log-error "%s file is deprecated"
