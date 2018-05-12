@@ -244,6 +244,53 @@ except for `:directory' option. You can define files in the directory."
                            (prin1-to-string value)))))))
 (add-hook 'org-mode-hook #'org-starter-load-local-variables t)
 
+(defvar org-starter-file-map (make-sparse-map)
+  "Keymap used to find a file.")
+
+(defcustom org-starter-define-file-commands 'with-keys
+  "Define commands to find a specific file.
+
+When non-nil, org-starter define commands to find (or jump to) a specific file
+defined by `org-starter-define-file'. The defined commands are also used to
+bind keys to files.
+
+This is convenient for the follwing
+reasons:
+
+- You can access a file quickly using \"M-x\".
+- You can use the command names for which-key replacements."
+  :group 'org-starter
+  :type '(choice (const :tag "All defined files" all)
+                 (const :tag "Files with keys" with-keys)
+                 (const :tag "Never" nil)))
+
+(defcustom org-starter-file-command-template "org-starter-find-file:%s"
+  "Template used to determine command names for files.
+
+'%s' in the template is replaced with the base name of the file.
+
+This is applicable when `org-starter-define-file-commands' is non-nil."
+  :type 'string
+  :group 'org-starter)
+
+(defmacro org-starter--file-command-name (fpath)
+  `(intern (format org-starter-file-command-template (file-name-base ,fpath))))
+
+(defun org-starter--define-file-command (fpath)
+  "Define a command to find FPATH."
+  (eval
+   `(defun ,(org-starter--file-command-name fpath) ()
+      (interactive)
+      (find-file ,fpath))))
+
+(defun org-starter--bind-file-key (key fpath)
+  (let ((command-name (org-starter--file-command-name fpath)))
+    (define-key 'org-starter-file-map key
+      (if (and org-starter-define-file-commands
+               (fboundp command-name))
+          command-name
+        `(lambda () (interactive) (find-file ,fpath))))))
+
 (cl-defun org-starter-define-file (filename &key
                                             directory
                                             (required t)
@@ -251,6 +298,7 @@ except for `:directory' option. You can define files in the directory."
                                             agenda
                                             refile
                                             set-default
+                                            key
                                             local-variables)
   "Define an org file.
 
@@ -279,6 +327,9 @@ variables are set to the path of the defined file using `set-default'.
 For example, you can use this function to set `org-default-notes-file' based
 on the actual path.
 
+KEY is a string to represent a key binding used to jump to the file.
+If this property is nil, the file will not be bound on the map.
+
 LOCAL-VARIABLES allows you to specify file-local variables which should be set
 after org-mode is initialized. This can be done in the file footer, but it is
 sometimes convenient to be able to define them outside of the file, especially
@@ -288,6 +339,9 @@ names and values."
   (let ((fpath (org-starter-locate-file filename directory)))
     (cond
      (fpath (progn
+              (when (or (and key (eq 'with-keys org-starter-define-file-commands))
+                        org-starter-define-file-commands)
+                (org-starter--define-file-command fpath))
               (when deprecated
                 (org-starter--log-error "%s file is deprecated"
                                         (abbreviate-file-name fpath))
@@ -301,6 +355,8 @@ names and values."
                   (if pair
                       (setf (cdr pair) refile)
                     (add-to-list 'org-refile-targets (cons fpath refile) 'append))))
+              (when key
+                (org-starter--bind-file-key key fpath))
               (when local-variables
                 (push (cons fpath local-variables) org-starter-file-local-variables))
               (add-to-list 'org-starter-known-files fpath)))
