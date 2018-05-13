@@ -284,6 +284,7 @@ This is applicable when `org-starter-define-file-commands' is non-nil."
       (find-file ,fpath))))
 
 (defun org-starter--bind-file-key (key fpath)
+  "Bind KEY to a command to visit FPATH."
   (let ((command-name (org-starter--file-command-name fpath)))
     (define-key 'org-starter-file-map key
       (if (and org-starter-define-file-commands
