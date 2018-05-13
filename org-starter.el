@@ -62,6 +62,7 @@
   (or (get-buffer org-starter-error-buffer)
       (with-current-buffer (generate-new-buffer org-starter-error-buffer)
         (local-set-key "q" 'quit-window)
+        (local-set-key "g" 'org-starter-verify-configuration)
         (setq buffer-read-only t)
         (current-buffer))))
 
