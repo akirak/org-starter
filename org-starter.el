@@ -34,11 +34,16 @@
 (require 'cl-lib)
 (require 'subr-x)
 
+;;;; Compatibility
+
 (eval-and-compile
   (when (version< emacs-version "26")
     (with-no-warnings
       (defalias 'when-let* #'when-let)
       (function-put #'when-let* 'lisp-indent-function 1))))
+
+;;;; The error buffer and error logging
+;; This is used by `org-starter-verify-configuration'.
 
 (defconst org-starter-error-buffer "*org-starter errors*")
 
@@ -73,6 +78,7 @@
   (declare (indent 0))
   (org-starter--log-error-no-newline (concat format-string "\n") args))
 
+;;;; File registry: known files and directories, path, deprecated files, etc.
 (defvar org-starter-known-files nil
   "List of files registered by `org-starter-define-file'.")
 
@@ -144,6 +150,8 @@ OBJ should be a symbol, or a list of symbols."
    ((null obj) nil)
    ((symbolp obj) (list obj))
    ((listp obj) obj)))
+
+;;;; Defining directories
 
 (defvar org-starter-directory-origins nil
   "Alist of pairs of a directory and its origin.
@@ -228,6 +236,8 @@ except for `:directory' option. You can define files in the directory."
                        options))
     (add-to-list 'org-starter-known-directories dpath)))
 
+;;;; Defining files
+;;;;; File-local variables
 (defvar org-starter-file-local-variables nil
   "Alist of file-local variable definitions.")
 
@@ -244,6 +254,7 @@ except for `:directory' option. You can define files in the directory."
                            (prin1-to-string value)))))))
 (add-hook 'org-mode-hook #'org-starter-load-local-variables t)
 
+;;;;; Keymap for visiting a known file
 (defvar org-starter-file-map (make-sparse-keymap)
   "Keymap used to find a file.")
 
@@ -291,6 +302,8 @@ This is applicable when `org-starter-define-file-commands' is non-nil."
                (fboundp command-name))
           command-name
         `(lambda () (interactive) (find-file ,fpath))))))
+
+;;;;; Defining a file
 
 (cl-defun org-starter-define-file (filename &key
                                             directory
@@ -382,6 +395,8 @@ names and values."
     (cl-delete fpath org-starter-known-files)
     (message "Deleted %s from org-starter-known-files" fpath)))
 
+;;;; Miscellaneous functionality
+
 (defun org-starter-cleanup-entries (&optional all)
   "Remove missing files and directories from various variables.
 
@@ -425,6 +440,8 @@ If ALL is non-nil, the following variables are also checked for missing entries:
   (when org-starter-found-errors
     (pop-to-buffer org-starter-error-buffer)
     (message "%d errors found" org-starter-found-errors)))
+
+;;;; Loading files
 
 (defun org-starter--load-file (fpath)
   "If there is no buffer visiting FPATH, load it into Emacs.
