@@ -219,7 +219,7 @@ except for `:directory' option. You can define files in the directory."
         (error "%s is a required directory, but `:ensure' property is unset" dpath))
       (org-starter--clone origin dpath))
     (when agenda
-      (add-hook 'org-agenda-files dpath 'append))
+      (add-to-list 'org-agenda-files dpath 'append #'file-equal-p))
     (when origin
       (add-to-list 'org-starter-directory-origins (cons dpath origin)))
     (when (and add-to-path exists)
@@ -364,7 +364,7 @@ names and values."
                                         (abbreviate-file-name fpath))
                 (add-to-list 'org-starter-deprecated-files fpath))
               (when agenda
-                (add-hook 'org-agenda-files fpath 'append))
+                (add-to-list 'org-agenda-files fpath 'append #'file-equal-p))
               (mapc (lambda (symbol) (set-default symbol fpath))
                     (org-starter--to-symbol-list set-default))
               (when (and refile (not deprecated))
