@@ -73,10 +73,11 @@ The result is an alist."
   (format (concat "%-" (int-to-string helm-org-starter-column-width)
                   "s : %s")
           (let ((fpath (buffer-file-name buf)))
-            (if fpath
-                (concat (abbreviate-file-name (file-name-directory fpath))
-                        (propertize (file-name-nondirectory fpath) 'face 'helm-buffer-file))
-              (buffer-name buf)))
+            (concat (if fpath
+                        (concat (abbreviate-file-name (file-name-directory fpath))
+                                (propertize (file-name-nondirectory fpath) 'face 'helm-buffer-file))
+                      (buffer-name buf))
+                    (if (buffer-modified-p buf) " *" "")))
           (let-alist (helm-org-starter--get-file-info buf)
             (concat (cond
                      ((and .title .subtitle)
