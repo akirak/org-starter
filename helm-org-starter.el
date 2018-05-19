@@ -107,7 +107,8 @@ The result is an alist."
 
 (defvar helm-org-starter-buffer-actions
   '(("Switch to buffer" . switch-to-buffer)
-    ("Switch to buffer (other-window)" . switch-to-buffer)))
+    ("Switch to buffer (other-window)" . switch-to-buffer)
+    ("Kill buffer" . (lambda (x) (mapc #'kill-buffer (helm-marked-candidates))))))
 
 (defun helm-org-starter--sort-buffers (buffers method)
   "Sort a list of BUFFERS with METHOD.
