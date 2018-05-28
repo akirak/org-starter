@@ -152,6 +152,28 @@ OBJ should be a symbol, or a list of symbols."
    ((symbolp obj) (list obj))
    ((listp obj) obj)))
 
+;;;; Exclude files in org-starter from recentf
+
+(defcustom org-starter-exclude-from-recentf nil
+  "If non-nil, exclude items `org-starter-known-files' from recentf."
+  :group 'org-starter
+  :type '(set (const :tag "Exclude known files" 'known-files)
+              (const :tag "Exclude files in path" 'path)))
+
+(defun org-starter-recentf-excluded-p (file)
+  "If STATUS is non-nil, exclude known files from recentf."
+  (and (listp org-starter-exclude-from-recentf)
+       org-starter-exclude-from-recentf
+       (or (and (memq 'known-files org-starter-exclude-from-recentf)
+                (cl-member file org-starter-known-files
+                           :test #'file-equal-p))
+           (and (memq 'path org-starter-exclude-from-recentf)
+                (string-match-p org-agenda-file-regexp file)
+                (cl-member (file-name-directory file) org-starter-path
+                           :test #'file-equal-p)))))
+
+(add-hook 'recentf-exclude 'org-starter-recentf-excluded-p t)
+
 ;;;; Defining directories
 
 (defvar org-starter-directory-origins nil
