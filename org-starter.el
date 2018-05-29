@@ -277,7 +277,7 @@ except for `:directory' option. You can define files in the directory."
                            (prin1-to-string value)))))))
 (add-hook 'org-mode-hook #'org-starter-load-local-variables t)
 
-;;;;; Keymap for visiting a known file
+;;;;; Keymap for visiting a known file (deprecated)
 (defvar org-starter-file-map (make-sparse-keymap)
   "Keymap used to find a file.")
 
@@ -317,14 +317,68 @@ This is applicable when `org-starter-define-file-commands' is non-nil."
       (interactive)
       (find-file ,fpath))))
 
+(defvar org-starter-key-file-alist nil)
+
+(defun org-starter--funcall-on-file-by-key (func &optional prompt)
+  (let ((map (make-sparse-keymap))
+        (message-log-max nil)
+        (msg (mapconcat (lambda (cell) (format "[%s]: %s"
+                                               (car cell)
+                                               (file-name-nondirectory (cdr cell))))
+                        org-starter-key-file-alist "\n")))
+    (cl-loop for (key . file) in org-starter-key-file-alist
+             do (define-key map key
+                  (lambda () (interactive) (funcall func file))))
+    (message (if prompt (concat prompt "\n" msg) msg))
+    (set-transient-map map)))
+
+;;;###autoload
+(defun org-starter-find-file-by-key (&optional arg)
+  "Visit an Org file quickly by key.
+
+With this command, you can quickly open a file by a key sequence specified as
+:key property of the file.
+
+If prefix ARG is non-nil, open the file in other window."
+  (interactive "P")
+  (if arg
+      (org-starter--funcall-on-file-by-key
+       #'find-file-other-window "Find an Org file in other window:")
+    (org-starter--funcall-on-file-by-key
+     #'find-file "Find an Org file:")))
+
+(defun org-starter--refile-target-of-file (file)
+  (cl-assoc file (cl-remove-if-not (lambda (cell) (stringp (car cell)))
+                                   org-refile-targets)
+            :test 'file-equal-p))
+
+;;;###autoload
+(defun org-starter-refile-by-key (&optional arg)
+  "Run `org-refile' with the target limited to a file by key.
+
+With this command, you can quickly refile the current entry to a file by a key
+sequence specified as :key property of the file. "
+  (interactive "P")
+  (unless (derived-mode-p 'org-mode)
+    (error "Not in org-mode"))
+  (org-starter--funcall-on-file-by-key
+   (lambda (file)
+     (let ((org-refile-targets (list (or (org-starter--refile-target-of-file file)
+                                         `(,file :maxlevel . 9)))))
+       (org-refile arg)))
+   "Refile to file:"))
+
 (defun org-starter--bind-file-key (key fpath)
   "Bind KEY to a command to visit FPATH."
-  (let ((command-name (org-starter--file-command-name fpath)))
-    (define-key 'org-starter-file-map key
-      (if (and org-starter-define-file-commands
-               (fboundp command-name))
-          command-name
-        `(lambda () (interactive) (find-file ,fpath))))))
+  (cl-pushnew (cons key fpath) org-starter-key-file-alist
+              :key 'car :test 'equal)
+  ;; (let ((command-name (org-starter--file-command-name fpath)))
+  ;;   (define-key 'org-starter-file-map key
+  ;;     (if (and org-starter-define-file-commands
+  ;;              (fboundp command-name))
+  ;;         command-name
+  ;;       `(lambda () (interactive) (find-file ,fpath)))))
+  )
 
 ;;;;; Defining a file
 
