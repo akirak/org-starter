@@ -35,6 +35,21 @@
 (require 'helm)
 (require 'cl-lib)
 
+(defclass helm-org-starter-known-file-source-class (helm-source-sync)
+  ((candidates :initform
+               (lambda ()
+                 (cl-loop for fpath in org-starter-known-files
+                          collect (cons (helm-org-starter--format-file-candidate fpath)
+                                        fpath))))))
+
+(defcustom helm-org-starter-file-actions
+  '(("Find file" . find-file))
+  "Customizable action list for helm-org-starter.
+
+The function in each item takes a file name as the argument."
+  :group 'helm-org-starter
+  :type '(alist :key-type string :value-type function))
+
 (defcustom helm-org-starter-buffer-sort-method nil
   "How to sort buffer entries in each Helm source."
   :group 'helm-org-starter
@@ -142,6 +157,22 @@ METHOD is a symbol that is supported by `helm-org-starter-buffer-sort-method'."
     (cl-loop for (name . symbol) in captions
              collect (helm-org-starter--make-source-from-buffers name
                        (alist-get symbol groups)))))
+
+(defun helm-org-starter--format-file-candidate (filename)
+  "Format a helm candidate title for FILENAME."
+  (if-let ((buf (find-buffer-visiting filename)))
+      (helm-org-starter--format-buffer-candidate buf)
+    (abbreviate-file-name filename)))
+
+(defvar helm-org-starter-known-file-source
+  (helm-make-source "org-starter known files"
+      'helm-org-starter-known-file-source-class
+    :action 'helm-org-starter-file-actions))
+
+(defun helm-org-starter-known-files ()
+  "Helm for `org-starter-known-files'."
+  (interactive)
+  (helm :sources 'helm-org-starter-known-file-source))
 
 (defun helm-org-starter-create-file-in-known-directory (filename)
   "Create FILENAME in a known directory via a Helm interface."
