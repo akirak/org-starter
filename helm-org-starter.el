@@ -169,6 +169,7 @@ METHOD is a symbol that is supported by `helm-org-starter-buffer-sort-method'."
       'helm-org-starter-known-file-source-class
     :action 'helm-org-starter-file-actions))
 
+;;;###autoload
 (defun helm-org-starter-known-files ()
   "Helm for `org-starter-known-files'."
   (interactive)
