@@ -23,6 +23,8 @@ to use-package. The following is an example file configuration with org-starter:
 
 Not available on MELPA yet
 
+Install dash.el
+
 ## Configuration
 
 ### Load path for org files

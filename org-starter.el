@@ -33,6 +33,7 @@
 (require 'org)
 (require 'cl-lib)
 (require 'subr-x)
+(require 'dash)
 
 ;;;; Compatibility
 
@@ -389,6 +390,7 @@ sequence specified as :key property of the file. "
                                             agenda
                                             refile
                                             set-default
+                                            capture
                                             key
                                             local-variables)
   "Define an org file.
@@ -417,6 +419,10 @@ If you specify variable names as a list of symbols in SET-DEFAULT, those
 variables are set to the path of the defined file using `set-default'.
 For example, you can use this function to set `org-default-notes-file' based
 on the actual path.
+
+CAPTURE specifies a list of `org-capture' templates into the file.
+To properly override an existing template with the same key, items in
+`org-capture-templates' should be sorted lexicographically by key.
 
 KEY is a string to represent a key binding used to jump to the file.
 If this property is nil, the file will not be bound on the map.
@@ -448,6 +454,28 @@ names and values."
                   (if pair
                       (setf (cdr pair) refile)
                     (add-to-list 'org-refile-targets (cons fpath refile) 'append))))
+              (dolist (spec capture)
+                (let ((target (pcase (nth 3 spec)
+                                ('file `(file ,fpath))
+                                (`(file+headline ,headline) `(file+headline ,fpath ,headline))
+                                (`(file+olp . ,olp) `(file+olp ,fpath ,@olp))
+                                (`(file+regexp ,regexp)
+                                 `(file+regexp ,fpath ,regexp))
+                                (`(file+olp+datetree . ,olp)
+                                 `(file+olp+datetree ,fpath ,@olp))
+                                (`(file+function ,function)
+                                 `(file+function ,fpath ,function)))))
+                  (setf (car (nthcdr 3 spec)) target)
+                  (cl-destructuring-bind
+                      (former latter)
+                      (--split-with (string< (car it) (car spec))
+                                    org-capture-templates)
+                    (setq org-capture-templates
+                          `(,@former
+                            ,spec
+                            ,@(if (string-equal (caar latter) (car spec))
+                                  (cdr latter)
+                                latter))))))
               (when key
                 (org-starter--bind-file-key key fpath))
               (when local-variables
