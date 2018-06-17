@@ -474,16 +474,7 @@ names and values."
                                 (`(file+function ,function)
                                  `(file+function ,fpath ,function)))))
                   (setf (car (nthcdr 3 spec)) target)
-                  (cl-destructuring-bind
-                      (former latter)
-                      (--split-with (string< (car it) (car spec))
-                                    org-capture-templates)
-                    (setq org-capture-templates
-                          `(,@former
-                            ,spec
-                            ,@(if (string-equal (caar latter) (car spec))
-                                  (cdr latter)
-                                latter))))))
+                  (org-starter--add-capture-template spec)))
               (when key
                 (org-starter--bind-file-key key fpath))
               (when local-variables
@@ -493,6 +484,19 @@ names and values."
       (error "Required org file %s is not found" filename))
      ((not deprecated)
       (org-starter--log-error "%s is missing" filename)))))
+
+(defun org-starter--add-capture-template (spec)
+  "Insert SPEC into `org-capture-templates'."
+  (cl-destructuring-bind
+      (former latter)
+      (--split-with (string< (car it) (car spec))
+                    org-capture-templates)
+    (setq org-capture-templates
+          `(,@former
+            ,spec
+            ,@(if (string-equal (caar latter) (car spec))
+                  (cdr latter)
+                latter)))))
 
 (defun org-starter-undefine-file (filename)
   "Delete an entry with FILENAME from the list of known files."
