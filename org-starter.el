@@ -43,6 +43,12 @@
       (defalias 'when-let* #'when-let)
       (function-put #'when-let* 'lisp-indent-function 1))))
 
+;;;; Custom variables
+(defcustom org-starter-capture-template-map-function nil
+  "A function used to transform each entry in org-capture templates."
+  :type 'function
+  :group 'org-starter)
+
 ;;;; The error buffer and error logging
 ;; This is used by `org-starter-verify-configuration'.
 
@@ -454,7 +460,9 @@ names and values."
                   (if pair
                       (setf (cdr pair) refile)
                     (add-to-list 'org-refile-targets (cons fpath refile) 'append))))
-              (dolist (spec capture)
+              (dolist (spec (mapcar (or org-starter-capture-template-map-function
+                                        #'identity)
+                                    capture))
                 (let ((target (pcase (nth 3 spec)
                                 ('file `(file ,fpath))
                                 (`(file+headline ,headline) `(file+headline ,fpath ,headline))
