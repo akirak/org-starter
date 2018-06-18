@@ -23,7 +23,8 @@ to use-package. The following is an example file configuration with org-starter:
 
 Not available on MELPA yet
 
-Install dash.el
+- dash.el
+- memoize
 
 ## Configuration
 
@@ -68,6 +69,13 @@ It is sometimes convenient to load a specific set of Org files into Emacs as buf
 ### Helm interface to visit an Org file
 
 A separate package `helm-org-starter.el` provides a Helm command named `helm-org-starter` which you can use to select an Org file in various categories or create a new one in a known directory.
+
+### Counsel interface
+
+`counsel-org-starter.el` file provides the following commands:
+
+- `counsel-org-starter-known-file`, which lets you choose a known file
+- `counsel-org-starter`, which lets you choose a known file or a file in `org-agenda-files`
 
 ## License
 
