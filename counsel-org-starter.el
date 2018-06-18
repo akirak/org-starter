@@ -34,6 +34,7 @@
 (require 'org-starter)
 (require 'cl-lib)
 (require 'seq)
+(require 'memoize)
 
 (defcustom counsel-org-starter-goto-beginning nil
   "If non-nil, jump to the beginning of the file."
@@ -72,6 +73,8 @@ result."
                 (mapcar #'abbreviate-file-name
                         (seq-difference (org-agenda-files) files #'file-equal-p)))
       filenames)))
+
+(memoize 'counsel-org-starter--file-list)
 
 (defun counsel-org-starter-known-file (&optional arg)
   "Choose a known file.
