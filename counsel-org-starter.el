@@ -32,6 +32,8 @@
 
 (require 'ivy)
 (require 'org-starter)
+(require 'cl-lib)
+(require 'seq)
 
 (defcustom counsel-org-starter-goto-beginning nil
   "If non-nil, jump to the beginning of the file."
@@ -48,20 +50,50 @@
         (goto-char (point-min))))
     buf))
 
+(defun counsel-org-starter--file-list (deprecated agenda-files)
+  "Return a list of known Org files.
+
+By default, this function returns a list of files in `org-starter-known-file',
+excluding deprecated files. Each file name in the result does not contain its
+directory.
+
+If DEPRECATED is non-nil, the result includes deprecated files.
+
+If AGENDA-FILES is non-nil, files in `org-agenda-files` are appended to the
+result."
+  (let ((files (copy-list org-starter-known-files))
+        filenames)
+    (unless deprecated
+      (cl-delete-if (lambda (fpath) (member fpath org-starter-deprecated-files))
+                    files))
+    (setq filenames (mapcar #'file-name-nondirectory files))
+    (if agenda-files
+        (append filenames
+                (mapcar #'abbreviate-file-name
+                        (seq-difference (org-agenda-files) files #'file-equal-p)))
+      filenames)))
+
 (defun counsel-org-starter-known-file (&optional arg)
   "Choose a known file.
 
 If prefix ARG is given, deprecated files are included in the candidates."
   (interactive "P")
-  (let ((files (copy-list org-starter-known-files)))
-    (unless arg
-      (cl-delete-if (lambda (fpath) (member fpath org-starter-deprecated-files))
-                    files))
-    (ivy-read "org-starter known file: "
-              (mapcar #'file-name-nondirectory files)
-              :caller 'counsel-org-starter-known-file
-              :action (lambda (cand)
-                        (switch-to-buffer (counsel-org-starter--get-buffer cand))))))
+  (ivy-read "org-starter known file: "
+            (counsel-org-starter--file-list arg)
+            :caller 'counsel-org-starter-known-file
+            :action (lambda (cand)
+                      (switch-to-buffer (counsel-org-starter--get-buffer cand)))))
+
+(defun counsel-org-starter (&optional arg)
+  "Choose a known file or a file in `org-agenda-files'.
+
+If prefix ARG is given, deprecated files are included in the candidates."
+  (interactive "P")
+  (ivy-read "org-starter: "
+            (counsel-org-starter--file-list arg t)
+            :caller 'counsel-org-starter-known-file
+            :action (lambda (cand)
+                      (switch-to-buffer (counsel-org-starter--get-buffer cand)))))
 
 (ivy-add-actions
  #'counsel-org-starter-known-file
