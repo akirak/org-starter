@@ -50,7 +50,7 @@
         (goto-char (point-min))))
     buf))
 
-(defun counsel-org-starter--file-list (deprecated agenda-files)
+(defun counsel-org-starter--file-list (&optional deprecated agenda-files)
   "Return a list of known Org files.
 
 By default, this function returns a list of files in `org-starter-known-file',
