@@ -472,8 +472,12 @@ names and values."
                                 (`(file+olp+datetree . ,olp)
                                  `(file+olp+datetree ,fpath ,@olp))
                                 (`(file+function ,function)
-                                 `(file+function ,fpath ,function)))))
-                  (setf (car (nthcdr 3 spec)) target)
+                                 `(file+function ,fpath ,function))
+                                (orig orig))))
+                  ;; Override the target if and only if it has one
+                  ;; The spec can be a list of two elements, i.e. a group
+                  (when target
+                    (setf (car (nthcdr 3 spec)) target))
                   (org-starter--add-capture-template spec)))
               (when key
                 (org-starter--bind-file-key key fpath))
