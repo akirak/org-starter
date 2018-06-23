@@ -55,7 +55,7 @@
   "Return a list of known Org files.
 
 By default, this function returns a list of files in `org-starter-known-file',
-excluding deprecated files. Each file name in the result does not contain its
+excluding deprecated files.  Each file name in the result does not contain its
 directory.
 
 If DEPRECATED is non-nil, the result includes deprecated files.

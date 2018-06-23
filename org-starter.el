@@ -26,7 +26,7 @@
 
 ;;; Commentary:
 
-;; This package helps you configure org mode. See README for details.
+;; This package helps you configure org mode.  See README for details.
 
 ;;; Code:
 
@@ -45,7 +45,7 @@
 
 ;;;; Custom variables
 (defcustom org-starter-capture-template-map-function nil
-  "A function used to transform each entry in org-capture templates."
+  "A function used to transform each entry in `org-capture' templates."
   :type 'function
   :group 'org-starter)
 
@@ -66,6 +66,7 @@
   (setq org-starter-found-errors nil))
 
 (defun org-starter--create-error-buffer ()
+  "Return the error buffer."
   (or (get-buffer org-starter-error-buffer)
       (with-current-buffer (generate-new-buffer org-starter-error-buffer)
         (local-set-key "q" 'quit-window)
@@ -74,7 +75,9 @@
         (current-buffer))))
 
 (defun org-starter--log-error-no-newline (format-string &rest args)
-  "Variant of `org-starter--log-error' that does not append a newline."
+  "Variant of `org-starter--log-error' that does not append a newline.
+
+FORMAT-STRING is the format spec, and ARGS are parameters."
   (declare (indent 0))
   (with-current-buffer (org-starter--create-error-buffer)
     (let ((inhibit-read-only t))
@@ -82,7 +85,9 @@
   (setq org-starter-found-errors (1+ (or org-starter-found-errors 0))))
 
 (defun org-starter--log-error (format-string &rest args)
-  "An alternative to `message' which logs a string to `org-starter-error-buffer'."
+  "Like `message', but logs a string to `org-starter-error-buffer'.
+
+FORMAT-STRING is the format spec, and ARGS are parameters."
   (declare (indent 0))
   (org-starter--log-error-no-newline (concat format-string "\n") args))
 
@@ -123,8 +128,8 @@ the FILENAME."
   "Search FILENAME from DIRECTORY and `org-starter-path' and return its path.
 
 This function returns an existing path to a file which has the same
-sans-directory file name as FILENAME. If such a file is not found, this function
-returns nil.
+sans-directory file name as FILENAME.  If such a file is not found, this
+function returns nil.
 
 If CHECK-KNOWN-FILES is non-nil, `org-starter-known-files' is first checked for
 the FILENAME."
@@ -168,7 +173,7 @@ OBJ should be a symbol, or a list of symbols."
               (const :tag "Exclude files in path" 'path)))
 
 (defun org-starter-recentf-excluded-p (file)
-  "If STATUS is non-nil, exclude known files from recentf."
+  "Check if FILE is an org-starter file that should be excluded from recentf."
   (and (listp org-starter-exclude-from-recentf)
        org-starter-exclude-from-recentf
        (or (and (memq 'known-files org-starter-exclude-from-recentf)
@@ -292,13 +297,13 @@ except for `:directory' option. You can define files in the directory."
   "Define commands to find a specific file.
 
 When non-nil, org-starter define commands to find (or jump to) a specific file
-defined by `org-starter-define-file'. The defined commands are also used to
+defined by `org-starter-define-file'.  The defined commands are also used to
 bind keys to files.
 
 This is convenient for the follwing
 reasons:
 
-- You can access a file quickly using \"M-x\".
+- You can access a file quickly using \\[execute-command\\].
 - You can use the command names for which-key replacements."
   :group 'org-starter
   :type '(choice (const :tag "All defined files" all)
@@ -315,6 +320,7 @@ This is applicable when `org-starter-define-file-commands' is non-nil."
   :group 'org-starter)
 
 (defmacro org-starter--file-command-name (fpath)
+  "Build a command name for FPATH."
   `(intern (format org-starter-file-command-template (file-name-base ,fpath))))
 
 (defun org-starter--define-file-command (fpath)
@@ -327,6 +333,7 @@ This is applicable when `org-starter-define-file-commands' is non-nil."
 (defvar org-starter-key-file-alist nil)
 
 (defun org-starter--funcall-on-file-by-key (func &optional prompt)
+  "Apply FUNC on a file retrieved by a key with PROMPT."
   (let ((map (make-sparse-keymap))
         (message-log-max nil)
         (msg (mapconcat (lambda (cell) (format "[%s]: %s"
@@ -355,6 +362,7 @@ If prefix ARG is non-nil, open the file in other window."
      #'find-file "Find an Org file:")))
 
 (defun org-starter--refile-target-of-file (file)
+  "Get a refile target spec to FILE."
   (cl-assoc file (cl-remove-if-not (lambda (cell) (stringp (car cell)))
                                    org-refile-targets)
             :test 'file-equal-p))
@@ -364,7 +372,9 @@ If prefix ARG is non-nil, open the file in other window."
   "Run `org-refile' with the target limited to a file by key.
 
 With this command, you can quickly refile the current entry to a file by a key
-sequence specified as :key property of the file. "
+sequence specified as :key property of the file.
+
+ARG is passed to `org-refile' function."
   (interactive "P")
   (unless (derived-mode-p 'org-mode)
     (error "Not in org-mode"))
