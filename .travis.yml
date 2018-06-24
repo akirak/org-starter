@@ -20,6 +20,5 @@ before_install:
 install:
 - make install
 script:
-- make test                     # test uncompiled
+- make lint                     # test uncompiled
 - make compile                  # test compilation
-- make test                     # test compiled
