@@ -34,6 +34,7 @@
 (require 'cl-lib)
 (require 'subr-x)
 (require 'dash)
+(require 'org-capture)
 
 ;;;; Compatibility
 

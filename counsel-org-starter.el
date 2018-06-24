@@ -4,7 +4,7 @@
 
 ;; Author: Akira Komamura <akira.komamura@gmail.com>
 ;; Version: 1.0-pre
-;; Package-Requires: ((emacs "25.1") (ivy "0.10"))
+;; Package-Requires: ((emacs "25.1") (ivy "0.10") (memoize "1.1"))
 ;; URL: https://github.com/akirak/org-starter
 
 ;; This file is not part of GNU Emacs.
@@ -62,7 +62,7 @@ If DEPRECATED is non-nil, the result includes deprecated files.
 
 If AGENDA-FILES is non-nil, files in `org-agenda-files` are appended to the
 result."
-  (let ((files (copy-list org-starter-known-files))
+  (let ((files (cl-copy-list org-starter-known-files))
         filenames)
     (unless deprecated
       (cl-delete-if (lambda (fpath) (member fpath org-starter-deprecated-files))
