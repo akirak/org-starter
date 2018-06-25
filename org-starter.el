@@ -474,22 +474,7 @@ names and values."
               (dolist (spec (mapcar (or org-starter-capture-template-map-function
                                         #'identity)
                                     capture))
-                (let ((target (pcase (nth 3 spec)
-                                ('file `(file ,fpath))
-                                (`(file+headline ,headline) `(file+headline ,fpath ,headline))
-                                (`(file+olp . ,olp) `(file+olp ,fpath ,@olp))
-                                (`(file+regexp ,regexp)
-                                 `(file+regexp ,fpath ,regexp))
-                                (`(file+olp+datetree . ,olp)
-                                 `(file+olp+datetree ,fpath ,@olp))
-                                (`(file+function ,function)
-                                 `(file+function ,fpath ,function))
-                                (orig orig))))
-                  ;; Override the target if and only if it has one
-                  ;; The spec can be a list of two elements, i.e. a group
-                  (when target
-                    (setf (car (nthcdr 3 spec)) target))
-                  (org-starter--add-capture-template spec)))
+                (org-starter-add-file-capture-template fpath spec))
               (when key
                 (org-starter--bind-file-key key fpath))
               (when local-variables
@@ -526,6 +511,33 @@ names and values."
     (cl-delete fpath org-refile-targets :key #'car)
     (cl-delete fpath org-starter-known-files)
     (message "Deleted %s from org-starter-known-files" fpath)))
+
+;;;;; Configure a particular aspect of a file
+(defun org-starter-add-file-capture-template (file spec)
+  "Add a capture template for an already defined file.
+
+FILE is a file name or a file path as passed to `org-starter-locate-file'
+as the first argument.
+
+SPEC is the same as an item in :capture option of `org-starter-define-file'."
+  (declare (indent 1))
+  (let* ((fpath (org-starter-locate-file file nil t))
+         (target (pcase (nth 3 spec)
+                   ('file `(file ,fpath))
+                   (`(file+headline ,headline) `(file+headline ,fpath ,headline))
+                   (`(file+olp . ,olp) `(file+olp ,fpath ,@olp))
+                   (`(file+regexp ,regexp)
+                    `(file+regexp ,fpath ,regexp))
+                   (`(file+olp+datetree . ,olp)
+                    `(file+olp+datetree ,fpath ,@olp))
+                   (`(file+function ,function)
+                    `(file+function ,fpath ,function))
+                   (orig orig))))
+    ;; Override the target if and only if it has one
+    ;; The spec can be a list of two elements, i.e. a group
+    (when target
+      (setf (car (nthcdr 3 spec)) target))
+    (org-starter--add-capture-template spec)))
 
 ;;;; Miscellaneous functionality
 
