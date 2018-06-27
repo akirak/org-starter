@@ -43,7 +43,7 @@
 
 (defun counsel-org-starter--get-buffer (filename)
   "Get a buffer visiting a known file named FILENAME (with/without its directory)."
-  (let* ((fpath (org-starter-locate-file filename))
+  (let* ((fpath (org-starter-locate-file filename nil t))
          (buf (or (find-buffer-visiting fpath)
                   (find-file-noselect fpath))))
     (when counsel-org-starter-goto-beginning
