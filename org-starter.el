@@ -368,13 +368,13 @@ If PARENT-MAP is given, use it as the parent map."
                                                (car cell)
                                                (file-name-nondirectory (cdr cell))))
                         org-starter-key-file-alist "\n")))
-    (cl-loop for (key . file) in org-starter-key-file-alist
-             do (define-key map key
-                  (lambda () (interactive) (funcall func file))))
+    (dolist (cell org-starter-key-file-alist)
+      (define-key map (car cell)
+        (lambda () (interactive) (funcall func (cdr cell)))))
     (message (if prompt (concat prompt "\n" msg) msg))
-    (set-transient-map  (if parent-map
-                            (make-composed-keymap map parent-map)
-                          map))))
+    (set-transient-map (if parent-map
+                           (make-composed-keymap map parent-map)
+                         map))))
 
 ;;;###autoload
 (defun org-starter-find-file-by-key (&optional arg)
