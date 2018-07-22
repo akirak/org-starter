@@ -410,10 +410,10 @@ specified as `org-starter-alternative-find-function' with the file
 as the argument."
   (interactive "P")
   (let* ((map (make-sparse-keymap))
-         (extra-help (cl-loop for (key command help) in org-starter-extra-find-file-map
+         (extra-help (cl-loop for (key command . help) in org-starter-extra-find-file-map
                               do (define-key map (kbd key) command)
                               when help
-                              concat (format "[%s]: %s" key help))))
+                              concat (format "[%s]: %s" key (car help)))))
     (pcase arg
       ('(4) (progn
               (define-key map (kbd "/") #'org-starter-select-file-other-window)
@@ -462,10 +462,10 @@ by default."
   (unless (derived-mode-p 'org-mode)
     (error "Not in org-mode"))
   (let* ((extra-map (make-sparse-keymap))
-         (extra-help (cl-loop for (key command help) in org-starter-extra-refile-map
+         (extra-help (cl-loop for (key command . help) in org-starter-extra-refile-map
                               do (define-key extra-map (kbd key) command)
                               when help
-                              concat (format "[%s]: %s" key help))))
+                              concat (format "[%s]: %s" key (car help)))))
     (org-starter--funcall-on-file-by-key
      (lambda (file)
        (let ((org-refile-targets (list (or (org-starter--refile-target-of-file file)
