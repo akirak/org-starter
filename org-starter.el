@@ -520,6 +520,7 @@ names and values."
                   (cdr latter)
                 latter)))))
 
+;;;###autoload
 (defun org-starter-undefine-file (filename)
   "Delete an entry with FILENAME from the list of known files."
   (interactive (list (completing-read "Known file to undefine: "
@@ -563,6 +564,7 @@ SPEC is the same as an item in :capture option of `org-starter-define-file'."
 
 ;;;; Miscellaneous functionality
 
+;;;###autoload
 (defun org-starter-cleanup-entries (&optional all)
   "Remove missing files and directories from various variables.
 
@@ -587,6 +589,7 @@ If ALL is non-nil, the following variables are also checked for missing entries:
                            (not (file-exists-p path)))))
                   org-refile-targets)))
 
+;;;###autoload
 (defun org-starter-verify-configuration ()
   "Check the current configuration."
   (interactive)
@@ -617,6 +620,7 @@ that are already loaded."
   (unless (find-buffer-visiting fpath)
     (find-file-noselect fpath)))
 
+;;;###autoload
 (defun org-starter-load-all-known-files ()
   "Load all files registered in `org-starter-known-files' into Emacs.
 
@@ -632,6 +636,7 @@ files are in buffers."
   (cl-loop for dpath in org-starter-path
            append (directory-files dpath t org-agenda-file-regexp)))
 
+;;;###autoload
 (defun org-starter-load-all-files-in-path ()
   "Load all org files in `org-starter-path' into Emacs.
 
