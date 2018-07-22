@@ -62,11 +62,14 @@ a sequence of two universal arguments are given."
   :type 'function)
 
 (defcustom org-starter-extra-refile-map
-  '(("/" . org-refile))
+  '(("/" org-refile "normal refile"))
   "Extra bindings available in `org-starter-refile-by-key'."
   :group 'org-starter
-  :type '(alist :key-type key-sequence
-                :value-type function))
+  :type '(repeat (list (string :tag "Key")
+                       (function :tag "Command")
+                       (choice :tag "Help"
+                               string
+                               (const nil)))))
 
 ;;;; The error buffer and error logging
 ;; This is used by `org-starter-verify-configuration'.
@@ -353,7 +356,8 @@ This is applicable when `org-starter-define-file-commands' is non-nil."
 
 (defun org-starter--funcall-on-file-by-key (func &optional
                                                  prompt
-                                                 parent-map)
+                                                 parent-map
+                                                 extra-help)
   "Pick an Org file by key and apply a function on it.
 
 This function picks an Org file by a key specified as :key argument
@@ -371,6 +375,8 @@ If PARENT-MAP is given, use it as the parent map."
     (dolist (cell org-starter-key-file-alist)
       (define-key map (car cell)
         (lambda () (interactive) (funcall func (cdr cell)))))
+    (when (and (stringp extra-help) (> (length extra-help) 0))
+      (setq msg (concat msg "\n" extra-help)))
     (message (if prompt (concat prompt "\n" msg) msg))
     (set-transient-map (if parent-map
                            (make-composed-keymap map parent-map)
@@ -440,19 +446,17 @@ by default."
   (interactive "P")
   (unless (derived-mode-p 'org-mode)
     (error "Not in org-mode"))
-  (org-starter--funcall-on-file-by-key
-   (lambda (file)
-     (let ((org-refile-targets (list (or (org-starter--refile-target-of-file file)
-                                         `(,file :maxlevel . 9)))))
-       (org-refile arg)))
-   "Refile to file:"
-   (let ((map (make-sparse-keymap)))
-     (cl-loop for (key . command) in org-starter-extra-refile-map
-              do (define-key map (if (stringp key)
-                                     (kbd key)
-                                   key)
-                   command))
-     map)))
+  (let* ((extra-map (make-sparse-keymap))
+         (extra-help (cl-loop for (key command help) in org-starter-extra-refile-map
+                              do (define-key extra-map (kbd key) command)
+                              when help
+                              concat (format "[%s]: %s" key help))))
+    (org-starter--funcall-on-file-by-key
+     (lambda (file)
+       (let ((org-refile-targets (list (or (org-starter--refile-target-of-file file)
+                                           `(,file :maxlevel . 9)))))
+         (org-refile arg)))
+     "Refile to file:" extra-map extra-help)))
 
 (defun org-starter--bind-file-key (key fpath)
   "Bind KEY to a command to visit FPATH."
