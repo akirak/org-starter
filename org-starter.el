@@ -621,6 +621,37 @@ that are already loaded."
     (find-file-noselect fpath)))
 
 ;;;###autoload
+(defun org-starter-select-file (prompt)
+  "Select a file from known files and agenda files.
+
+This function select an Org file using `completing-read' with PROMPT.
+
+If this function is called interactively, it visits the selected file.
+If a prefix argument is given, it visits the selected file in
+other window."
+  (interactive
+   (list "Select an Org file: "))
+  (let ((file (completing-read
+               prompt
+               (cl-remove-duplicates
+                (mapcar #'abbreviate-file-name
+                        (append org-starter-known-files
+                                (org-agenda-files)))
+                :test #'string-equal) nil 'require-match)))
+    (if (called-interactively-p nil)
+        (if prefix-argument
+            (find-file-other-window file)
+          (find-file file))
+      (expand-file-name file))))
+
+;;;###autoload
+(defun org-starter-select-file-other-window ()
+  "A variant of `org-starter-select-file' targetting other window."
+  (interactive)
+  (find-file-other-window
+   (org-starter-select-file "Select an Org file in other window: ")))
+
+;;;###autoload
 (defun org-starter-load-all-known-files ()
   "Load all files registered in `org-starter-known-files' into Emacs.
 
