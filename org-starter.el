@@ -704,7 +704,7 @@ other window."
                                 (org-agenda-files)))
                 :test #'string-equal) nil 'require-match)))
     (if (called-interactively-p nil)
-        (if prefix-argument
+        (if current-prefix-arg
             (find-file-other-window file)
           (find-file file))
       (expand-file-name file))))
