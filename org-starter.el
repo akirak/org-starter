@@ -413,7 +413,7 @@ as the argument."
          (extra-help (cl-loop for (key command . help) in org-starter-extra-find-file-map
                               do (define-key map (kbd key) command)
                               when help
-                              concat (format "[%s]: %s" key (car help)))))
+                              concat (format "[%s]: %s\n" key (car help)))))
     (pcase arg
       ('(4) (progn
               (define-key map (kbd "/") #'org-starter-select-file-other-window)
@@ -465,7 +465,7 @@ by default."
          (extra-help (cl-loop for (key command . help) in org-starter-extra-refile-map
                               do (define-key extra-map (kbd key) command)
                               when help
-                              concat (format "[%s]: %s" key (car help)))))
+                              concat (format "[%s]: %s\n" key (car help)))))
     (org-starter--funcall-on-file-by-key
      (lambda (file)
        (let ((org-refile-targets (list (or (org-starter--refile-target-of-file file)
