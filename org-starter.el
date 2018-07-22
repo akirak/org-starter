@@ -61,6 +61,16 @@ a sequence of two universal arguments are given."
   :group 'org-starter
   :type 'function)
 
+(defcustom org-starter-extra-find-file-map
+  nil
+  "Extra bindings available in `org-starter-find-file-by-key'."
+  :group 'org-starter
+  :type '(repeat (list (string :tag "Key")
+                       (function :tag "Command")
+                       (choice :tag "Help"
+                               string
+                               (const nil)))))
+
 (defcustom org-starter-extra-refile-map
   '(("/" org-refile "normal refile"))
   "Extra bindings available in `org-starter-refile-by-key'."
@@ -399,30 +409,35 @@ If two universal prefix arguments (C-u C-u) is given, call a function
 specified as `org-starter-alternative-find-function' with the file
 as the argument."
   (interactive "P")
-  (pcase arg
-    ('(4) (org-starter--funcall-on-file-by-key
-           #'find-file-other-window "Find an Org file in other window:"
-           (let ((map (make-sparse-keymap)))
-             (define-key map (kbd "/") #'org-starter-select-file-other-window)
-             map)))
-    ('(16) (org-starter--funcall-on-file-by-key
-            org-starter-alternative-find-function
-            (format "Call %s:"
-                    (if (symbolp org-starter-alternative-find-function)
-                        (symbol-name org-starter-alternative-find-function)
-                      "the function"))
-            (let ((map (make-sparse-keymap)))
-              (define-key map (kbd "/")
-                (lambda ()
-                  (interactive)
-                  (funcall org-starter-alternative-find-function
-                           (org-starter-select-file "Select an Org file: "))))
-              map)))
-    (_ (org-starter--funcall-on-file-by-key
-        #'find-file "Find an Org file:"
-        (let ((map (make-sparse-keymap)))
-          (define-key map (kbd "/") #'org-starter-select-file)
-          map)))))
+  (let* ((map (make-sparse-keymap))
+         (extra-help (cl-loop for (key command help) in org-starter-extra-find-file-map
+                              do (define-key map (kbd key) command)
+                              when help
+                              concat (format "[%s]: %s" key help))))
+    (pcase arg
+      ('(4) (progn
+              (define-key map (kbd "/") #'org-starter-select-file-other-window)
+              (org-starter--funcall-on-file-by-key
+               #'find-file-other-window "Find an Org file in other window:"
+               map extra-help)))
+      ('(16) (progn
+               (define-key map (kbd "/")
+                 (lambda ()
+                   (interactive)
+                   (funcall org-starter-alternative-find-function
+                            (org-starter-select-file "Select an Org file: "))))
+               (org-starter--funcall-on-file-by-key
+                org-starter-alternative-find-function
+                (format "Call %s:"
+                        (if (symbolp org-starter-alternative-find-function)
+                            (symbol-name org-starter-alternative-find-function)
+                          "the function"))
+                map extra-help)))
+      (_ (progn
+           (define-key map (kbd "/") #'org-starter-select-file)
+           (org-starter--funcall-on-file-by-key
+            #'find-file "Find an Org file:"
+            map extra-help))))))
 
 (defun org-starter--refile-target-of-file (file)
   "Get a refile target spec to FILE."
