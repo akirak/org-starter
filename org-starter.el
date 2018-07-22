@@ -50,6 +50,17 @@
   :type 'function
   :group 'org-starter)
 
+(defcustom org-starter-alternative-find-function
+  (cond
+   ((fboundp 'helm-org-rifle-files) #'helm-org-rifle-files)
+   (t #'dired-jump))
+  "An alternative function to find an Org file.
+
+This function is called by `org-starter-find-file-by-key' when
+a sequence of two universal arguments are given."
+  :group 'org-starter
+  :type 'function)
+
 ;;;; The error buffer and error logging
 ;; This is used by `org-starter-verify-configuration'.
 
@@ -354,13 +365,24 @@ This is applicable when `org-starter-define-file-commands' is non-nil."
 With this command, you can quickly open a file by a key sequence specified as
 :key property of the file.
 
-If prefix ARG is non-nil, open the file in other window."
+If a universal prefix (C-u) is given as ARG, open the file in other
+window.
+
+If two universal prefix arguments (C-u C-u) is given, call a function
+specified as `org-starter-alternative-find-function' with the file
+as the argument."
   (interactive "P")
-  (if arg
-      (org-starter--funcall-on-file-by-key
-       #'find-file-other-window "Find an Org file in other window:")
-    (org-starter--funcall-on-file-by-key
-     #'find-file "Find an Org file:")))
+  (pcase arg
+    ('(4) (org-starter--funcall-on-file-by-key
+           #'find-file-other-window "Find an Org file in other window:"))
+    ('(16) (org-starter--funcall-on-file-by-key
+            org-starter-alternative-find-function
+            (format "Call %s:"
+                    (if (symbolp org-starter-alternative-find-function)
+                        (symbol-name org-starter-alternative-find-function)
+                      "the function"))))
+    (_ (org-starter--funcall-on-file-by-key
+        #'find-file "Find an Org file:"))))
 
 (defun org-starter--refile-target-of-file (file)
   "Get a refile target spec to FILE."
