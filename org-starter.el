@@ -344,8 +344,17 @@ This is applicable when `org-starter-define-file-commands' is non-nil."
 
 (defvar org-starter-key-file-alist nil)
 
-(defun org-starter--funcall-on-file-by-key (func &optional prompt)
-  "Apply FUNC on a file retrieved by a key with PROMPT."
+(defun org-starter--funcall-on-file-by-key (func &optional
+                                                 prompt
+                                                 parent-map)
+  "Pick an Org file by key and apply a function on it.
+
+This function picks an Org file by a key specified as :key argument
+of `org-starter-define-file', and apply FUNC on it.
+
+If PROMPT is given, use it as the prompt.
+
+If PARENT-MAP is given, use it as the parent map."
   (let ((map (make-sparse-keymap))
         (message-log-max nil)
         (msg (mapconcat (lambda (cell) (format "[%s]: %s"
@@ -356,14 +365,19 @@ This is applicable when `org-starter-define-file-commands' is non-nil."
              do (define-key map key
                   (lambda () (interactive) (funcall func file))))
     (message (if prompt (concat prompt "\n" msg) msg))
-    (set-transient-map map)))
+    (set-transient-map  (if parent-map
+                            (make-composed-keymap map parent-map)
+                          map))))
 
 ;;;###autoload
 (defun org-starter-find-file-by-key (&optional arg)
   "Visit an Org file quickly by key.
 
-With this command, you can quickly open a file by a key sequence specified as
-:key property of the file.
+With this command, you can quickly open a file by a key sequence
+specified as :key property of the file.
+
+To access a file which is not assigned a key, you can select it
+using `completing-read' by pressing \"/\" key.
 
 If a universal prefix (C-u) is given as ARG, open the file in other
 window.
@@ -374,15 +388,28 @@ as the argument."
   (interactive "P")
   (pcase arg
     ('(4) (org-starter--funcall-on-file-by-key
-           #'find-file-other-window "Find an Org file in other window:"))
+           #'find-file-other-window "Find an Org file in other window:"
+           (let ((map (make-sparse-keymap)))
+             (define-key map (kbd "/") #'org-starter-select-file-other-window)
+             map)))
     ('(16) (org-starter--funcall-on-file-by-key
             org-starter-alternative-find-function
             (format "Call %s:"
                     (if (symbolp org-starter-alternative-find-function)
                         (symbol-name org-starter-alternative-find-function)
-                      "the function"))))
+                      "the function"))
+            (let ((map (make-sparse-keymap)))
+              (define-key map (kbd "/")
+                (lambda ()
+                  (interactive)
+                  (funcall org-starter-alternative-find-function
+                           (org-starter-select-file "Select an Org file: "))))
+              map)))
     (_ (org-starter--funcall-on-file-by-key
-        #'find-file "Find an Org file:"))))
+        #'find-file "Find an Org file:"
+        (let ((map (make-sparse-keymap)))
+          (define-key map (kbd "/") #'org-starter-select-file)
+          map)))))
 
 (defun org-starter--refile-target-of-file (file)
   "Get a refile target spec to FILE."
