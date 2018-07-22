@@ -61,6 +61,13 @@ a sequence of two universal arguments are given."
   :group 'org-starter
   :type 'function)
 
+(defcustom org-starter-extra-refile-map
+  '(("/" . org-refile))
+  "Extra bindings available in `org-starter-refile-by-key'."
+  :group 'org-starter
+  :type '(alist :key-type key-sequence
+                :value-type function))
+
 ;;;; The error buffer and error logging
 ;; This is used by `org-starter-verify-configuration'.
 
@@ -424,7 +431,12 @@ as the argument."
 With this command, you can quickly refile the current entry to a file by a key
 sequence specified as :key property of the file.
 
-ARG is passed to `org-refile' function."
+ARG is passed to `org-refile' function.
+
+You can also access keybindings defined in
+`org-starter-extra-refile-map'.
+For example, you can run a normal `org-refile' by pressing \"/\" key
+by default."
   (interactive "P")
   (unless (derived-mode-p 'org-mode)
     (error "Not in org-mode"))
@@ -433,7 +445,14 @@ ARG is passed to `org-refile' function."
      (let ((org-refile-targets (list (or (org-starter--refile-target-of-file file)
                                          `(,file :maxlevel . 9)))))
        (org-refile arg)))
-   "Refile to file:"))
+   "Refile to file:"
+   (let ((map (make-sparse-keymap)))
+     (cl-loop for (key . command) in org-starter-extra-refile-map
+              do (define-key map (if (stringp key)
+                                     (kbd key)
+                                   key)
+                   command))
+     map)))
 
 (defun org-starter--bind-file-key (key fpath)
   "Bind KEY to a command to visit FPATH."
