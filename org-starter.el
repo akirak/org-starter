@@ -280,6 +280,7 @@ FILES is a list whose item accepts the same options as `org-starter-define-file'
 except for `:directory' option. You can define files in the directory."
   (declare (indent 1))
   (let ((exists (file-directory-p dpath)))
+    (setq dpath (expand-file-name (file-name-as-directory dpath)))
     (when (and ensure (not exists))
       (unless origin
         (error "%s is a required directory, but `:ensure' property is unset" dpath))
