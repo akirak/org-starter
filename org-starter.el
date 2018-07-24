@@ -590,6 +590,65 @@ is returned as the result of this function."
      ((not deprecated)
       (org-starter--log-error "%s is missing" filename)))))
 
+(defmacro org-starter-def (path &rest options)
+  "Define a file or a directory.
+
+This function calls either `org-starter-define-file' or
+`org-starter-define-directory' depending on the type of the file at
+PATH.  PATH should be an absolute path.
+
+OPTIONS are passed to the function after preprocessing.
+
+As well as options to one of those functions, `org-starter-def'
+supports an additional option \":config\", which is evaluated after
+the file/directory is defined.  This accepts multiple arguments.
+"
+  (declare (indent 1))
+  (setq options (org-starter--flatten-plist options))
+  (let ((config (plist-get options :config)))
+    (cl-remf options :config)
+    `(cond
+      ((file-directory-p ,path)
+       (when (apply #'org-starter-define-directory ,path (quote ,options))
+         ,@config
+         ,path))
+      ((file-exists-p ,path)
+       (when (apply #'org-starter-define-file ,path (quote ,options))
+         ,@config
+         ,path)))))
+
+(defun org-starter--flatten-plist (plist)
+  "Flatten PLIST for use in `org-starter-def'."
+  (let (result
+        arg)
+    (while (setq arg (pop plist))
+      (pcase arg
+        (:config
+         (-let [(args plist) (-split-with (-not #'org-starter--plist-keyword-p) plist)]
+           (push arg result)
+           (push args result)))
+        (:files
+         (-let [(args plist) (-split-with (-not #'org-starter--plist-keyword-p) plist)]
+           (push arg result)
+           (push (org-starter--files-arg args) result)))
+        ((pred org-starter--plist-keyword-p)
+         (progn
+           (push arg result)
+           (push (pop plist) result)))))
+    (nreverse result)))
+
+(defun org-starter--files-arg (args)
+  "Normalize ARGS given as \":files\" option."
+  (if (and (= 1 (length args))
+           (listp (caar args)))
+      (car args)
+    args))
+
+(defun org-starter--plist-keyword-p (arg)
+  "Return non-nil if ARG is a symbol starting with \":\""
+  (and (symbolp arg)
+       (string-equal (substring (symbol-name arg) 0 1) ":")))
+
 (defun org-starter--add-capture-template (spec)
   "Insert SPEC into `org-capture-templates'."
   (cl-destructuring-bind
