@@ -722,10 +722,8 @@ following variables:
 - `org-starter-known-directories'
 - `org-starter-known-files'
 
-If ALL is non-nil, the following variables are also checked for missing entries:
-
-- `org-agenda-files'
-- `org-refile-targets'"
+If ALL is non-nil, variable `org-agenda-files' and
+`org-refile-targets' are also checked for missing entries."
   (interactive "P")
   (cl-remove-if-not #'file-directory-p org-starter-known-directories)
   (cl-remove-if-not #'file-exists-p org-starter-known-files)
