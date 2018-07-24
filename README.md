@@ -51,6 +51,38 @@ You can also define Org files inside `org-starter-define-directory` form as `:fi
 
 For details, run `C-h f org-starter-define-file`.
 
+### `org-starter-def` macro
+
+You can also use `org-starter-def` define either a file or a directory. Depending on the type of the argument, it calls either `org-starter-define-file` or `org-starter-define-directory`. It supports the same functionality as the two functions, but it allows you to define files and directories slightly more concisely.
+
+It basically supports the same as options as `org-starter-define-file`/`org-starter-define-directory`, but it doesn't need quoting. For example, the following two directives are equivalent:
+
+``` emacs-lisp
+(org-starter-define-file "~/hello.org"
+:refile '(:maxlevel . 3))
+
+(org-starter-def "~/hello.org"
+:refile (:maxlevel . 3))
+```
+
+When you define a directory using `org-starter-def`, you can pass multiple arguments as `:files` option:
+
+``` emacs-lisp
+(org-starter-def "~/my-directory"
+  :files
+  ("file1.org" :agenda t)
+  ("file2.org" :agenda nil :required nil))
+```
+
+It also supports an additional option `:config`. Its argument is evaluated after the other options are applied, as in `use-package`. This is executed if and only if the file/directory exists. It can take multiple arguments:
+
+``` emacs-lisp
+(org-starter-def "~/my-directory"
+  :config
+  (do-something)
+  (do-another-thing))
+```
+
 ### Extras
 
 #### Locate a file
