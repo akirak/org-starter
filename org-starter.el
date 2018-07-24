@@ -282,7 +282,10 @@ These symbols are names of variables that should be set to the path
 of the directory.  `customize-set-variable' is used to set the value.
 
 FILES is a list whose item accepts the same options as `org-starter-define-file',
-except for `:directory' option. You can define files in the directory."
+except for `:directory' option. You can define files in the directory.
+
+If the directory exists and the configuration is done properly,
+the path to the directory is returned as the result of this function."
   (declare (indent 1))
   (let ((exists (file-directory-p dpath)))
     (setq dpath (expand-file-name (file-name-as-directory dpath)))
@@ -311,7 +314,8 @@ except for `:directory' option. You can define files in the directory."
     (cl-loop for (filename . options) in files
              do (apply #'org-starter-define-file filename :directory dpath
                        options))
-    (add-to-list 'org-starter-known-directories dpath)))
+    (add-to-list 'org-starter-known-directories dpath)
+    dpath))
 
 ;;;; Defining files
 ;;;;; File-local variables
@@ -545,7 +549,10 @@ LOCAL-VARIABLES allows you to specify file-local variables which should be set
 after org-mode is initialized. This can be done in the file footer, but it is
 sometimes convenient to be able to define them outside of the file, especially
 if you define a complex function. This option should be an alist of variable
-names and values."
+names and values.
+
+If the file exists and it is properly defined, the path to the file
+is returned as the result of this function."
   (declare (indent 1))
   (let ((fpath (org-starter-locate-file filename directory)))
     (cond
@@ -576,7 +583,8 @@ names and values."
                 (org-starter--bind-file-key key fpath))
               (when local-variables
                 (push (cons fpath local-variables) org-starter-file-local-variables))
-              (add-to-list 'org-starter-known-files fpath)))
+              (add-to-list 'org-starter-known-files fpath)
+              fpath))
      ((and (not deprecated) required)
       (error "Required org file %s is not found" filename))
      ((not deprecated)
