@@ -419,7 +419,7 @@ specified as :key property of the file.
 To access a file which is not assigned a key, you can select it
 using `completing-read' by pressing \"/\" key.
 
-If a universal prefix (C-u) is given as ARG, open the file in other
+If a universal prefix (\\<C-u>) is given as ARG, open the file in other
 window.
 
 If two universal prefix arguments (C-u C-u) is given, call a function
@@ -604,8 +604,7 @@ OPTIONS are passed to the function after preprocessing.
 
 As well as options to one of those functions, `org-starter-def'
 supports an additional option \":config\", which is evaluated after
-the file/directory is defined.  This accepts multiple arguments.
-"
+the file/directory is defined.  This accepts multiple arguments."
   (declare (indent 1))
   (setq options (org-starter--flatten-plist options))
   (let ((config (plist-get options :config)))
@@ -648,7 +647,7 @@ the file/directory is defined.  This accepts multiple arguments.
     args))
 
 (defun org-starter--plist-keyword-p (arg)
-  "Return non-nil if ARG is a symbol starting with \":\""
+  "Return non-nil if ARG is a symbol starting with \":\"."
   (and (symbolp arg)
        (string-equal (substring (symbol-name arg) 0 1) ":")))
 
