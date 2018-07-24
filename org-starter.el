@@ -258,6 +258,7 @@ identify the directory."
                                               origin
                                               ensure
                                               add-to-path
+                                              custom-vars
                                               files)
   "Define a directory that contains org files.
 
@@ -275,6 +276,10 @@ option is set and ENSURE option is non-nil, this function automatically clones
 the repository when the directory does not exist.
 
 If ADD-TO-PATH is non-nil, the directory is added to `org-starter-path'.
+
+CUSTOM-VARS can be either a symbol or a list of symbols.
+These symbols are names of variables that should be set to the path
+of the directory.  `customize-set-variable' is used to set the value.
 
 FILES is a list whose item accepts the same options as `org-starter-define-file',
 except for `:directory' option. You can define files in the directory."
@@ -299,6 +304,10 @@ except for `:directory' option. You can define files in the directory."
         (if pair
             (setf (cdr pair) refile)
           (add-to-list 'org-refile-targets (cons func refile) 'append))))
+    (dolist (symbol (cl-typecase custom-vars
+                      (list custom-vars)
+                      (symbol (list custom-vars))))
+      (customize-set-variable symbol dpath))
     (cl-loop for (filename . options) in files
              do (apply #'org-starter-define-file filename :directory dpath
                        options))
