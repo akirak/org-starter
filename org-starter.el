@@ -390,7 +390,9 @@ of `org-starter-define-file', and apply FUNC on it.
 
 If PROMPT is given, use it as the prompt.
 
-If PARENT-MAP is given, use it as the parent map."
+If PARENT-MAP is given, use it as the parent map.
+
+You can also append EXTRA-HELP to the help."
   (let ((map (make-sparse-keymap))
         (message-log-max nil)
         (msg (mapconcat (lambda (cell) (format "[%s]: %s"
