@@ -91,6 +91,12 @@ You can use `org-starter-locate-file` function to find an Org file contained in 
 
     (org-starter-locate-file "tasks.org")
 
+To locate a file which is not in the path but already registered (defined) as a known file, use the function with an extra third argument. This function first tries to find a file in the list of known files:
+
+``` emacs-lisp
+(org-starter-locate-file "file-not-in-path.org" nil t)
+```
+
 #### Load all known files
 
 It is sometimes convenient to load a specific set of Org files into Emacs as buffers. For example, you can search headings in the live Org buffers using `counsel-org-goto-all`.
