@@ -4,7 +4,7 @@
 
 ;; Author: Akira Komamura <akira.komamura@gmail.com>
 ;; Version: 0.1.0
-;; Package-Requires: ((emacs "25.1") (dash "2.10"))
+;; Package-Requires: ((emacs "25.1") (dash "2.12"))
 ;; URL: https://github.com/akirak/org-starter
 
 ;; This file is not part of GNU Emacs.
@@ -35,6 +35,8 @@
 (require 'subr-x)
 (require 'dash)
 (require 'org-capture)
+
+(declare-function -not "dash")
 
 ;;;; Compatibility
 
@@ -419,7 +421,7 @@ specified as :key property of the file.
 To access a file which is not assigned a key, you can select it
 using `completing-read' by pressing \"/\" key.
 
-If a universal prefix (\\<C-u>) is given as ARG, open the file in other
+If a universal prefix is given as ARG, open the file in other
 window.
 
 If two universal prefix arguments (C-u C-u) is given, call a function
@@ -626,11 +628,13 @@ the file/directory is defined.  This accepts multiple arguments."
     (while (setq arg (pop plist))
       (pcase arg
         (:config
-         (-let [(args plist) (-split-with (-not #'org-starter--plist-keyword-p) plist)]
+         (-let [(args plist2) (-split-with (-not #'org-starter--plist-keyword-p) plist)]
+           (setq plist plist2)
            (push arg result)
            (push args result)))
         (:files
-         (-let [(args plist) (-split-with (-not #'org-starter--plist-keyword-p) plist)]
+         (-let [(args plist2) (-split-with (-not #'org-starter--plist-keyword-p) plist)]
+           (setq plist plist2)
            (push arg result)
            (push (org-starter--files-arg args) result)))
         ((pred org-starter--plist-keyword-p)
