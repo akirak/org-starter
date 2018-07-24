@@ -53,7 +53,7 @@
 (defcustom org-starter-alternative-find-function
   (cond
    ((fboundp 'helm-org-rifle-files) #'helm-org-rifle-files)
-   (t #'dired-jump))
+   (t #'org-starter-sparse-tree-on-file))
   "An alternative function to find an Org file.
 
 This function is called by `org-starter-find-file-by-key' when
@@ -754,6 +754,11 @@ If ALL is non-nil, the following variables are also checked for missing entries:
   (when org-starter-found-errors
     (pop-to-buffer org-starter-error-buffer)
     (message "%d errors found" org-starter-found-errors)))
+
+(defun org-starter-sparse-tree-on-file (file)
+  "Run `org-sparse-tree' on FILE."
+  (find-file file)
+  (call-interactively #'org-sparse-tree))
 
 ;;;; Loading files
 
