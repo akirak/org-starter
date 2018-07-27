@@ -795,9 +795,11 @@ If ALL is non-nil, variable `org-agenda-files' and
                                        (cl-loop for fpath in deprecated-files
                                                 concat (format "- %s\n"
                                                                (abbreviate-file-name fpath)))))
-  (when org-starter-found-errors
-    (pop-to-buffer org-starter-error-buffer)
-    (message "%d errors found" org-starter-found-errors)))
+  (if org-starter-found-errors
+      (progn
+        (pop-to-buffer org-starter-error-buffer)
+        (message "%d errors found" org-starter-found-errors))
+    (message "No error")))
 
 (defun org-starter-sparse-tree-on-file (file)
   "Run `org-sparse-tree' on FILE."
