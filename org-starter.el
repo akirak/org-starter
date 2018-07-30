@@ -772,6 +772,16 @@ that are already loaded."
   (unless (find-buffer-visiting fpath)
     (find-file-noselect fpath)))
 
+(defun org-starter--complete-file (prompt)
+  "Select a known file or an agenda file using `completing-read'."
+  (expand-file-name
+   (completing-read prompt
+                    (cl-remove-duplicates
+                     (mapcar #'abbreviate-file-name
+                             (append org-starter-known-files
+                                     (org-agenda-files)))
+                     :test #'string-equal) nil 'require-match)))
+
 ;;;###autoload
 (defun org-starter-select-file (prompt)
   "Select a file from known files and agenda files.
@@ -780,21 +790,18 @@ This function select an Org file using `completing-read' with PROMPT.
 
 If this function is called interactively, it visits the selected file.
 If a prefix argument is given, it visits the selected file in
-other window."
+other window.
+
+If this function is called non-interactively, it returns the file path
+of the selected file."
   (interactive
    (list "Select an Org file: "))
-  (let ((file (completing-read
-               prompt
-               (cl-remove-duplicates
-                (mapcar #'abbreviate-file-name
-                        (append org-starter-known-files
-                                (org-agenda-files)))
-                :test #'string-equal) nil 'require-match)))
+  (let ((file (org-starter--complete-file)))
     (if (called-interactively-p nil)
         (if current-prefix-arg
             (find-file-other-window file)
           (find-file file))
-      (expand-file-name file))))
+      file)))
 
 ;;;###autoload
 (defun org-starter-select-file-other-window ()
