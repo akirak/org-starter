@@ -84,6 +84,13 @@ a sequence of two universal arguments are given."
   :group 'org-starter
   :type 'org-starter-bindings)
 
+(defcustom org-starter-extra-alternative-find-file-map
+  nil
+  "Extra bindings available in
+`org-starter-alternative-find-file-by-key'."
+  :group 'org-starter
+  :type 'org-starter-bindings)
+
 ;;;; The error buffer and error logging
 ;; This is used by `org-starter-verify-configuration'.
 
@@ -459,6 +466,42 @@ as the argument."
             #'find-file "Find an Org file:"
             map extra-help))))))
 
+;;;###autoload
+(defun org-starter-alternative-find-file-by-key (&optional arg)
+  "Visit an Org file using `org-starter-alternative-find-function'.
+
+This is like `org-starter-find-file-by-key' but uses
+`org-starter-alternative-find-function' to visit a file.
+Keys are configured as :key properties of files, which are the same
+as `org-starter-find-file-by-key'.
+
+To access a file which is not assigned a key, you can select it
+using `completing-read' by pressing \"/\" key.
+
+If a universal prefix is given as ARG, visit the file using
+`find-file'.
+
+Extra commands are configured in
+`org-starter-extra-alternative-find-file-map'."
+  (interactive "P")
+  (let* ((map (make-sparse-keymap))
+         (extra-help (cl-loop for (key command . help) in org-starter-extra-alternative-find-file-map
+                              do (define-key map (kbd key) command)
+                              when help
+                              concat (format "[%s]: %s\n" key (car help)))))
+    (pcase arg
+      ('(4) (progn
+              (define-key map (kbd "/") #'org-starter-select-file)
+              (org-starter--funcall-on-file-by-key
+               #'find-file "Find an Org file:"
+               map extra-help)))
+      (_ (progn
+           (define-key map (kbd "/") #'org-starter-select-file-alternative)
+           (org-starter--funcall-on-file-by-key
+            org-starter-alternative-find-function
+            "Visit an Org file using the alternative command:"
+            map extra-help))))))
+
 (defun org-starter--refile-target-of-file (file)
   "Get a refile target spec to FILE."
   (cl-assoc file (cl-remove-if-not (lambda (cell) (stringp (car cell)))
@@ -809,6 +852,17 @@ of the selected file."
   (interactive)
   (find-file-other-window
    (org-starter-select-file "Select an Org file in other window: ")))
+
+;;;###autoload
+(defun org-starter-select-file-alternative ()
+  "Select a file and visit it using the alternative command.
+
+This function behaves like `org-starter-select-file' but uses
+`org-starter-alternative-find-function' to visit a selected file."
+  (interactive)
+  (funcall org-starter-alternative-find-function
+           (org-starter--complete-file
+            "Visit a file using the alternative command: ")))
 
 ;;;###autoload
 (defun org-starter-load-all-known-files ()
