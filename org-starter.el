@@ -86,8 +86,7 @@ a sequence of two universal arguments are given."
 
 (defcustom org-starter-extra-alternative-find-file-map
   nil
-  "Extra bindings available in
-`org-starter-alternative-find-file-by-key'."
+  "Extra keybindings in `org-starter-alternative-find-file-by-key'."
   :group 'org-starter
   :type 'org-starter-bindings)
 
@@ -816,14 +815,17 @@ that are already loaded."
     (find-file-noselect fpath)))
 
 (defun org-starter--complete-file (prompt)
-  "Select a known file or an agenda file using `completing-read'."
+  "Select a known file or an agenda file using `completing-read'.
+
+PROMPT is the prompt displayed in the selection interface."
   (expand-file-name
    (completing-read prompt
                     (cl-remove-duplicates
                      (mapcar #'abbreviate-file-name
                              (append org-starter-known-files
                                      (org-agenda-files)))
-                     :test #'string-equal) nil 'require-match)))
+                     :test #'string-equal)
+                    nil 'require-match)))
 
 ;;;###autoload
 (defun org-starter-select-file (prompt)
@@ -839,7 +841,7 @@ If this function is called non-interactively, it returns the file path
 of the selected file."
   (interactive
    (list "Select an Org file: "))
-  (let ((file (org-starter--complete-file)))
+  (let ((file (org-starter--complete-file prompt)))
     (if (called-interactively-p nil)
         (if current-prefix-arg
             (find-file-other-window file)
