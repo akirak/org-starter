@@ -63,25 +63,26 @@ a sequence of two universal arguments are given."
   :group 'org-starter
   :type 'function)
 
-(defcustom org-starter-extra-find-file-map
-  nil
-  "Extra bindings available in `org-starter-find-file-by-key'."
-  :group 'org-starter
+(define-widget 'org-starter-bindings 'lazy
+  "List of custom keybindings."
+  :tag "Keybindings"
   :type '(repeat (list (string :tag "Key")
                        (function :tag "Command")
                        (choice :tag "Help"
                                string
                                (const nil)))))
 
+(defcustom org-starter-extra-find-file-map
+  nil
+  "Extra bindings available in `org-starter-find-file-by-key'."
+  :group 'org-starter
+  :type 'org-starter-bindings)
+
 (defcustom org-starter-extra-refile-map
   '(("/" org-refile "normal refile"))
   "Extra bindings available in `org-starter-refile-by-key'."
   :group 'org-starter
-  :type '(repeat (list (string :tag "Key")
-                       (function :tag "Command")
-                       (choice :tag "Help"
-                               string
-                               (const nil)))))
+  :type 'org-starter-bindings)
 
 ;;;; The error buffer and error logging
 ;; This is used by `org-starter-verify-configuration'.
