@@ -555,6 +555,7 @@ by default."
                                             deprecated
                                             agenda
                                             refile
+                                            custom-vars
                                             set-default
                                             capture
                                             key
@@ -581,10 +582,15 @@ If REFILE is set, the file is added to `org-refile-targets' with the option
 value. For example, if you set REFILE to \"'(:maxlevel . 5)\", then
 \"'(PATH (:maxlevel . 5))\" is added to `org-refile-targets'.
 
-If you specify variable names as a list of symbols in SET-DEFAULT, those
-variables are set to the path of the defined file using `set-default'.
+If you specify variable names as a list of symbols in CUSTOM-VARS, those
+variables are set to the path of the defined file using
+`customize-set-variable'.
 For example, you can use this function to set `org-default-notes-file' based
 on the actual path.
+
+SET-DEFAULT is almost the same as CUSTOM-VARS.  It exists only for
+backwards-compatibility.  It uses `set-default' instead of
+`customize-set-variable'.
 
 CAPTURE specifies a list of `org-capture' templates into the file.
 To properly override an existing template with the same key, items in
@@ -616,6 +622,8 @@ is returned as the result of this function."
                 (add-to-list 'org-starter-deprecated-files fpath))
               (when agenda
                 (add-to-list 'org-agenda-files fpath 'append #'file-equal-p))
+              (mapc (lambda (symbol) (customize-set-variable symbol fpath))
+                    (org-starter--to-symbol-list custom-vars))
               (mapc (lambda (symbol) (set-default symbol fpath))
                     (org-starter--to-symbol-list set-default))
               (when (and refile (not deprecated))
