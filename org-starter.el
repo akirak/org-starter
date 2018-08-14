@@ -720,7 +720,7 @@ the file/directory is defined.  This accepts multiple arguments."
                 latter)))))
 
 (defcustom org-starter-initial-capture-templates nil
-  "List of org-capture templates unassociated with files.
+  "List of capture templates unassociated with files.
 
 This is basically the same as `org-capture-templates', but when you
 set this variable using the customization interface, it doesn't delete
