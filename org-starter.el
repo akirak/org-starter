@@ -90,6 +90,16 @@ a sequence of two universal arguments are given."
   :group 'org-starter
   :type 'org-starter-bindings)
 
+(defcustom org-starter-require-file-by-default t
+  "When non-nil, require defined files by default.
+
+This is the default value of \":required\" option in
+`org-starter-define-file'.  If this option is non-nil,
+all files defined by org-starter must exist.  If a file does not
+exist, it throws an error.
+
+This option does not affect the behavior of directory definitions.")
+
 ;;;; The error buffer and error logging
 ;; This is used by `org-starter-verify-configuration'.
 
@@ -641,7 +651,9 @@ is returned as the result of this function."
                 (push (cons fpath local-variables) org-starter-file-local-variables))
               (add-to-list 'org-starter-known-files fpath)
               fpath))
-     ((and (not deprecated) required)
+     ((and (not deprecated)
+           org-starter-require-file-by-default
+           (not required))
       (error "Required org file %s is not found" filename))
      ((not deprecated)
       (org-starter--log-error "%s is missing" filename)))))
