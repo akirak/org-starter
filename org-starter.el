@@ -653,7 +653,7 @@ is returned as the result of this function."
               fpath))
      ((and (not deprecated)
            org-starter-require-file-by-default
-           (not required))
+           required)
       (error "Required org file %s is not found" filename))
      ((not deprecated)
       (org-starter--log-error "%s is missing" filename)))))
