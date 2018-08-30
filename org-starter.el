@@ -41,10 +41,11 @@
 ;;;; Compatibility
 
 (eval-and-compile
-  (when (version< emacs-version "26")
-    (with-no-warnings
-      (defalias 'when-let* #'when-let)
-      (function-put #'when-let* 'lisp-indent-function 1))))
+  (with-no-warnings
+    (if (version< emacs-version "26")
+        (defalias 'org-starter--when-let* #'when-let)
+      (defalias 'org-starter--when-let* #'when-let*))
+    (function-put #'org-starter--when-let* 'lisp-indent-function 1)))
 
 ;;;; Custom variables
 (defcustom org-starter-capture-template-map-function nil
@@ -110,10 +111,10 @@ This option does not affect the behavior of directory definitions.")
 
 (defun org-starter--clear-errors ()
   "Reset the status of the error buffer."
-  (when-let* ((buf (get-buffer org-starter-error-buffer)))
-    (with-current-buffer buf
-      (let ((inhibit-read-only t))
-        (erase-buffer))))
+  (org-starter--when-let* ((buf (get-buffer org-starter-error-buffer)))
+                          (with-current-buffer buf
+                            (let ((inhibit-read-only t))
+                              (erase-buffer))))
   (setq org-starter-found-errors nil))
 
 (defun org-starter--create-error-buffer ()
@@ -344,15 +345,15 @@ the path to the directory is returned as the result of this function."
 
 (defun org-starter-load-local-variables ()
   "Load local variables defined for the current buffer file by org-starter."
-  (when-let* ((fpath (buffer-file-name))
-              (vars (cl-assoc fpath org-starter-file-local-variables
-                              :test #'file-equal-p)))
-    (cl-loop for (symbol . value) in vars
-             do (cond
-                 ((symbolp symbol) (set (make-local-variable symbol) value))
-                 (t (error "Not a symbol: %s in %s"
-                           (prin1-to-string symbol)
-                           (prin1-to-string value)))))))
+  (org-starter--when-let* ((fpath (buffer-file-name))
+                           (vars (cl-assoc fpath org-starter-file-local-variables
+                                           :test #'file-equal-p)))
+                          (cl-loop for (symbol . value) in vars
+                                   do (cond
+                                       ((symbolp symbol) (set (make-local-variable symbol) value))
+                                       (t (error "Not a symbol: %s in %s"
+                                                 (prin1-to-string symbol)
+                                                 (prin1-to-string value)))))))
 (add-hook 'org-mode-hook #'org-starter-load-local-variables t)
 
 ;;;;; Keymap for visiting a known file (deprecated)
@@ -901,13 +902,13 @@ If ALL is non-nil, variable `org-agenda-files' and
            do (when (yes-or-no-p (format "%s no longer exists. Delete it from the known file list?"
                                          fpath))
                 (org-starter-undefine-file fpath)))
-  (when-let* ((deprecated-files (cl-remove-if-not #'file-exists-p
-                                                  org-starter-deprecated-files)))
-    (org-starter--log-error-no-newline "%d deprecated files still exist:\n%s"
-                                       (length deprecated-files)
-                                       (cl-loop for fpath in deprecated-files
-                                                concat (format "- %s\n"
-                                                               (abbreviate-file-name fpath)))))
+  (org-starter--when-let* ((deprecated-files (cl-remove-if-not #'file-exists-p
+                                                               org-starter-deprecated-files)))
+                          (org-starter--log-error-no-newline "%d deprecated files still exist:\n%s"
+                                                             (length deprecated-files)
+                                                             (cl-loop for fpath in deprecated-files
+                                                                      concat (format "- %s\n"
+                                                                                     (abbreviate-file-name fpath)))))
   (if org-starter-found-errors
       (progn
         (pop-to-buffer org-starter-error-buffer)
