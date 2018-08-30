@@ -683,8 +683,11 @@ the file/directory is defined.  This accepts multiple arguments."
                          (quote ,options))))
            ,@config
            r)
-       (when-let ((r (apply #'org-starter-define-file
-                            ,path
+       (when-let ((path (org-starter-locate-file ,path
+                                                 (plist-get (quote ,options)
+                                                            :directory)))
+                  (r (apply #'org-starter-define-file
+                            path
                             (quote ,options))))
          ,@config
          r))))
