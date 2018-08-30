@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/akirak/org-starter.svg?branch=master)](https://travis-ci.org/akirak/org-starter)
+[![MELPA](https://melpa.org/packages/org-starter-badge.svg)](https://melpa.org/#/org-starter)
 
 # org-starter
 
@@ -21,10 +22,9 @@ to use-package. The following is an example file configuration with org-starter:
 
 ## Installation
 
-Not available on MELPA yet
+Install from MELPA.
 
-- dash.el
-- memoize
+`counsel-org-starter` and `helm-org-starter` in this repository are not available on MELPA yet. Install them individually after installing `org-starter` if you need them.
 
 ## Configuration
 
