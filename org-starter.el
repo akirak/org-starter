@@ -99,7 +99,9 @@ This is the default value of \":required\" option in
 all files defined by org-starter must exist.  If a file does not
 exist, it throws an error.
 
-This option does not affect the behavior of directory definitions.")
+This option does not affect the behavior of directory definitions."
+  :group 'org-starter
+  :type 'boolean)
 
 ;;;; The error buffer and error logging
 ;; This is used by `org-starter-verify-configuration'.
