@@ -677,15 +677,13 @@ the file/directory is defined.  This accepts multiple arguments."
   (setq options (org-starter--flatten-plist options))
   (let ((config (plist-get options :config)))
     (cl-remf options :config)
-    `(cond
-      ((file-directory-p ,path)
-       (when (apply #'org-starter-define-directory ,path (quote ,options))
+    `(if (file-directory-p ,path)
+         (let ((r (org-starter-define-directory ,path ,@options)))
+           ,@config
+           r)
+       (when-let ((r (org-starter-define-file ,path ,@options)))
          ,@config
-         ,path))
-      ((file-exists-p ,path)
-       (when (apply #'org-starter-define-file ,path (quote ,options))
-         ,@config
-         ,path)))))
+         r))))
 
 (defun org-starter--flatten-plist (plist)
   "Flatten PLIST for use in `org-starter-def'."
