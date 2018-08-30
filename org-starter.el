@@ -678,10 +678,14 @@ the file/directory is defined.  This accepts multiple arguments."
   (let ((config (plist-get options :config)))
     (cl-remf options :config)
     `(if (file-directory-p ,path)
-         (let ((r (org-starter-define-directory ,path ,@options)))
+         (let ((r (apply #'org-starter-define-directory
+                         ,path
+                         (quote ,options))))
            ,@config
            r)
-       (when-let ((r (org-starter-define-file ,path ,@options)))
+       (when-let ((r (apply #'org-starter-define-file
+                            ,path
+                            (quote ,options))))
          ,@config
          r))))
 
