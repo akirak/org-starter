@@ -35,6 +35,8 @@ with a specific file name. To set the load path, customize `org-starter-path`.
 
 ## Usage
 
+See [my package configuration for org-starter](https://github.com/akirak/emacs.d/blob/master/org/init-org-starter.el) and [my configuration file for files and directories](https://github.com/akirak/my-org/blob/master/my-org.el) for an example.
+
 ### Configure directories
 
 Use `org-starter-define-directory` function to define a directory that contains Org files. You can add the directory to agenda files and/or refile targets via its options. 
