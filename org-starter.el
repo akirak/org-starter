@@ -875,6 +875,28 @@ SPEC is the same as an item in :capture option of `org-starter-define-file'."
       (setf (car (nthcdr 3 spec)) target))
     (org-starter--add-capture-template spec)))
 
+;;;; Org-agenda
+(defun org-starter-add-agenda-custom-command (key desc &rest args)
+  "`org-add-agenda-custom-command' with extra features.
+
+This function basically adds (KEY DESC ARGS) to
+`org-agnda-custom-commands', but if it also checks if KEY does not
+conflict with existing custom agenda commands.
+
+Some extra features may be added in the future.
+
+Note you have to quote ARGS."
+  (declare (indent 2))
+  (if-let ((current (assoc key org-agenda-custom-commands))
+           (old-desc (nth 1 current)))
+      ;; If it has the same description, override it
+      (when (or (string-equal desc old-desc)
+                ;; Otherwise, confirmation is needed
+                (yes-or-no-p (format "Replace custom agenda command '%s' with '%s'?"
+                                     old-desc desc)))
+        (setcdr current (cons desc args)))
+    (push `(,key ,desc ,@args) org-agenda-custom-commands)))
+
 ;;;; Miscellaneous functionality
 
 ;;;###autoload
