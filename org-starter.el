@@ -645,10 +645,11 @@ is returned as the result of this function."
                   (if pair
                       (setf (cdr pair) refile)
                     (add-to-list 'org-refile-targets (cons fpath refile) 'append))))
-              (dolist (spec (mapcar (or org-starter-capture-template-map-function
-                                        #'identity)
-                                    capture))
-                (org-starter-add-file-capture-template fpath spec))
+              (unless deprecated
+                (dolist (spec (mapcar (or org-starter-capture-template-map-function
+                                          #'identity)
+                                      capture))
+                  (org-starter-add-file-capture-template fpath spec)))
               (when key
                 (org-starter--bind-file-key key fpath))
               (when local-variables
