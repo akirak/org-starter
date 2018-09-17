@@ -38,6 +38,7 @@
 (require 'org-capture)
 
 (declare-function -not "dash")
+(defvar org-agenda-custom-commands)
 
 ;;;; Compatibility
 
@@ -851,9 +852,10 @@ by `org-starter-define-file'."
                :key (lambda (spec)
                       (pcase (nth 3 spec)
                         (`(file ,fpath) fpath)
-                        ((and `(,key ,fpath . ,_)
-                              (guard (string-prefix-p "file+" (symbol-name key))))
-                         fpath))))
+                        (`(,key ,fpath . ,_)
+                         (when (string-prefix-p "file+"
+                                                (symbol-name key))
+                           fpath)))))
     (cl-delete fpath org-starter-known-files)
     (message "Deleted %s from org-starter-known-files" fpath)))
 
