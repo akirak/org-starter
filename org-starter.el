@@ -1024,6 +1024,15 @@ This function behaves like `org-starter-select-file' but uses
             "Visit a file using the alternative command: ")))
 
 ;;;###autoload
+(defun org-starter-load-file (file)
+  "Load FILE using org-starter."
+  (interactive (list (org-starter--complete-file "Load an Org file: "
+                                                 :exclude-loaded-files t)))
+  (if (cl-member file org-starter-known-files :test #'file-equal-p)
+      (org-starter--load-file file)
+    (error "%s is not in org-starter-known-files" file)))
+
+;;;###autoload
 (defun org-starter-load-all-known-files ()
   "Load all files registered in `org-starter-known-files' into Emacs.
 
