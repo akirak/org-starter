@@ -108,6 +108,25 @@ This option does not affect the behavior of directory definitions."
 ;;;; The error buffer and error logging
 ;; This is used by `org-starter-verify-configuration'.
 
+(defcustom org-starter-enable-local-variables nil
+  "Override `enable-local-variables' when files are loaded.
+
+When this variable is set to a value other than `nil',
+`enable-local-variables' are set to the value when
+org-starter loads an Org file using functions like
+`org-starter-load-all-known-files'. For example, if the variable is
+set to `:all', all local variables defined in the file are applied
+when it is loaded without confirmation. As variables defined in
+your own files are supposed to be trustworthy, this is usually safe.
+However, when this option is set to a value `:all', please don't
+add a file that can be edited by someone else, as local variables
+can bring a security risk.
+
+When the variable is set to `nil', an existing value of
+`enable-local-variables` is used."
+  :group 'org-starter
+  :type 'symbol)
+
 (defconst org-starter-error-buffer "*org-starter errors*")
 
 (defvar org-starter-found-errors nil
@@ -969,19 +988,33 @@ If ALL is non-nil, variable `org-agenda-files' and
 Unlike `find-file-noselect', this function does not care about changes in files
 that are already loaded."
   (unless (find-buffer-visiting fpath)
-    (find-file-noselect fpath)))
+    (let* ((default-directory (file-name-directory fpath))
+           (enable-local-variables (or org-starter-enable-local-variables
+                                       enable-local-variables))
+           (buf (find-file-noselect fpath)))
+      (with-current-buffer buf
+        ;; Set options
+        )
+      buf)))
 
-(defun org-starter--complete-file (prompt)
+(cl-defun org-starter--complete-file (prompt :key exclude-loaded-files)
   "Select a known file or an agenda file using `completing-read'.
 
-PROMPT is the prompt displayed in the selection interface."
+PROMPT is the prompt displayed in the selection interface.
+
+When `excluded-loaded' is set to non-nil, exclude files that have
+been loaded."
   (expand-file-name
    (completing-read prompt
-                    (cl-remove-duplicates
-                     (mapcar #'abbreviate-file-name
-                             (append org-starter-known-files
-                                     (org-agenda-files)))
-                     :test #'string-equal)
+                    (cl-remove-if
+                     (lambda (fpath)
+                       (and exclude-loaded-files
+                            (find-buffer-visiting fpath)))
+                     (cl-remove-duplicates
+                      (mapcar #'abbreviate-file-name
+                              (append org-starter-known-files
+                                      (org-agenda-files)))
+                      :test #'string-equal))
                     nil 'require-match)))
 
 ;;;###autoload
@@ -1000,9 +1033,14 @@ of the selected file."
    (list "Select an Org file: "))
   (let ((file (org-starter--complete-file prompt)))
     (if (called-interactively-p nil)
-        (if current-prefix-arg
-            (find-file-other-window file)
-          (find-file file))
+        (progn
+          (when (and (cl-member file org-starter-known-files
+                                :test #'file-equal-p)
+                     (not (find-buffer-visiting file)))
+            (org-starter--load-file file))
+          (if current-prefix-arg
+              (find-file-other-window file)
+            (find-file file)))
       file)))
 
 ;;;###autoload
