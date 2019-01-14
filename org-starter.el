@@ -997,7 +997,7 @@ that are already loaded."
         )
       buf)))
 
-(cl-defun org-starter--complete-file (prompt :key exclude-loaded-files)
+(cl-defun org-starter--complete-file (prompt &key exclude-loaded-files)
   "Select a known file or an agenda file using `completing-read'.
 
 PROMPT is the prompt displayed in the selection interface.
