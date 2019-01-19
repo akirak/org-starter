@@ -132,12 +132,32 @@ When the variable is set to nil, an existing value of
 (defvar org-starter-found-errors nil
   "Non-nil if an error is found while configuring org-starter.")
 
+(define-minor-mode org-starter-mode
+  "Turn on/off features of org-starter.
+
+At present, this mode activates a function advice around
+`find-file-noselect', so `org-starter-enable-local-variables' option
+is respected."
+  :lighter "Org-Starter"
+  :require 'org-starter
+  :global t
+  :group 'org-starter
+  (cond
+   ;; Turn on
+   (org-starter-mode
+    (advice-add #'find-file-noselect :around
+                #'org-starter--ad-around-find-file-noselect))
+   ;; Turn off
+   (t
+    (advice-remove #'find-file-noselect
+                   #'org-starter--ad-around-find-file-noselect))))
+
 (defun org-starter--clear-errors ()
   "Reset the status of the error buffer."
   (org-starter--when-let* ((buf (get-buffer org-starter-error-buffer)))
-                          (with-current-buffer buf
-                            (let ((inhibit-read-only t))
-                              (erase-buffer))))
+    (with-current-buffer buf
+      (let ((inhibit-read-only t))
+        (erase-buffer))))
   (setq org-starter-found-errors nil))
 
 (defun org-starter--create-error-buffer ()
@@ -997,6 +1017,26 @@ that are already loaded."
         )
       buf)))
 
+(defun org-starter--ad-around-find-file-noselect (orig filename &rest args)
+  "Advice around `find-file-noselect'.
+
+ORIG is the original function of `find-file-noselect'.
+
+If FILENAME is an Org file as defined by `org-agenda-file-regexp'
+and included in `org-starter-known-files', the adviced function
+alternates the value of `enable-local-variables' variable so
+`org-starter-enable-local-variables' is respected.
+
+ARGS is the rest of arguments passed to the function."
+  (if (and (string-match-p org-agenda-file-regexp filename)
+           (cl-member filename org-starter-known-files :test #'file-equal-p))
+      (let* ((enable-local-variables
+              (or org-starter-enable-local-variables
+                  (let ((default-directory (file-name-directory filename)))
+                    enable-local-variables))))
+        (apply orig filename args))
+    (apply orig filename args)))
+
 (cl-defun org-starter--complete-file (prompt &key exclude-loaded-files)
   "Select a known file or an agenda file using `completing-read'.
 
@@ -1033,14 +1073,9 @@ of the selected file."
    (list "Select an Org file: "))
   (let ((file (org-starter--complete-file prompt)))
     (if (called-interactively-p nil)
-        (progn
-          (when (and (cl-member file org-starter-known-files
-                                :test #'file-equal-p)
-                     (not (find-buffer-visiting file)))
-            (org-starter--load-file file))
-          (if current-prefix-arg
-              (find-file-other-window file)
-            (find-file file)))
+        (if current-prefix-arg
+            (find-file-other-window file)
+          (find-file file))
       file)))
 
 ;;;###autoload
