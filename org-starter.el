@@ -132,6 +132,7 @@ When the variable is set to nil, an existing value of
 (defvar org-starter-found-errors nil
   "Non-nil if an error is found while configuring org-starter.")
 
+;;;###autoload
 (define-minor-mode org-starter-mode
   "Turn on/off features of org-starter.
 
