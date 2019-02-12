@@ -445,7 +445,7 @@ This is applicable when `org-starter-define-file-commands' is non-nil."
 
 (defun org-starter--funcall-on-file-by-key (func &optional
                                                  prompt
-                                                 parent-map
+                                                 extra-map
                                                  extra-help)
   "Pick an Org file by key and apply a function on it.
 
@@ -454,23 +454,27 @@ of `org-starter-define-file', and apply FUNC on it.
 
 If PROMPT is given, use it as the prompt.
 
-If PARENT-MAP is given, use it as the parent map.
+If EXTRA-MAP is given, use it as the extra map. It is overridden.
 
-You can also append EXTRA-HELP to the help."
-  (let ((map (make-sparse-keymap))
-        (message-log-max nil)
-        (msg (mapconcat (lambda (cell) (format "[%s]: %s"
-                                               (car cell)
+EXTRA-HELP is an alist for the items in the extra map."
+  (let* ((map (make-sparse-keymap))
+         (message-log-max nil)
+         (help-items (cl-union extra-help
+                               (mapcar (lambda (cell)
+                                         (cons (car cell)
                                                (file-name-nondirectory (cdr cell))))
-                        org-starter-key-file-alist "\n")))
+                                       org-starter-key-file-alist)
+                               :key #'car))
+         (msg (mapconcat (lambda (cell) (format "[%s]: %s"
+                                                (car cell)
+                                                (cdr cell)))
+                         help-items "\n")))
     (dolist (cell org-starter-key-file-alist)
       (define-key map (car cell)
         (lambda () (interactive) (funcall func (cdr cell)))))
-    (when (and (stringp extra-help) (> (length extra-help) 0))
-      (setq msg (concat msg "\n" extra-help)))
     (message (if prompt (concat prompt "\n" msg) msg))
-    (set-transient-map (if parent-map
-                           (make-composed-keymap map parent-map)
+    (set-transient-map (if extra-map
+                           (make-composed-keymap extra-map map)
                          map))))
 
 ;;;###autoload
@@ -494,7 +498,7 @@ as the argument."
          (extra-help (cl-loop for (key command . help) in org-starter-extra-find-file-map
                               do (define-key map (kbd key) command)
                               when help
-                              concat (format "[%s]: %s\n" key (car help)))))
+                              collect (cons key (car help)))))
     (pcase arg
       ('(4) (progn
               (define-key map (kbd "/") #'org-starter-select-file-other-window)
@@ -542,7 +546,7 @@ Extra commands are configured in
          (extra-help (cl-loop for (key command . help) in org-starter-extra-alternative-find-file-map
                               do (define-key map (kbd key) command)
                               when help
-                              concat (format "[%s]: %s\n" key (car help)))))
+                              collect (cons key (car help)))))
     (pcase arg
       ('(4) (progn
               (define-key map (kbd "/") #'org-starter-select-file)
@@ -582,7 +586,7 @@ by default."
          (extra-help (cl-loop for (key command . help) in org-starter-extra-refile-map
                               do (define-key extra-map (kbd key) command)
                               when help
-                              concat (format "[%s]: %s\n" key (car help)))))
+                              collect (cons key (car help)))))
     (org-starter--funcall-on-file-by-key
      (lambda (file)
        (let ((org-refile-targets (list (or (org-starter--refile-target-of-file file)
