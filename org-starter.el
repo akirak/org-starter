@@ -454,7 +454,8 @@ of `org-starter-define-file', and apply FUNC on it.
 
 If PROMPT is given, use it as the prompt.
 
-If EXTRA-MAP is given, use it as the extra map. It is overridden.
+If EXTRA-MAP is given, use it as the extra map.
+The original bindings defined by :key property are overridden by it.
 
 EXTRA-HELP is an alist for the items in the extra map."
   (let* ((map (make-sparse-keymap))
