@@ -931,6 +931,97 @@ SPEC is the same as an item in :capture option of `org-starter-define-file'."
       (setf (car (nthcdr 3 spec)) target))
     (org-starter--add-capture-template spec)))
 
+(cl-defmacro org-starter-def-capture (keys
+                                      description
+                                      type
+                                      target
+                                      template
+                                      &key
+                                      prepend
+                                      immediate-finish
+                                      jump-to-captured
+                                      empty-lines
+                                      empty-lines-before
+                                      empty-lines-after
+                                      clock-in
+                                      clock-keep
+                                      clock-resume
+                                      time-prompt
+                                      tree-type
+                                      unnarrowed
+                                      table-line-pos
+                                      kill-buffer
+                                      no-save
+                                      &allow-other-keys)
+  "Define a single capture template to a known file.
+
+This macro lets you insert an entry into
+`org-capture-templates'.  The resulting template list will be
+sorted by alphabetical order, so templates are grouped with
+prefix letters.
+
+It has the same functionality as
+`org-starter-add-file-capture-template', but this is intended to
+provide a better API.
+
+KEYS, DESCRIPTION, and TYPE are the same arguments as in the variable.
+
+TARGET is almost the same, but if the template type is a file or
+part of it, e.g. \"file+headline\", the file name in the
+expression is replaced with its absolute path as given by
+`org-starter-locate-file'.
+
+TEMPLATE is the same.
+
+You can pass the following options as a plist as in
+`org-capture-templates':
+
+PREPEND, IMMEDIATE-FINISH, JUMP-TO-CAPTURED, EMPTY-LINES,
+EMPTY-LINES-BEFORE, EMPTY-LINES-AFTER, CLOCK-IN, CLOCK-KEEP,
+CLOCK-RESUME, TIME-PROMPT, TREE-TYPE, UNNARROWED, TABLE-LINE-POS,
+KILL-BUFFER, and NO-SAVE.
+
+The entire template spec is transformed by
+`org-starter-capture-template-map-function'."
+  (declare (indent 1))
+  (let* ((ok t)
+         (target1 (pcase target
+                    (`(file ,file)
+                     `(file ,(setq ok (org-starter-locate-file file nil t))))
+                    (`(file+headline ,file ,headline)
+                     `(file+headline ,(setq ok (org-starter-locate-file file nil t)) ,headline))
+                    (`(file+olp ,file ,@olp)
+                     `(file+olp ,(setq ok (org-starter-locate-file file nil t)) ,@olp))
+                    (`(file+regexp ,file ,regexp)
+                     `(file+regexp ,(setq ok (org-starter-locate-file file nil t)) ,regexp))
+                    (`(file+olp+datetree ,file ,@olp)
+                     `(file+olp+datetree ,(setq ok (org-starter-locate-file file nil t)) ,@olp))
+                    (`(file+function ,file ,function)
+                     `(file+function ,(setq ok (org-starter-locate-file file nil t)) ,function))
+                    (orig orig)))
+         (properties (-flatten-n
+                      1 (--filter (nth 1 it)
+                                  `((:prepend ,prepend)
+                                    (:immediate-finish ,immediate-finish)
+                                    (:jump-to-captured ,jump-to-captured)
+                                    (:empty-lines ,empty-lines)
+                                    (:empty-lines-before ,empty-lines-before)
+                                    (:empty-lines-after ,empty-lines-after)
+                                    (:clock-in ,clock-in)
+                                    (:clock-keep ,clock-keep)
+                                    (:clock-resume ,clock-resume)
+                                    (:time-prompt ,time-prompt)
+                                    (:tree-type ,tree-type)
+                                    (:unnarrowed ,unnarrowed)
+                                    (:table-line-pos ,table-line-pos)
+                                    (:kill-buffer ,kill-buffer)
+                                    (:no-save ,no-save)))))
+         (spec (funcall (or org-starter-capture-template-map-function
+                            #'identity)
+                        (append (list keys description type target1 template)
+                                properties))))
+    (when ok `(org-starter--add-capture-template (quote ,spec)))))
+
 ;;;; Org-agenda
 (defun org-starter-add-agenda-custom-command (key desc &rest args)
   "`org-add-agenda-custom-command' with extra features.
