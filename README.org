@@ -62,6 +62,15 @@ as =:files= option.
 
 For details, run =C-h f org-starter-define-file=.
 
+**** Quickly access a particular file with a shortcut key
+=org-starter-define-file= accepts optional =:key= property, whose value should be a key passed to =kbd= function. This property is used by =org-starter-find-file-by-key=, =org-starter-alternative-find-file-by-key=, and =org-starter-refile-by-key= commands, which enter a transient state to operate on a particular file quickly.
+
+You can also add custom commands to the transient keymaps by setting =org-starter-extra-find-file-map=, =org-starter-extra-alternative-find-file-map=, and =org-starter-extra-refile-map=, respectively.
+
+#+begin_src emacs-lisp
+  (setq org-starter-extra-refile-map
+        '(("/" org-refile "normal refile")))
+#+end_src
 *** =org-starter-def= macro
 You can also use =org-starter-def= define either a file or a directory.
 Depending on the type of the argument, it calls either
@@ -102,7 +111,17 @@ multiple arguments:
       (do-something)
       (do-another-thing))
 #+END_SRC
+*** Configure capture templates
+Org-starter provides two ways to incrementally define org-capture templates:
 
+- =:capture= property in =org-starter-define-file=, which lets you omit the file name of each template target. =(file FILENAME)= becomes =file= here.
+- =org-starter-def-capture= macro, which lets you omit the directory of a file name in template target. The file is searched from the load path. If there is no file existing in the load path, the template is not added.
+
+Templates added by org-starter are sorted alphabetically, so they are grouped by prefix letters even if they are defined in distributed locations.
+
+Each template entry added by these functions is transformed by a function specified as the value of =org-starter-capture-template-map-function= custom variable. This can be used to apply rules to your capture templates.
+
+There is also =org-starter-initial-capture-templates= custom variable, which is a recommended way to define template groups.
 *** Extras
 **** Locate a file
 You can use =org-starter-locate-file= function to find an Org file
