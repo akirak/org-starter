@@ -69,6 +69,8 @@ For details, run =C-h f org-starter-define-file=.
 **** Quickly access a particular file with a shortcut key
 =org-starter-define-file= accepts optional =:key= property, whose value should be a key passed to =kbd= function. This property is used by =org-starter-find-file-by-key=, =org-starter-alternative-find-file-by-key=, and =org-starter-refile-by-key= commands, which enter a transient state to operate on a particular file quickly.
 
+[[file:screenshots/org-starter-refile-by-key.png]]
+
 You can also add custom commands to the transient keymaps by setting =org-starter-extra-find-file-map=, =org-starter-extra-alternative-find-file-map=, and =org-starter-extra-refile-map=, respectively.
 
 #+begin_src emacs-lisp
