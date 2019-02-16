@@ -263,7 +263,7 @@ OBJ should be a symbol, or a list of symbols."
 ;;;; Exclude files in org-starter from recentf
 
 (defcustom org-starter-exclude-from-recentf nil
-  "If non-nil, exclude items `org-starter-known-files' from recentf."
+  "If non-nil, exclude items in `org-starter-known-files' from recentf."
   :group 'org-starter
   :type '(set (const :tag "Exclude known files" 'known-files)
               (const :tag "Exclude files in path" 'path)))
