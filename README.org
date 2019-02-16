@@ -75,6 +75,8 @@ You can also add custom commands to the transient keymaps by setting =org-starte
   (setq org-starter-extra-refile-map
         '(("/" org-refile "normal refile")))
 #+end_src
+
+For example, you can add a function that refiles entries into a date tree using my [[https://github.com/akirak/org-reverse-datetree][org-reverse-datetree]] package as in [[https://github.com/akirak/org-reverse-datetree#defining-a-refile-function][this example]].
 *** =org-starter-def= macro
 You can also use =org-starter-def= define either a file or a directory.
 Depending on the type of the argument, it calls either
@@ -165,5 +167,10 @@ categories or create a new one in a known directory.
 - =counsel-org-starter-known-file=, which lets you choose a known file.
 - =counsel-org-starter=, which lets you choose a known file or a file in
   =org-agenda-files=.
+** Related packages
+You may find the following packages useful if you use org-starter:
+
+- [[https://github.com/akirak/ivy-omni-org][ivy-omni-org]]
+- [[https://github.com/akirak/org-reverse-datetree][org-reverse-datetree]]
 ** License
 GPL v3
