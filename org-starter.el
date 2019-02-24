@@ -784,7 +784,11 @@ the file/directory is defined.  This accepts multiple arguments."
             ,spec
             ,@(if (string-equal (caar latter) (car spec))
                   (cdr latter)
-                latter)))))
+                latter)))
+    ;; Return information during interactive evaluation
+    (when after-init-time
+      (and (string-equal (caar latter) (car spec))
+           (cons (cadar latter) (cadr spec))))))
 
 (defcustom org-starter-initial-capture-templates nil
   "List of capture templates unassociated with files.
@@ -1019,7 +1023,12 @@ The entire template spec is transformed by
                             #'identity)
                         (append (list keys description type target1 template)
                                 properties))))
-    (when ok `(org-starter--add-capture-template (quote ,spec)))))
+    (when ok
+      `(when-let ((result (org-starter--add-capture-template (quote ,spec))))
+         (concat "Overrode an existing template "
+                 (if (string-equal (car result) (cdr result))
+                     "of the same name"
+                   (format "'%s'" (car result))))))))
 
 ;;;; Org-agenda
 (defun org-starter-add-agenda-custom-command (key desc &rest args)
