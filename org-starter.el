@@ -788,7 +788,7 @@ the file/directory is defined.  This accepts multiple arguments."
     ;; Return information during interactive evaluation
     (when after-init-time
       (and (string-equal (caar latter) (car spec))
-           (cons (cadar latter) (cadr spec))))))
+           (cons (cadr (car latter)) (cadr spec))))))
 
 (defcustom org-starter-initial-capture-templates nil
   "List of capture templates unassociated with files.
