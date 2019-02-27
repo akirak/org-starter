@@ -936,6 +936,7 @@ SPEC is the same as an item in :capture option of `org-starter-define-file'."
 
 (cl-defmacro org-starter-def-capture (keys
                                       description
+                                      &optional
                                       type
                                       target
                                       template
@@ -985,7 +986,10 @@ CLOCK-RESUME, TIME-PROMPT, TREE-TYPE, UNNARROWED, TABLE-LINE-POS,
 KILL-BUFFER, and NO-SAVE.
 
 The entire template spec is transformed by
-`org-starter-capture-template-map-function'."
+`org-starter-capture-template-map-function'.
+
+If TYPE and its following arguments are omitted, this macro inserts
+a template group."
   (declare (indent 1))
   (let* ((ok t)
          (target1 (pcase target
@@ -1019,10 +1023,12 @@ The entire template spec is transformed by
                                     (:table-line-pos ,table-line-pos)
                                     (:kill-buffer ,kill-buffer)
                                     (:no-save ,no-save)))))
-         (spec (funcall (or org-starter-capture-template-map-function
-                            #'identity)
-                        (append (list keys description type target1 template)
-                                properties))))
+         (spec (if type
+                   (funcall (or org-starter-capture-template-map-function
+                                #'identity)
+                            (append (list keys description type target1 template)
+                                    properties))
+                 (list keys description))))
     (when ok
       `(when-let ((result (org-starter--add-capture-template (quote ,spec))))
          (concat "Overrode an existing template "
