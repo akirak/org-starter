@@ -990,7 +990,7 @@ The entire template spec is transformed by
 
 If TYPE and its following arguments are omitted, this macro inserts
 a template group."
-  (declare (indent 1))
+  (declare (indent 2))
   (let* ((ok t)
          (target1 (pcase target
                     (`(file ,file)
