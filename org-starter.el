@@ -1285,7 +1285,10 @@ files are in buffers.
 ;;;###autoload
 (defun org-starter-load-config-files ()
   "Load config files in `org-starter-path'"
-  (mapc #'org-starter--load-config-file org-starter-path))
+  (mapc #'org-starter--load-config-file
+        (cl-remove-duplicates
+         (delq nil (cons org-directory org-starter-path))
+         :test #'string-equal-p)))
 
 ;; Load configuration files in org-starter-known-directories, 
 (when org-starter-load-config-files
