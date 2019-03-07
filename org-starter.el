@@ -105,6 +105,35 @@ This option does not affect the behavior of directory definitions."
   :group 'org-starter
   :type 'boolean)
 
+(defcustom org-starter-config-file-name "org-config.el"
+  "File name of external config files for org-starter.
+
+See `org-starter-load-config-files' for details."
+  :group 'org-starter
+  :type 'string)
+
+(defcustom org-starter-load-config-files nil
+  "When non-nil, load config files in known directories.
+
+Org-Starter loads configuration files with
+`org-starter-config-file-name' if this variable is set to non-nil.
+
+When this variable is set to non-nil, org-starter loads Emacs
+Lisp configuration files with from the following places:
+
+- When org-starter.el is loaded, org-starter loads configuration files
+  in `org-starter-path'.
+
+- After org-starter.el is loaded, org-starter loads configuration
+  files as directories are defined using
+  `org-starter-define-directory' (or `org-starter-def' on a
+  directory).
+
+If a file with `org-starter-config-file-name' does not exist in a
+given directory, the file will not be loaded."
+  :group 'org-starter
+  :type 'boolean)
+
 ;;;; The error buffer and error logging
 ;; This is used by `org-starter-verify-configuration'.
 
@@ -379,6 +408,7 @@ the path to the directory is returned as the result of this function."
              do (apply #'org-starter-define-file filename :directory dpath
                        options))
     (add-to-list 'org-starter-known-directories dpath)
+    (org-starter--load-config-file dpath)
     dpath))
 
 ;;;; Defining files
@@ -1242,6 +1272,24 @@ files are in buffers.
 `org-starter-get-all-files-in-path' is used to get a list of org files."
   (interactive)
   (mapc #'org-starter--load-file (org-starter-get-all-files-in-path)))
+
+;;;; Loading external config files
+
+(defun org-starter--load-config-file (dir)
+  "Load a config files in DIR if any."
+  (let ((file (expand-file-name org-starter-config-file-name
+                                dir)))
+    (when (file-exists-p file)
+      (load-file file))))
+
+;;;###autoload
+(defun org-starter-load-config-files ()
+  "Load config files in `org-starter-path'"
+  (mapc #'org-starter--load-config-file org-starter-path))
+
+;; Load configuration files in org-starter-known-directories, 
+(when org-starter-load-config-files
+  (org-starter-load-config-files))
 
 (provide 'org-starter)
 ;;; org-starter.el ends here
