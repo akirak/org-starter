@@ -1290,9 +1290,13 @@ files are in buffers.
          (delq nil (cons org-directory org-starter-path))
          :test #'string-equal-p)))
 
-;; Load configuration files in org-starter-known-directories, 
+;;;; Load external configuration files
 (when org-starter-load-config-files
-  (org-starter-load-config-files))
+  ;; If Emacs has been started. load the files immediately.
+  (if after-init-time
+      (org-starter-load-config-files)
+    ;; Otherwise, load them after startup.
+    (add-hook 'after-init-hook 'org-starter-load-config-files)))
 
 (provide 'org-starter)
 ;;; org-starter.el ends here
