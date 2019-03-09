@@ -352,6 +352,7 @@ identify the directory."
                                               ensure
                                               add-to-path
                                               custom-vars
+                                              no-config-file
                                               files)
   "Define a directory that contains org files.
 
@@ -373,6 +374,11 @@ If ADD-TO-PATH is non-nil, the directory is added to `org-starter-path'.
 CUSTOM-VARS can be either a symbol or a list of symbols.
 These symbols are names of variables that should be set to the path
 of the directory.  `customize-set-variable' is used to set the value.
+
+If NO-CONFIG-FILE is set to non-nil, the configuration file in
+the directory will not be loaded even if
+`org-starter-load-config-files' is set and the directory contains
+the file.
 
 FILES is a list whose item accepts the same options as `org-starter-define-file',
 except for `:directory' option. You can define files in the directory.
@@ -404,6 +410,8 @@ the path to the directory is returned as the result of this function."
                       (list custom-vars)
                       (symbol (list custom-vars))))
       (customize-set-variable symbol dpath))
+    (when no-config-file
+      (add-to-list 'org-starter-prevent-local-config-directories dpath))
     (cl-loop for (filename . options) in files
              do (apply #'org-starter-define-file filename :directory dpath
                        options))
@@ -471,6 +479,12 @@ This is applicable when `org-starter-define-file-commands' is non-nil."
       (find-file ,fpath))))
 
 (defvar org-starter-key-file-alist nil)
+
+(defvar org-starter-prevent-local-config-directories nil
+  "List of directories from which config files shouldn't be loaded.
+
+This is updated by `org-starter-define-directory'.
+The user should not update this value.")
 
 (defun org-starter--funcall-on-file-by-key (func &optional
                                                  prompt
@@ -1276,10 +1290,14 @@ files are in buffers.
 ;;;; Loading external config files
 
 (defun org-starter--load-config-file (dir)
-  "Load a config files in DIR if any."
+  "Load a config files in DIR if any.
+
+Even if a file exists in the directory, it won't be loaded if
+:no-config-file option of the directory has been set to non-nil."
   (let ((file (expand-file-name org-starter-config-file-name
                                 dir)))
-    (when (file-exists-p file)
+    (when (and (not (member dir org-starter-prevent-local-config-directories))
+               (file-exists-p file))
       (load-file file))))
 
 ;;;###autoload
