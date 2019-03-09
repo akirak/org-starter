@@ -391,12 +391,12 @@ the path to the directory is returned as the result of this function."
   (org-starter--when-let* ((fpath (buffer-file-name))
                            (vars (cl-assoc fpath org-starter-file-local-variables
                                            :test #'file-equal-p)))
-                          (cl-loop for (symbol . value) in vars
-                                   do (cond
-                                       ((symbolp symbol) (set (make-local-variable symbol) value))
-                                       (t (error "Not a symbol: %s in %s"
-                                                 (prin1-to-string symbol)
-                                                 (prin1-to-string value)))))))
+    (cl-loop for (symbol . value) in vars
+             do (cond
+                 ((symbolp symbol) (set (make-local-variable symbol) value))
+                 (t (error "Not a symbol: %s in %s"
+                           (prin1-to-string symbol)
+                           (prin1-to-string value)))))))
 (add-hook 'org-mode-hook #'org-starter-load-local-variables t)
 
 ;;;;; Keymap for visiting a known file (deprecated)
@@ -1095,11 +1095,11 @@ If ALL is non-nil, variable `org-agenda-files' and
                 (org-starter-undefine-file fpath)))
   (org-starter--when-let* ((deprecated-files (cl-remove-if-not #'file-exists-p
                                                                org-starter-deprecated-files)))
-                          (org-starter--log-error-no-newline "%d deprecated files still exist:\n%s"
-                                                             (length deprecated-files)
-                                                             (cl-loop for fpath in deprecated-files
-                                                                      concat (format "- %s\n"
-                                                                                     (abbreviate-file-name fpath)))))
+    (org-starter--log-error-no-newline "%d deprecated files still exist:\n%s"
+                                       (length deprecated-files)
+                                       (cl-loop for fpath in deprecated-files
+                                                concat (format "- %s\n"
+                                                               (abbreviate-file-name fpath)))))
   (if org-starter-found-errors
       (progn
         (pop-to-buffer org-starter-error-buffer)
