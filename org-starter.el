@@ -105,7 +105,7 @@ This option does not affect the behavior of directory definitions."
   :group 'org-starter
   :type 'boolean)
 
-(defcustom org-starter-config-file-name "org-config.el"
+(defcustom org-starter-config-file-name ".org-config.el"
   "File name of external config files for org-starter.
 
 See `org-starter-load-config-files' for details."
