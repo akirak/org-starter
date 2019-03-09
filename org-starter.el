@@ -362,7 +362,7 @@ the path to the directory is returned as the result of this function."
     (when origin
       (add-to-list 'org-starter-directory-origins (cons dpath origin)))
     (when (and add-to-path exists)
-      (add-to-list 'org-starter-path dpath))
+      (cl-adjoin dpath org-starter-path :test #'file-equal-p))
     (when refile
       (unless id
         (error "To add %s to refile targets, you must set `:id' property" dpath))
