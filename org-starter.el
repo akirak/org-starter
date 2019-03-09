@@ -160,6 +160,12 @@ value of `enable-local-variables`."
 (defvar org-starter-found-errors nil
   "Non-nil if an error is found while configuring org-starter.")
 
+(defvar org-starter-prevent-local-config-directories nil
+  "List of directories from which config files shouldn't be loaded.
+
+This is updated by `org-starter-define-directory'.
+The user should not update this value.")
+
 ;;;###autoload
 (define-minor-mode org-starter-mode
   "Turn on/off features of org-starter.
@@ -479,12 +485,6 @@ This is applicable when `org-starter-define-file-commands' is non-nil."
       (find-file ,fpath))))
 
 (defvar org-starter-key-file-alist nil)
-
-(defvar org-starter-prevent-local-config-directories nil
-  "List of directories from which config files shouldn't be loaded.
-
-This is updated by `org-starter-define-directory'.
-The user should not update this value.")
 
 (defun org-starter--funcall-on-file-by-key (func &optional
                                                  prompt
@@ -1302,11 +1302,11 @@ Even if a file exists in the directory, it won't be loaded if
 
 ;;;###autoload
 (defun org-starter-load-config-files ()
-  "Load config files in `org-starter-path'"
+  "Load config files in `org-starter-path'."
   (mapc #'org-starter--load-config-file
         (cl-remove-duplicates
          (delq nil (cons org-directory org-starter-path))
-         :test #'string-equal-p)))
+         :test #'string-equal)))
 
 ;;;; Load external configuration files
 (when org-starter-load-config-files
