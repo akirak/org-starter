@@ -45,7 +45,7 @@ You can also add directories to the load path by calling
 You may have added local variables to your Org files. 
 It is annoying to answer "yes" every time Emacs asks you if you are sure you want to load the variables. This can be skipped by enabling =org-starter-mode= and setting =org-starter-enable-local-variables= to =:all=. That is, =enable-local-variables= is temporarily overridden while a file registered by org-starter is loaded.
 
-Since variables defined in your own files are trusted, this is generally considered safe. However, when you set this option to =:all=, please don't add a file that can be edited by someone else to =org-starter-know-files=, as local variables defined by others can bring a security risk.
+Since variables defined in your own files are trusted, this is generally considered safe. However, when you set this option to =:all=, please don't add a file that can be edited by someone else to =org-starter-known-files=, as local variables defined by others can bring a security risk.
 ** Usage
 *** Configure directories
 Use =org-starter-define-directory= function to define a directory that
