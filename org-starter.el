@@ -105,6 +105,35 @@ This option does not affect the behavior of directory definitions."
   :group 'org-starter
   :type 'boolean)
 
+(defcustom org-starter-config-file-name ".org-config.el"
+  "File name of external config files for org-starter.
+
+See `org-starter-load-config-files' for details."
+  :group 'org-starter
+  :type 'string)
+
+(defcustom org-starter-load-config-files nil
+  "When non-nil, load config files in known directories.
+
+Org-Starter loads configuration files with
+`org-starter-config-file-name' if this variable is set to non-nil.
+
+When this variable is set to non-nil, org-starter loads Emacs
+Lisp configuration files with from the following places:
+
+- When org-starter.el is loaded, org-starter loads configuration files
+  in `org-starter-path'.
+
+- After org-starter.el is loaded, org-starter loads configuration
+  files as directories are defined using
+  `org-starter-define-directory' (or `org-starter-def' on a
+  directory).
+
+If a file with `org-starter-config-file-name' does not exist in a
+given directory, the file will not be loaded."
+  :group 'org-starter
+  :type 'boolean)
+
 ;;;; The error buffer and error logging
 ;; This is used by `org-starter-verify-configuration'.
 
@@ -130,6 +159,12 @@ value of `enable-local-variables`."
 
 (defvar org-starter-found-errors nil
   "Non-nil if an error is found while configuring org-starter.")
+
+(defvar org-starter-prevent-local-config-directories nil
+  "List of directories from which config files shouldn't be loaded.
+
+This is updated by `org-starter-define-directory'.
+The user should not update this value.")
 
 ;;;###autoload
 (define-minor-mode org-starter-mode
@@ -323,6 +358,7 @@ identify the directory."
                                               ensure
                                               add-to-path
                                               custom-vars
+                                              no-config-file
                                               files)
   "Define a directory that contains org files.
 
@@ -344,6 +380,11 @@ If ADD-TO-PATH is non-nil, the directory is added to `org-starter-path'.
 CUSTOM-VARS can be either a symbol or a list of symbols.
 These symbols are names of variables that should be set to the path
 of the directory.  `customize-set-variable' is used to set the value.
+
+If NO-CONFIG-FILE is set to non-nil, the configuration file in
+the directory will not be loaded even if
+`org-starter-load-config-files' is set and the directory contains
+the file.
 
 FILES is a list whose item accepts the same options as `org-starter-define-file',
 except for `:directory' option. You can define files in the directory.
@@ -375,10 +416,13 @@ the path to the directory is returned as the result of this function."
                       (list custom-vars)
                       (symbol (list custom-vars))))
       (customize-set-variable symbol dpath))
+    (when no-config-file
+      (add-to-list 'org-starter-prevent-local-config-directories dpath))
     (cl-loop for (filename . options) in files
              do (apply #'org-starter-define-file filename :directory dpath
                        options))
     (add-to-list 'org-starter-known-directories dpath)
+    (org-starter--load-config-file dpath)
     dpath))
 
 ;;;; Defining files
@@ -1242,6 +1286,35 @@ files are in buffers.
 `org-starter-get-all-files-in-path' is used to get a list of org files."
   (interactive)
   (mapc #'org-starter--load-file (org-starter-get-all-files-in-path)))
+
+;;;; Loading external config files
+
+(defun org-starter--load-config-file (dir)
+  "Load a config files in DIR if any.
+
+Even if a file exists in the directory, it won't be loaded if
+:no-config-file option of the directory has been set to non-nil."
+  (let ((file (expand-file-name org-starter-config-file-name
+                                dir)))
+    (when (and (not (member dir org-starter-prevent-local-config-directories))
+               (file-exists-p file))
+      (load-file file))))
+
+;;;###autoload
+(defun org-starter-load-config-files ()
+  "Load config files in `org-starter-path'."
+  (mapc #'org-starter--load-config-file
+        (cl-remove-duplicates
+         (delq nil (cons org-directory org-starter-path))
+         :test #'string-equal)))
+
+;;;; Load external configuration files
+(when org-starter-load-config-files
+  ;; If Emacs has been started. load the files immediately.
+  (if after-init-time
+      (org-starter-load-config-files)
+    ;; Otherwise, load them after startup.
+    (add-hook 'after-init-hook 'org-starter-load-config-files)))
 
 (provide 'org-starter)
 ;;; org-starter.el ends here
