@@ -1306,7 +1306,7 @@ Even if a file exists in the directory, it won't be loaded if
   (mapc #'org-starter--load-config-file
         (cl-remove-duplicates
          (delq nil (cons org-directory org-starter-path))
-         :test #'string-equal)))
+         :test #'file-equal-p)))
 
 ;;;; Load external configuration files
 (when org-starter-load-config-files
