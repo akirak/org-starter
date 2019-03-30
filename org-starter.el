@@ -1102,6 +1102,46 @@ Note you have to quote ARGS."
         (setcdr current (cons desc args)))
     (push `(,key ,desc ,@args) org-agenda-custom-commands)))
 
+;;;; File operations
+
+;;;###autoload
+(defun org-starter-add-to-refile-targets ()
+  "Add the current buffer to `org-refile-targets' temporarily."
+  (interactive)
+  (unless (derived-mode-p 'org-mode)
+    (user-error "Not in org-mode"))
+  (if-let ((filename (buffer-file-name)))
+      (cl-case (read-char "Refile target type [l: level, m: maxlevel, q: tag, t: todo, r: regexp]: ")
+        (?l (org-starter--add-refile-target filename
+              `(:level . ,(org-starter--read-refile-level))))
+        (?m (org-starter--add-refile-target filename
+              `(:maxlevel . ,(org-starter--read-refile-level))))
+        (?q (org-starter--add-refile-target filename
+              `(:tag . ,(org-starter--read-refile-level))))
+        (?t (org-starter--add-refile-target filename
+              `(:tag . ,(org-starter--read-refile-level))))
+        (?r (org-starter--add-refile-target filename
+              `(:regexp . ,(org-starter--read-refile-level)))))
+    (user-error "Not visiting a file")))
+
+(defun org-starter--read-refile-level ()
+  "Read a character between 0 and 9 and return the number."
+  (let ((level-char (read-char "Refile level [0-9]: ")))
+    (if (and (>= level-char ?0) (<= level-char ?9))
+        (- level-char ?0)
+      (user-error "Please enter a character between 0 and 9"))))
+
+(defun org-starter--read-tag (prompt)
+  (completing-read prompt 'org-tags-completion-function))
+
+(defun org-starter--add-refile-target (filename spec)
+  "Add (FILENAME. SPEC) to `org-refile-targets'."
+  (declare (indent 1))
+  (let ((existing (cl-assoc filename org-refile-targets :test #'file-equal-p)))
+    (if existing
+        (push (cons filename spec) org-refile-targets)
+      (setcdr existing spec))))
+
 ;;;; Miscellaneous functionality
 
 ;;;###autoload
