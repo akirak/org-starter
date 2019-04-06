@@ -1132,6 +1132,7 @@ Note you have to quote ARGS."
       (user-error "Please enter a character between 0 and 9"))))
 
 (defun org-starter--read-tag (prompt)
+  "Read Org tag with PROMPT."
   (completing-read prompt 'org-tags-completion-function))
 
 (defun org-starter--add-refile-target (filename spec)
