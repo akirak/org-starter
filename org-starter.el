@@ -1136,7 +1136,7 @@ Note you have to quote ARGS."
   (completing-read prompt 'org-tags-completion-function))
 
 (defun org-starter--add-refile-target (filename spec)
-  "Add (FILENAME. SPEC) to `org-refile-targets'."
+  "Add a pair of FILENAME and SPEC to `org-refile-targets'."
   (declare (indent 1))
   (let ((existing (cl-assoc filename org-refile-targets :test #'file-equal-p)))
     (if existing
