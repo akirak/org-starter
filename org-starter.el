@@ -75,6 +75,16 @@ a sequence of two universal arguments are given."
                                string
                                (const nil)))))
 
+(defcustom org-starter-find-file-visit-window
+  nil
+  "When non-nil, visit the window displaying a file if any.
+
+When this variable is set to non-nil,
+`org-starter-find-file-by-key' selects a window displaying the
+target file if there is such a window in the same frame."
+  :type 'boolean
+  :group 'org-starter)
+
 (defcustom org-starter-extra-find-file-map
   nil
   "Extra bindings available in `org-starter-find-file-by-key'."
@@ -547,7 +557,8 @@ as the argument."
       ('(4) (progn
               (define-key map (kbd "/") #'org-starter-select-file-other-window)
               (org-starter--funcall-on-file-by-key
-               #'find-file-other-window "Find an Org file in other window:"
+               #'org-starter--find-file-other-window
+               "Find an Org file in other window:"
                map extra-help)))
       ('(16) (progn
                (define-key map (kbd "/")
@@ -565,8 +576,27 @@ as the argument."
       (_ (progn
            (define-key map (kbd "/") #'org-starter-select-file)
            (org-starter--funcall-on-file-by-key
-            #'find-file "Find an Org file:"
+            #'org-starter--find-file
+            "Find an Org file:"
             map extra-help))))))
+
+(defun org-starter--find-file (file)
+  "Switch to a buffer visiting FILE."
+  (let ((buffer (or (find-buffer-visiting file)
+                    (find-file-noselect file))))
+    (if-let ((window (and org-starter-find-file-visit-window
+                          (get-buffer-window buffer))))
+        (select-window window)
+      (switch-to-buffer buffer))))
+
+(defun org-starter--find-file-other-window (file)
+  "Switch to a buffer visiting FILE in other window."
+  (let ((buffer (or (find-buffer-visiting file)
+                    (find-file-noselect file))))
+    (if-let ((window (and org-starter-find-file-visit-window
+                          (get-buffer-window buffer))))
+        (select-window window)
+      (switch-to-buffer-other-window buffer))))
 
 ;;;###autoload
 (defun org-starter-alternative-find-file-by-key (&optional arg)
