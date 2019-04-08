@@ -1344,10 +1344,29 @@ Even if a file exists in the directory, it won't be loaded if
 ;;;###autoload
 (defun org-starter-load-config-files ()
   "Load config files in `org-starter-path'."
-  (mapc #'org-starter--load-config-file
-        (cl-remove-duplicates
-         (delq nil (cons org-directory org-starter-path))
-         :test #'file-equal-p)))
+  (mapc #'load-file (org-starter--get-existing-config-files)))
+
+(defun org-starter--get-config-directories ()
+  "Return a list of directories for searching config files."
+  (-filter #'file-directory-p
+           (cl-remove-duplicates
+            (delq nil (cons org-directory (nreverse org-starter-path)))
+            :test #'file-equal-p)))
+
+(defun org-starter--get-existing-config-files ()
+  "Return a list of existing config files."
+  (->> (org-starter--get-config-directories)
+       (--filter (not (member it org-starter-prevent-local-config-directories)))
+       (--map (expand-file-name org-starter-config-file-name it))
+       (--filter #'file-exists-p)))
+
+;;;###autoload
+(defun org-starter-find-config-file ()
+  "Visit an existing config file for org-starter."
+  (interactive)
+  (find-file (completing-read "Config file: "
+                              (org-starter--get-existing-config-files)
+                              nil t)))
 
 ;;;; Load external configuration files
 (when org-starter-load-config-files
