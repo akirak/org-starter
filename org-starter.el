@@ -38,6 +38,9 @@
 (require 'org-capture)
 
 (declare-function -not "dash")
+(declare-function posframe-show "posframe")
+(declare-function posframe-delete-frame "posframe")
+(declare-function posframe-poshandler-frame-center "posframe")
 (defvar org-agenda-custom-commands)
 
 ;;;; Compatibility
@@ -48,6 +51,8 @@
         (defalias 'org-starter--when-let* #'when-let)
       (defalias 'org-starter--when-let* #'when-let*))
     (function-put #'org-starter--when-let* 'lisp-indent-function 1)))
+
+(defconst org-starter-message-buffer "*org-starter message*")
 
 ;;;; Custom variables
 (defcustom org-starter-capture-template-map-function nil
@@ -65,6 +70,19 @@ This function is called by `org-starter-find-file-by-key' when
 a sequence of two universal arguments are given."
   :group 'org-starter
   :type 'function)
+
+(defcustom org-starter-use-child-frame t
+  "If non-nil, use child frames for multi line messages.
+
+You will need posframe.el for actually using this feature."
+  :type 'boolean
+  :group 'org-starter)
+
+(defcustom org-starter-child-frame-border-color
+  "white"
+  "Border color of child frames."
+  :type 'color
+  :group 'org-starter)
 
 (define-widget 'org-starter-bindings 'lazy
   "List of custom keybindings."
@@ -432,7 +450,13 @@ the path to the directory is returned as the result of this function."
              do (apply #'org-starter-define-file filename :directory dpath
                        options))
     (add-to-list 'org-starter-known-directories dpath)
-    (org-starter--load-config-file dpath)
+    (when (and add-to-path
+               after-init-time
+               (not (cl-member dpath org-starter-prevent-local-config-directories
+                               :test #'file-equal-p)))
+      (let ((file (expand-file-name org-starter-config-file-name dpath)))
+        (when (file-exists-p file)
+          (load-file file))))
     dpath))
 
 ;;;; Defining files
@@ -513,20 +537,20 @@ The original bindings defined by :key property are overridden by it.
 EXTRA-HELP is an alist for the items in the extra map."
   (let* ((map (make-sparse-keymap))
          (message-log-max nil)
-         (help-items (cl-union extra-help
-                               (mapcar (lambda (cell)
-                                         (cons (car cell)
-                                               (file-name-nondirectory (cdr cell))))
-                                       org-starter-key-file-alist)
-                               :key #'car))
-         (msg (mapconcat (lambda (cell) (format "[%s]: %s"
-                                                (car cell)
-                                                (cdr cell)))
-                         help-items "\n")))
+         (help-items (mapcar (lambda (cell)
+                               (format "[%s]: %s"
+                                       (car cell) (cdr cell)))
+                             (cl-union extra-help
+                                       (mapcar (lambda (cell)
+                                                 (cons (car cell)
+                                                       (file-name-nondirectory (cdr cell)))
+                                                 )
+                                               org-starter-key-file-alist)
+                                       :key #'car))))
     (dolist (cell org-starter-key-file-alist)
       (define-key map (car cell)
         (lambda () (interactive) (funcall func (cdr cell)))))
-    (message (if prompt (concat prompt "\n" msg) msg))
+    (org-starter--display-options prompt help-items)
     (set-transient-map (if extra-map
                            (make-composed-keymap extra-map map)
                          map))))
@@ -1360,17 +1384,6 @@ files are in buffers.
 
 ;;;; Loading external config files
 
-(defun org-starter--load-config-file (dir)
-  "Load a config files in DIR if any.
-
-Even if a file exists in the directory, it won't be loaded if
-:no-config-file option of the directory has been set to non-nil."
-  (let ((file (expand-file-name org-starter-config-file-name
-                                dir)))
-    (when (and (not (member dir org-starter-prevent-local-config-directories))
-               (file-exists-p file))
-      (load-file file))))
-
 ;;;###autoload
 (defun org-starter-load-config-files ()
   "Load config files in `org-starter-path'."
@@ -1397,6 +1410,54 @@ Even if a file exists in the directory, it won't be loaded if
   (find-file (completing-read "Config file: "
                               (org-starter--get-existing-config-files)
                               nil t)))
+
+;;;; UI utilities
+
+(defun org-starter--display-options (header items)
+  "Display items possibly in a child frame.
+
+HEADER is a line inserted at the beginning of the string,
+ITEMS is a list of strings."
+  (if (and org-starter-use-child-frame
+           (version<= "26.1" emacs-version)
+           (window-system)
+           (require 'posframe nil t))
+      (let ((lines (cons header
+                         (org-starter--format-table
+                          items
+                          (min 80 (frame-width))))))
+        (posframe-show org-starter-message-buffer
+                       :internal-border-width 2
+                       :internal-border-color org-starter-child-frame-border-color
+                       :string (string-join lines "\n")
+                       :height (1+ (length lines))
+                       :width (-max (-map #'length lines))
+                       :poshandler
+                       #'posframe-poshandler-frame-center)
+        (add-hook 'pre-command-hook 'org-starter--delete-message-frame))
+    (message (concat header "\n"
+                     (string-join (org-starter--format-table items
+                                                             (frame-width)))))))
+
+(defun org-starter--format-table (cells frame-width)
+  "Format CELLS in columns in FRAME-WIDTH in total."
+  (let* ((cell-width (min 24 (-max (-map #'length cells))))
+         (cols (/ frame-width (1+ cell-width)))
+         (rows (-partition-all cols cells)))
+    (-map (lambda (cells)
+            (mapconcat (lambda (content)
+                         (if (> (length content) cell-width)
+                             (substring content 0 cell-width)
+                           (concat content
+                                   (make-string (- cell-width (length content))
+                                                32))))
+                       cells " "))
+          rows)))
+
+(defun org-starter--delete-message-frame ()
+  "Delete the child frame for messages."
+  (posframe-delete-frame org-starter-message-buffer)
+  (remove-hook 'pre-command-hook #'org-starter--delete-message-frame))
 
 ;;;; Load external configuration files
 (when org-starter-load-config-files
