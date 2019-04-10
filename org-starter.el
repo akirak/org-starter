@@ -1389,19 +1389,15 @@ files are in buffers.
   "Load config files in `org-starter-path'."
   (mapc #'load-file (org-starter--get-existing-config-files)))
 
-(defun org-starter--get-config-directories ()
-  "Return a list of directories for searching config files."
-  (-filter #'file-directory-p
-           (cl-remove-duplicates
-            (delq nil (cons org-directory (nreverse org-starter-path)))
-            :test #'file-equal-p)))
-
 (defun org-starter--get-existing-config-files ()
   "Return a list of existing config files."
-  (->> (org-starter--get-config-directories)
-       (--filter (not (member it org-starter-prevent-local-config-directories)))
-       (--map (expand-file-name org-starter-config-file-name it))
-       (--filter #'file-exists-p)))
+  (let ((-compare-fn #'file-equal-p))
+    (->> (cons org-directory (nreverse (-clone org-starter-path)))
+         (-non-nil)
+         (-distinct)
+         (--filter (not (member it org-starter-prevent-local-config-directories)))
+         (--map (expand-file-name org-starter-config-file-name it))
+         (-filter #'file-exists-p))))
 
 ;;;###autoload
 (defun org-starter-find-config-file ()
