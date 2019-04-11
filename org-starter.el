@@ -618,8 +618,7 @@ as the argument."
   "Select a window displaying a file or open the file.
 
 If there is a window displaying the buffer of FILE, select the window.
-Otherwise, switch to the buffer of the file using FALLBACK function.
-"
+Otherwise, switch to the buffer of the file using FALLBACK function."
   (let ((buffer (or (find-buffer-visiting file)
                     (find-file-noselect file))))
     (if-let ((window (and org-starter-find-file-visit-window
