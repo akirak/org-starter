@@ -1,58 +1,32 @@
-EMAKE_SHA1            := 9095599536e5b3ad8c34a3dd3362dbb92ebf701f
-PACKAGE_LISP          := org-starter.el counsel-org-starter.el helm-org-starter.el
+# Space-separated list of the dependencies of your project (include package-lint if
+# you want makel to use this linting tool):
+ELPA_DEPENDENCIES=dash package-lint ivy swiper
 
-PACKAGE_ARCHIVES      := gnu melpa
-#PACKAGE_TESTS         := test-sample.el # normally, EMake would discover these in the test/ directory
-PACKAGE_TEST_DEPS     := package-lint
-PACKAGE_TEST_ARCHIVES := gnu melpa
+# List of package archives to download above dependencies
+# from. Available archives are: gnu, melpa, melpa-stable and org:
+ELPA_ARCHIVES=melpa
 
-EMACS ?= emacs
-CURL ?= curl
+# List of ERT test files:
+TEST_ERT_FILES=$(wildcard test/*.el)
 
-EMAKE = PACKAGE_LISP="$(PACKAGE_LISP)" \
-	PACKAGE_ARCHIVES="$(PACKAGE_ARCHIVES)" \
-	PACKAGE_TEST_DEPS="$(PACKAGE_TEST_DEPS)" \
-	PACKAGE_TEST_ARCHIVES="$(PACKAGE_TEST_ARCHIVES)" \
-	$(EMACS) -batch -l emake.el \
-	--eval "(setq enable-dir-local-variables nil)" \
-	$(EMACS_ARGS) \
-	--eval "(emake (pop argv))"
+# List of files to check for Emacs conventions:
+LINT_CHECKDOC_FILES=$(wildcard *.el) $(wildcard test/*.el)
 
-.PHONY: test test-main test-counsel test-helm test-all compile clean
+# List of files to check for packaging guidelines:
+LINT_PACKAGE_LINT_FILES=$(wildcard *.el) $(wildcard test/*.el)
 
-clean::                         ## clean all generated files
-	rm -f *.elc             # delete compiled files
-	rm -rf .elpa/           # delete dependencies
-	rm -rf .elpa.test/
-	rm -f emake.el
+# List of files to check for compilation errors and warnings:
+LINT_COMPILE_FILES=org-starter.el org-starter-swiper.el
 
-emake.el:                       ## download the EMake script
-	curl -O 'https://raw.githubusercontent.com/vermiculus/emake.el/$(EMAKE_SHA1)/emake.el'
+makel.mk:
+	@if [ -f ../makel/makel.mk ]; then \
+		ln -s ../makel/makel.mk .; \
+	else \
+		curl \
+		--fail --silent --show-error --insecure --location \
+		--retry 9 --retry-delay 9 \
+		-O https://gitlab.petton.fr/DamienCassou/makel/raw/v0.5.1/makel.mk; \
+	fi
 
-emacs-travis.mk:                ## download the emacs-travis.mk Makefile
-	$(CURL) -O 'https://raw.githubusercontent.com/flycheck/emacs-travis/master/emacs-travis.mk'
-
-emacs: emake.el                 ## report emacs version (installing $EMACS_VERSION if necessary)
-	$(EMACS) -batch -l emake.el -f emake-verify-version 2>&1 || $(MAKE) install-emacs
-	$(EMACS) --version
-
-setup: emacs
-
-install-emacs: emacs-travis.mk	## build and install a fresh emacs
-	export PATH="$(HOME)/bin:$(PATH)"
-	make -f emacs-travis.mk install_emacs
-
-.elpa: emake.el
-
-install: .elpa
-	PACKAGE_FILE=org-starter.el $(EMAKE) install
-	PACKAGE_FILE=counsel-org-starter.el $(EMAKE) install
-	PACKAGE_FILE=helm-org-starter.el $(EMAKE) install
-
-lint: install
-	$(EMAKE) test package-lint
-	$(EMAKE) test checkdoc
-
-compile: install
-	rm -f $(PACKAGE_LISP:.el=.elc)
-	$(EMAKE) compile ~error-on-warn
+# Include makel.mk if present
+-include makel.mk
