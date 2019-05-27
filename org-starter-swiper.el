@@ -4,7 +4,7 @@
 
 ;; Author: Akira Komamura <akira.komamura@gmail.com>
 ;; Version: 0.1
-;; Package-Requires: ((emacs "25.1") (swiper "0"))
+;; Package-Requires: ((emacs "25.1") (swiper "0.11"))
 ;; URL: https://github.com/akirak/org-starter
 
 ;; This file is not part of GNU Emacs.
@@ -35,6 +35,11 @@
 (require 'swiper)
 (require 'ivy)
 
+(defgroup org-starter-swiper nil
+  "Swiper integration for org-starter."
+  :group 'org-starter
+  :group 'swiper)
+
 ;;;###autoload
 (defun org-starter-swiper-config-files ()
   "Run `swiper-multi' for the config files."
@@ -45,14 +50,14 @@
                          (org-starter--get-existing-config-files))))
     (ivy-read "Swiper: " (swiper--multi-candidates buffers)
               :action #'swiper-multi-action-2
-              :update-fn #'org-starter--swiper-update-fn
+              :update-fn #'org-starter-swiper--update-fn
               :unwind #'swiper--cleanup
-              :caller 'swiper-multi)))
+              :caller 'org-starter-swiper-config-files)))
 
-(defun org-starter--swiper-update-fn ()
+(defun org-starter-swiper--update-fn ()
   "Function run when input is updated in `org-starter-swiper-config-files'."
-  (when-let* ((current (ivy-state-current ivy-last))
-              (buffer-name (get-text-property 0 'buffer current)))
+  (when-let ((current (ivy-state-current ivy-last))
+             (buffer-name (get-text-property 0 'buffer current)))
     (with-ivy-window
       (swiper--cleanup)
       (switch-to-buffer buffer-name)
