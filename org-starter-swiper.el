@@ -54,6 +54,21 @@
               :unwind #'swiper--cleanup
               :caller 'org-starter-swiper-config-files)))
 
+(defun org-starter-swiper--config-file-other-window (x)
+  "Move to candidate X."
+  (when (> (length x) 0)
+    (let ((buffer-name (get-text-property 0 'buffer x)))
+      (when buffer-name
+        (switch-to-buffer-other-window buffer-name)
+        (goto-char (point-min))
+        (forward-line (1- (read (get-text-property 0 'swiper-line-number x))))
+        (re-search-forward
+         (ivy--regex ivy-text)
+         (line-end-position) t)))))
+
+(ivy-add-actions 'org-starter-swiper-config-files
+                 '(("j" org-starter-swiper--config-file-other-window "other window")))
+
 (defun org-starter-swiper--update-fn ()
   "Function run when input is updated in `org-starter-swiper-config-files'."
   (when-let ((current (ivy-state-current ivy-last))
