@@ -743,6 +743,12 @@ If REFILE is set, the file is added to `org-refile-targets' with the option
 value. For example, if you set REFILE to \"'(:maxlevel . 5)\", then
 \"'(PATH (:maxlevel . 5))\" is added to `org-refile-targets'.
 
+REFILE can be also a function.  If it is a function, the function
+is used in `org-starter-refile-by-key'.  See
+`org-starter-extras-def-reverse-datetree-refile' for example.  You
+also have to specify KEY, and the file won't be added to
+`org-refile-targets'.
+
 If you specify variable names as a list of symbols in CUSTOM-VARS, those
 variables are set to the path of the defined file using
 `customize-set-variable'.
@@ -788,10 +794,18 @@ is returned as the result of this function."
               (mapc (lambda (symbol) (set-default symbol fpath))
                     (org-starter--to-symbol-list set-default))
               (when (and refile (not deprecated))
-                (let ((pair (assoc fpath org-refile-targets)))
-                  (if pair
-                      (setf (cdr pair) refile)
-                    (add-to-list 'org-refile-targets (cons fpath refile) 'append))))
+                (cl-typecase refile
+                  (function
+                   (if key
+                       (cl-adjoin (list key refile filename)
+                                  org-starter-extra-refile-map
+                                  :key #'car)
+                     (user-error "You have to specify KEY if REFILE is a function")))
+                  (list
+                   (let ((pair (assoc fpath org-refile-targets)))
+                     (if pair
+                         (setf (cdr pair) refile)
+                       (add-to-list 'org-refile-targets (cons fpath refile) 'append))))))
               (unless deprecated
                 (dolist (spec (mapcar (or org-starter-capture-template-map-function
                                           #'identity)
