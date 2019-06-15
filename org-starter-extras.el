@@ -4,7 +4,7 @@
 
 ;; Author: Akira Komamura <akira.komamura@gmail.com>
 ;; Version: 0.1
-;; Package-Requires: ((emacs "25.1") (org-starter "0") (org-reverse-datetree "0"))
+;; Package-Requires: ((emacs "25.1") (org-starter "0.2") (org-reverse-datetree "0.3"))
 ;; URL: https://github.com/akirak/org-starter
 
 ;; This file is not part of GNU Emacs.
