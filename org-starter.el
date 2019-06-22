@@ -1086,7 +1086,9 @@ It has the same functionality as
 `org-starter-add-file-capture-template', but this is intended to
 provide a better API.
 
-KEYS, DESCRIPTION, and TYPE are the same arguments as in the variable.
+KEYS, DESCRIPTION, and TYPE are basically the same as in
+`org-capture-templates' variable.  However, KEYS can also be a symbol
+whose variable is a string.
 
 TARGET is almost the same, but if the template type is a file or
 part of it, e.g. \"file+headline\", the file name in the
@@ -1109,6 +1111,9 @@ The entire template spec is transformed by
 If TYPE and its following arguments are omitted, this macro inserts
 a template group."
   (declare (indent 2))
+  ;; If KEYS is a symbol, use its value as the key sequence.
+  (when (symbolp keys)
+    (setq keys (symbol-value keys)))
   (let* ((ok t)
          (target1 (pcase target
                     (`(file ,file)
