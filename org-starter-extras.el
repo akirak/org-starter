@@ -39,7 +39,7 @@
 
 ;;;###autoload
 (cl-defmacro org-starter-extras-def-reverse-datetree-refile
-    (filename date-properties)
+    (filename date-properties &key ask-always)
   "Define a refile function to a reverse datetree.
 
 FILENAME is the name of the file which usually doesn't contain a
@@ -47,7 +47,11 @@ directory
 (see `org-starter-define-file').
 
 DATE-PROPERTIES is a list of property names to be used as the
-target date."
+target date.
+
+If ASK-ALWAYS is non-nil, it is used as the value of the same
+property of `org-reverse-datetree-refile-to-file'.
+If it is nil, it is determined by the prefix argument."
   (declare (indent 1))
   (let ((function-name (intern (format "org-starter-refile-%s-datetree"
                                        (file-name-sans-extension filename)))))
@@ -55,7 +59,7 @@ target date."
        (interactive "P")
        (org-reverse-datetree-refile-to-file
         (org-starter-locate-file ,filename nil t) nil
-        :ask-always arg
+        :ask-always (or ,ask-always arg)
         :prefer ,(cl-typecase date-properties
                    (symbol (symbol-value date-properties))
                    (t date-properties))))))
