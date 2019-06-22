@@ -794,12 +794,14 @@ is returned as the result of this function."
               (mapc (lambda (symbol) (set-default symbol fpath))
                     (org-starter--to-symbol-list set-default))
               (when (and refile (not deprecated))
-                (cl-typecase refile
+                (cl-etypecase refile
                   (function
                    (if key
-                       (cl-adjoin (list key refile filename)
-                                  org-starter-extra-refile-map
-                                  :key #'car)
+                       (let* ((item (list key refile filename))
+                              (cell (assoc (car item) org-starter-extra-refile-map)))
+                         (if cell
+                             (setcdr cell (cdr item))
+                           (push item org-starter-extra-refile-map)))
                      (user-error "You have to specify KEY if REFILE is a function")))
                   (list
                    (let ((pair (assoc fpath org-refile-targets)))
