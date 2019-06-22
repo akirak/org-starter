@@ -107,6 +107,16 @@ You can put the configuration in any directories in =org-starter-path=. It is po
 (define-key (kbd "C-c j") #'org-starter-alternative-find-file-by-key)
 #+end_src
 
+The following =org-capture= template lets you add a configuration quickly to one of your org-starter configuration files. =org-starter-find-config-file= lets you select an existing configuration file, and the entire target function navigates to the end of the selected file:
+
+#+begin_src emacs-lisp
+(org-starter-def-capture "e" "Personal Emacs configuration"
+  plain (function (lambda ()
+                    (org-starter-find-config-file)
+                    (goto-char (point-max))))
+  "%i"
+  :unnarrowed t)
+#+end_src
 *** Loading local variables in Org files without confirmation
 You may have added local variables to your Org files. 
 It is annoying to answer "yes" every time Emacs asks you if you are sure you want to load the variables. This can be skipped by enabling =org-starter-mode= and setting =org-starter-enable-local-variables= to =:all=. That is, =enable-local-variables= is temporarily overridden while a file registered by org-starter is loaded.
