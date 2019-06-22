@@ -89,6 +89,21 @@ Now you can put your configuration in =~/org/.org-config.el= if =~/org/= is incl
 #+end_src
 
 You can put the configuration in any directories in =org-starter-path=. It is possible for you to put the configuration in a different directory
+
+=org-starter-swiper-config-files= command available from =org-starter-swiper.el= in this repository lets you run [[https://github.com/abo-abo/swiper][swiper]] through your configuration files. It is handy for finding a particular location in your configuration. It may be a good idea to bind a key to the command:
+
+#+begin_src emacs-lisp
+(add-to-list 'org-starter-extra-alternative-find-file-map
+             '(";" org-starter-swiper-config-files "config")
+             t)
+#+end_src
+
+=org-starter-extra-alternative-find-file-map= is a list of commands available when you run =org-starter-alternative-find-file-by-key= command:
+
+#+begin_src emacs-lisp
+(define-key (kbd "C-c j") #'org-starter-alternative-find-file-by-key)
+#+end_src
+
 *** Loading local variables in Org files without confirmation
 You may have added local variables to your Org files. 
 It is annoying to answer "yes" every time Emacs asks you if you are sure you want to load the variables. This can be skipped by enabling =org-starter-mode= and setting =org-starter-enable-local-variables= to =:all=. That is, =enable-local-variables= is temporarily overridden while a file registered by org-starter is loaded.
