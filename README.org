@@ -41,6 +41,9 @@ with org-starter:
       -  [[#extras][Extras]]
         -  [[#locate-a-file][Locate a file]]
         -  [[#load-all-known-files][Load all known files]]
+        -  [[#jump-to-a-file][Jump to a file]]
+        -  [[#jump-to-a-file-alternative-mode][Jump to a file (alternative mode)]]
+        -  [[#refile-an-entry-to-a-file][Refile an entry to a file]]
       -  [[#helm-interface-to-visit-an-org-file][Helm interface to visit an Org file]]
       -  [[#counsel-interface][Counsel interface]]
     -  [[#related-packages][Related packages]]
@@ -220,7 +223,39 @@ buffers using =counsel-org-goto-all=.
   use =org-starter-load-all-known-files= command.
 - To load all files in =org-starter-path= into Emacs, use
   =org-starter-load-all-files-in-path= command.
+**** Jump to a file
+:PROPERTIES:
+:CREATED_TIME: [2019-06-22 Sat 09:29]
+:END:
+If you set =:key= of a file in =org-starter-define-file=, you can jump to the file quickly with =org-starter-find-file-by-key= command.
 
+You can also define extra bindings for the commands by adding entries to =org-starter-extra-find-file-map=:
+
+#+begin_src emacs-lisp
+;; Add a binding to jump to your Emacs init file
+(setq org-starter-extra-find-map
+      '(("e" (lambda () (interactive) (find-file "~/.emacs.d/init.el")) "init.el")))
+#+end_src
+**** Jump to a file (alternative mode)
+This package also provides =org-starter-alternative-find-file-by-key=, which provides an alternative mode for jumping to a file. Like =org-starter-define-file=, it displays options based on =:key= property of your files, but it uses a different function, which is configured as
+=org-starter-alternative-find-function=, for visiting a selected file. For example, you can use [[https://github.com/alphapapa/helm-org-rifle][helm-org-rifle-files]] for performing a search in the selected file:
+
+#+begin_src emacs-lisp
+(setq org-starter-alternative-find-function 'helm-org-rifle-files)
+#+end_src
+**** Refile an entry to a file
+When you are visiting a file in Org mode, you can use =org-starter-refile-by-key= to refile the current entry to a particular file. The refile level as set in =:refile= option is used for producing candidates.
+
+Like the previous commands, you can add extra bindings to the command through =org-starter-extra-refile-map=. If you use [[https://github.com/akirak/org-reverse-datetree][org-reverse-datetree]], it is a good idea to define a custom refile function for your datetree file and add it to the map. =org-starter-extras.el= in this repository provides a shortcut for defining such a function concisely:
+
+#+begin_src emacs-lisp
+;; Define org-starter-refile-cpb-datetree function
+(org-starter-extras-def-reverse-datetree-refile "cpb.org"
+  '("CREATED_TIME" "CLOSED"))
+
+(add-to-list 'org-starter-extra-refile-map
+             '("p" org-starter-refile-cpb-datetree "cpb"))
+#+end_src
 *** Helm interface to visit an Org file
 A separate package =helm-org-starter.el= provides a Helm command named
 =helm-org-starter= which you can use to select an Org file in various
