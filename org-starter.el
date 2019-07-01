@@ -198,9 +198,13 @@ The user should not update this value.")
 (define-minor-mode org-starter-mode
   "Turn on/off features of org-starter.
 
-At present, this mode activates a function advice around
-`find-file-noselect', so `org-starter-enable-local-variables' option
-is respected."
+This includes the following features:
+
+- Activate a function advice around `find-file-noselect', so
+  `org-starter-enable-local-variables' option is respected.
+
+- When Org files are loaded, set file-local variables defined as
+  :local-variables option in `org-starter-define-file'."
   :lighter "Org-Starter"
   :require 'org-starter
   :global t
@@ -208,12 +212,14 @@ is respected."
   (cond
    ;; Turn on
    (org-starter-mode
+    (add-hook 'org-mode-hook #'org-starter-load-local-variables t)
     (advice-add #'find-file-noselect :around
                 #'org-starter--ad-around-find-file-noselect))
    ;; Turn off
    (t
     (advice-remove #'find-file-noselect
-                   #'org-starter--ad-around-find-file-noselect))))
+                   #'org-starter--ad-around-find-file-noselect)
+    (remove-hook 'org-mode-hook #'org-starter-load-local-variables))))
 
 (defun org-starter--clear-errors ()
   "Reset the status of the error buffer."
@@ -475,7 +481,6 @@ the path to the directory is returned as the result of this function."
                  (t (error "Not a symbol: %s in %s"
                            (prin1-to-string symbol)
                            (prin1-to-string value)))))))
-(add-hook 'org-mode-hook #'org-starter-load-local-variables t)
 
 ;;;;; Keymap for visiting a known file (deprecated)
 (defvar org-starter-file-map (make-sparse-keymap)
