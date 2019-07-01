@@ -467,8 +467,8 @@ the path to the directory is returned as the result of this function."
 (defun org-starter-load-local-variables ()
   "Load local variables defined for the current buffer file by org-starter."
   (org-starter--when-let* ((fpath (buffer-file-name))
-                           (vars (cl-assoc fpath org-starter-file-local-variables
-                                           :test #'file-equal-p)))
+                           (vars (cdr (cl-assoc fpath org-starter-file-local-variables
+                                                :test #'file-equal-p))))
     (cl-loop for (symbol . value) in vars
              do (cond
                  ((symbolp symbol) (set (make-local-variable symbol) value))
