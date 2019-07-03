@@ -136,7 +136,7 @@ This option does not affect the behavior of directory definitions."
 (defcustom org-starter-config-file-name ".org-config.el"
   "File name of external config files for org-starter.
 
-See `org-starter-load-config-files' for details."
+See function `org-starter-load-config-files' for details."
   :group 'org-starter
   :type 'string)
 
@@ -168,7 +168,7 @@ given directory, the file will not be loaded."
 (defcustom org-starter-enable-local-variables nil
   "Override `enable-local-variables' when files are loaded.
 
-When this variable is set to a value other than nil and
+When this variable is set to a value other than nil and function
 `org-starter-mode' is turned on, `enable-local-variables' is set
 to the value temporarily when a file in `org-starter-known-files'
 is loaded.  For example, if the variable is set to `:all', all
@@ -176,7 +176,8 @@ local variables defined in the file are applied when it is loaded
 without confirmation.  As variables defined in your own files are
 supposed to be safe, this is also usually safe.  However, when
 this option is set to `:all', please don't add a file that can be
-edited by someone else, as local variables can bring vulnerability.
+edited by someone else, as local variables can bring
+vulnerability.
 
 When the variable is set to nil, org-starter does not override the
 value of `enable-local-variables`."
