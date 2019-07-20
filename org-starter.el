@@ -265,7 +265,7 @@ FORMAT-STRING is the format spec, and ARGS are parameters."
   :group 'org-starter
   :type '(repeat string)
   :set (lambda (key value)
-         (let ((added (-difference value (symbol-value key))))
+         (let ((added (-difference value (when (boundp key) (symbol-value key)))))
            (set-default key value)
            (message "The following directories have been added: %s"
                     (string-join added "\n"))
