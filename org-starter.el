@@ -263,7 +263,15 @@ FORMAT-STRING is the format spec, and ARGS are parameters."
 (defcustom org-starter-path nil
   "List of directories to search org files for."
   :group 'org-starter
-  :type '(repeat string))
+  :type '(repeat string)
+  :set (lambda (key value)
+         (if (featurep 'org-starter)
+             (let ((added (-difference value (symbol-value key))))
+               (set-default key value)
+               (message "The following directories have been added: %s"
+                        (string-join added "\n"))
+               (mapc #'load-file (org-starter--get-existing-config-files added)))
+           (set-default key value))))
 
 (defvar org-starter-deprecated-files nil
   "List of deprecated org files currently existing.")
@@ -1421,10 +1429,14 @@ files are in buffers.
   (interactive)
   (mapc #'load-file (org-starter--get-existing-config-files)))
 
-(defun org-starter--get-existing-config-files ()
-  "Return a list of existing config files."
+(defun org-starter--get-existing-config-files (&optional dirs)
+  "Return a list of existing config files.
+
+DIRS is a list of directories to check.
+If it is non-nil, search config files from the directories.
+Otherwise, it searches from `org-starter-path'."
   (let ((-compare-fn #'file-equal-p))
-    (->> (cons org-directory (nreverse (-clone org-starter-path)))
+    (->> (cons org-directory (nreverse (-clone (or dirs org-starter-path))))
          (-non-nil)
          (-distinct)
          (--filter (not (member it org-starter-prevent-local-config-directories)))
