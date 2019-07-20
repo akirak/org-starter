@@ -265,11 +265,13 @@ FORMAT-STRING is the format spec, and ARGS are parameters."
   :group 'org-starter
   :type '(repeat string)
   :set (lambda (key value)
-         (let ((added (-difference value (when (boundp key) (symbol-value key)))))
-           (set-default key value)
-           (message "The following directories have been added: %s"
-                    (string-join added "\n"))
-           (mapc #'load-file (org-starter--get-existing-config-files added)))))
+         (if (featurep 'org-starter)
+             (let ((added (-difference value (symbol-value key))))
+               (set-default key value)
+               (message "The following directories have been added: %s"
+                        (string-join added "\n"))
+               (mapc #'load-file (org-starter--get-existing-config-files added)))
+           (set-default key value))))
 
 (defvar org-starter-deprecated-files nil
   "List of deprecated org files currently existing.")
