@@ -1418,6 +1418,7 @@ files are in buffers.
 ;;;###autoload
 (defun org-starter-load-config-files ()
   "Load config files in `org-starter-path'."
+  (interactive)
   (mapc #'load-file (org-starter--get-existing-config-files)))
 
 (defun org-starter--get-existing-config-files ()
