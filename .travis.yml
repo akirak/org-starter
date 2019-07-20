@@ -32,5 +32,7 @@ install:
 - make makel.mk
 - make makel-version
 - make install-elpa-dependencies
+- make -f org-starter-swiper.mk install-elpa-dependencies
 script:
 - make check
+- make -f org-starter-swiper.mk check
