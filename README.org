@@ -51,10 +51,13 @@ with org-starter:
 
 ** Prerequisites
 - Emacs 25.1
-- dash and dash-functional
+- =dash= and =dash-functional=
+- =swiper= if you use =org-starter-swiper=.
 
 ** Installation
-Install from MELPA.
+Install =org-starter= package from MELPA.
+
+If you use =org-starter-swiper=, install =org-starter-swiper= as well.
 
 Note: =counsel-org-starter= and =helm-org-starter= in this repository are not
 available on MELPA yet. Install them individually after installing
@@ -92,9 +95,9 @@ Now you can put your configuration in =~/org/.org-config.el= if =~/org/= is incl
 #+end_src
 
 You can put the configuration in any directories in =org-starter-path=. It is possible for you to put the configuration in a different directory
-
-=org-starter-swiper-config-files= command available from =org-starter-swiper.el= in this repository lets you run [[https://github.com/abo-abo/swiper][swiper]] through your configuration files. It is handy for finding a particular location in your configuration. It may be a good idea to bind a key to the command:
-
+**** org-starter-swiper-config-files
+=org-starter-swiper-config-files= command available from =org-starter-swiper=, which is a separate package, lets you run [[https://github.com/abo-abo/swiper][swiper]] through your configuration files. It is handy for finding a particular location in your configuration. It may be a good idea to bind a key to the command:
+*** Extras
 #+begin_src emacs-lisp
 (add-to-list 'org-starter-extra-alternative-find-file-map
              '(";" org-starter-swiper-config-files "config")
