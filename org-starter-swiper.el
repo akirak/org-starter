@@ -40,15 +40,27 @@
   :group 'org-starter
   :group 'swiper)
 
+(defcustom org-starter-swiper-max-window-width 120
+  "Maximum width of the window of `org-starter-swiper-config-files'.
+
+When this variable is set, `swiper-window-width' of the command
+cannot be greater than the value."
+  :type 'number
+  :group 'org-starter-swiper)
+
 ;;;###autoload
 (defun org-starter-swiper-config-files ()
   "Run `swiper-multi' for the config files."
   (interactive)
-  (let ((buffers (mapcar (lambda (file)
-                           (or (find-buffer-visiting file)
-                               (find-file-noselect file)))
-                         (org-starter--get-existing-config-files)))
-        (swiper-window-width (- (- (frame-width) (if (display-graphic-p) 0 1)) 4)))
+  (let* ((buffers (mapcar (lambda (file)
+                            (or (find-buffer-visiting file)
+                                (find-file-noselect file)))
+                          (org-starter--get-existing-config-files)))
+         (default-width (- (- (frame-width) (if (display-graphic-p) 0 1)) 4))
+         (max-width org-starter-swiper-max-window-width)
+         (swiper-window-width (if max-width
+                                  (min max-width default-width)
+                                default-width)))
     (ivy-read "Swiper: " (swiper--multi-candidates buffers)
               :action #'swiper-multi-action-2
               :update-fn #'org-starter-swiper--update-fn
