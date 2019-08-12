@@ -47,12 +47,16 @@
   (let ((buffers (mapcar (lambda (file)
                            (or (find-buffer-visiting file)
                                (find-file-noselect file)))
-                         (org-starter--get-existing-config-files))))
+                         (org-starter--get-existing-config-files)))
+        (swiper-window-width (- (- (frame-width) (if (display-graphic-p) 0 1)) 4)))
     (ivy-read "Swiper: " (swiper--multi-candidates buffers)
               :action #'swiper-multi-action-2
               :update-fn #'org-starter-swiper--update-fn
               :unwind #'swiper--cleanup
               :caller 'org-starter-swiper-config-files)))
+
+(add-to-list 'ivy-format-functions-alist
+             '(org-starter-swiper-config-files . swiper--all-format-function))
 
 (defun org-starter-swiper--config-file-other-window (x)
   "Move to candidate X."
