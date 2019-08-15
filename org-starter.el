@@ -1189,6 +1189,7 @@ Note you have to quote ARGS."
            (old-desc (nth 1 current)))
       ;; If it has the same description, override it
       (when (or (string-equal desc old-desc)
+                (not after-init-time)
                 ;; Otherwise, confirmation is needed
                 (yes-or-no-p (format "Replace custom agenda command '%s' with '%s'?"
                                      old-desc desc)))
