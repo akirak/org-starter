@@ -78,10 +78,30 @@ You will need posframe.el for actually using this feature."
   :type 'boolean
   :group 'org-starter)
 
+(defcustom org-starter-child-frame-border-width 2
+  "Border width of child frames."
+  :type 'number
+  :group 'org-starter)
+
 (defcustom org-starter-child-frame-border-color
   "white"
   "Border color of child frames."
   :type 'color
+  :group 'org-starter)
+
+(defcustom org-starter-child-frame-foreground-color nil
+  "Border color of child frames."
+  :type '(choice color nil)
+  :group 'org-starter)
+
+(defcustom org-starter-child-frame-background-color nil
+  "Border color of child frames."
+  :type '(choice color nil)
+  :group 'org-starter)
+
+(defcustom org-starter-child-frame-override-parameters nil
+  "Override posframe parameters with this plist."
+  :type 'plist
   :group 'org-starter)
 
 (define-widget 'org-starter-bindings 'lazy
@@ -1468,8 +1488,11 @@ ITEMS is a list of strings."
                           items
                           (min 80 (frame-width))))))
         (posframe-show org-starter-message-buffer
-                       :internal-border-width 2
+                       :internal-border-width org-starter-child-frame-border-width
                        :internal-border-color org-starter-child-frame-border-color
+                       :foreground-color org-starter-child-frame-foreground-color
+                       :background-color org-starter-child-frame-background-color
+                       :override-parameters org-starter-child-frame-override-parameters
                        :string (string-join lines "\n")
                        :height (1+ (length lines))
                        :width (-max (-map #'length lines))
