@@ -3,8 +3,8 @@
 ;; Copyright (C) 2019 Akira Komamura
 
 ;; Author: Akira Komamura <akira.komamura@gmail.com>
-;; Version: 0.1
-;; Package-Requires: ((emacs "25.1") (swiper "0.11") (org-starter "0.2.3"))
+;; Version: 0.1.1
+;; Package-Requires: ((emacs "25.1") (swiper "0.11") (org-starter "0.2.4"))
 ;; URL: https://github.com/akirak/org-starter
 
 ;; This file is not part of GNU Emacs.
