@@ -48,6 +48,16 @@ cannot be greater than the value."
   :type 'number
   :group 'org-starter-swiper)
 
+(defcustom org-starter-swiper-width-function
+  'org-starter-swiper-default-width
+  "Function to determine the width of the swiper contents."
+  :type 'function
+  :group 'org-starter-swiper)
+
+(defun org-starter-swiper-default-width ()
+  "Calculate the inner width of the frame."
+  (- (- (frame-width) (if (display-graphic-p) 0 1)) 4))
+
 ;;;###autoload
 (defun org-starter-swiper-config-files ()
   "Run `swiper-multi' for the config files."
@@ -56,7 +66,7 @@ cannot be greater than the value."
                             (or (find-buffer-visiting file)
                                 (find-file-noselect file)))
                           (org-starter--get-existing-config-files)))
-         (default-width (- (- (frame-width) (if (display-graphic-p) 0 1)) 4))
+         (default-width (funcall org-starter-swiper-width-function))
          (max-width org-starter-swiper-max-window-width)
          (swiper-window-width (if max-width
                                   (min max-width default-width)
