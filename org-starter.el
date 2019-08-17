@@ -41,6 +41,7 @@
 (declare-function posframe-show "posframe")
 (declare-function posframe-delete-frame "posframe")
 (declare-function posframe-poshandler-frame-center "posframe")
+(declare-function posframe-workable-p "posframe")
 (defvar org-agenda-custom-commands)
 
 ;;;; Compatibility
