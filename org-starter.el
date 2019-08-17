@@ -104,6 +104,12 @@ You will need posframe.el for actually using this feature."
   :type 'plist
   :group 'org-starter)
 
+(defcustom org-starter-child-frame-poshandler
+  #'posframe-poshandler-frame-center
+  "Poshandler function."
+  :type 'function
+  :group 'org-starter)
+
 (define-widget 'org-starter-bindings 'lazy
   "List of custom keybindings."
   :tag "Keybindings"
@@ -1495,8 +1501,7 @@ ITEMS is a list of strings."
                        :string (string-join lines "\n")
                        :height (1+ (length lines))
                        :width (-max (-map #'length lines))
-                       :poshandler
-                       #'posframe-poshandler-frame-center)
+                       :poshandler org-starter-child-frame-poshandler)
         (add-hook 'pre-command-hook 'org-starter--delete-message-frame))
     (message (concat header "\n"
                      (string-join (org-starter--format-table items
