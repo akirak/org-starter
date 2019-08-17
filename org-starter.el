@@ -41,6 +41,7 @@
 (declare-function posframe-show "posframe")
 (declare-function posframe-delete-frame "posframe")
 (declare-function posframe-poshandler-frame-center "posframe")
+(declare-function posframe-workable-p "posframe")
 (defvar org-agenda-custom-commands)
 
 ;;;; Compatibility
@@ -102,6 +103,12 @@ You will need posframe.el for actually using this feature."
 (defcustom org-starter-child-frame-override-parameters nil
   "Override posframe parameters with this plist."
   :type 'plist
+  :group 'org-starter)
+
+(defcustom org-starter-child-frame-poshandler
+  #'posframe-poshandler-frame-center
+  "Poshandler function."
+  :type 'function
   :group 'org-starter)
 
 (define-widget 'org-starter-bindings 'lazy
@@ -1480,9 +1487,8 @@ Otherwise, it searches from `org-starter-path'."
 HEADER is a line inserted at the beginning of the string,
 ITEMS is a list of strings."
   (if (and org-starter-use-child-frame
-           (version<= "26.1" emacs-version)
-           (window-system)
-           (require 'posframe nil t))
+           (require 'posframe nil t)
+           (posframe-workable-p))
       (let ((lines (cons header
                          (org-starter--format-table
                           items
@@ -1496,8 +1502,7 @@ ITEMS is a list of strings."
                        :string (string-join lines "\n")
                        :height (1+ (length lines))
                        :width (-max (-map #'length lines))
-                       :poshandler
-                       #'posframe-poshandler-frame-center)
+                       :poshandler org-starter-child-frame-poshandler)
         (add-hook 'pre-command-hook 'org-starter--delete-message-frame))
     (message (concat header "\n"
                      (string-join (org-starter--format-table items
