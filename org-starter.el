@@ -1488,7 +1488,8 @@ HEADER is a line inserted at the beginning of the string,
 ITEMS is a list of strings."
   (if (and org-starter-use-child-frame
            (require 'posframe nil t)
-           (posframe-workable-p))
+           (posframe-workable-p)
+           (not (derived-mode-p 'exwm-mode)))
       (let ((lines (cons header
                          (org-starter--format-table
                           items
