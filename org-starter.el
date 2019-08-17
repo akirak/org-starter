@@ -1480,9 +1480,8 @@ Otherwise, it searches from `org-starter-path'."
 HEADER is a line inserted at the beginning of the string,
 ITEMS is a list of strings."
   (if (and org-starter-use-child-frame
-           (version<= "26.1" emacs-version)
-           (window-system)
-           (require 'posframe nil t))
+           (require 'posframe nil t)
+           (posframe-workable-p))
       (let ((lines (cons header
                          (org-starter--format-table
                           items
