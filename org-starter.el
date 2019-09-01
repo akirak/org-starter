@@ -833,8 +833,9 @@ is returned as the result of this function."
                 (org-starter--log-error "%s file is deprecated"
                                         (abbreviate-file-name fpath))
                 (add-to-list 'org-starter-deprecated-files fpath))
-              (when agenda
-                (add-to-list 'org-agenda-files fpath 'append #'file-equal-p))
+              (if agenda
+                  (add-to-list 'org-agenda-files fpath 'append #'file-equal-p)
+                (cl-delete fpath org-agenda-files :test #'file-equal-p))
               (mapc (lambda (symbol) (customize-set-variable symbol fpath))
                     (org-starter--to-symbol-list custom-vars))
               (mapc (lambda (symbol) (set-default symbol fpath))
