@@ -111,6 +111,11 @@ You will need posframe.el for actually using this feature."
   :type 'function
   :group 'org-starter)
 
+(defcustom org-starter-verify-agenda-configuration t
+  "Whether to verify configuration in `org-starter-add-agenda-custom-command'."
+  :type 'boolean
+  :group 'org-starter)
+
 (define-widget 'org-starter-bindings 'lazy
   "List of custom keybindings."
   :tag "Keybindings"
@@ -1201,27 +1206,78 @@ a template group."
                    (format "'%s'" (car result))))))))
 
 ;;;; Org-agenda
-(defun org-starter-add-agenda-custom-command (key desc &rest args)
+;;;###autoload
+(defun org-starter-add-agenda-custom-command (key desc
+                                                  &optional
+                                                  type match settings files)
   "`org-add-agenda-custom-command' with extra features.
 
-This function basically adds (KEY DESC ARGS) to
+This function basically adds (KEY DESC TYPE MATCH SETTINGS FILES) to
 `org-agnda-custom-commands', but if it also checks if KEY does not
 conflict with existing custom agenda commands.
 
-Some extra features may be added in the future.
+You can also define a group using this function by omitting TYPE,
+MATCH, SETTINGS, and FILES passed to it.
 
-Note you have to quote ARGS."
+Some extra features may be added in the future."
   (declare (indent 2))
-  (if-let ((current (assoc key org-agenda-custom-commands))
-           (old-desc (nth 1 current)))
-      ;; If it has the same description, override it
-      (when (or (string-equal desc old-desc)
-                (not after-init-time)
-                ;; Otherwise, confirmation is needed
-                (yes-or-no-p (format "Replace custom agenda command '%s' with '%s'?"
-                                     old-desc desc)))
-        (setcdr current (cons desc args)))
-    (push `(,key ,desc ,@args) org-agenda-custom-commands)))
+  ;; (unless (and key desc)
+  ;;   (user-error "You cannot omit KEY and DESC"))
+  (when (and (featurep 'org-starter)
+             org-starter-verify-agenda-configuration)
+    (unless (stringp key)
+      (user-error "KEY must be a string"))
+    (unless (stringp desc)
+      (user-error "DESC must be a string"))
+    (org-starter--verify-agenda-type type t)
+    ;; TODO: Verify match, settings, and files
+    )
+  (let ((args (let ((args (list type match settings files)))
+                (nreverse (-drop-while #'not (nreverse args))))))
+    (if-let ((current (assoc key org-agenda-custom-commands))
+             (old-desc (nth 1 current)))
+        ;; If it has the same description, override it
+        (when (or (string-equal desc old-desc)
+                  (not after-init-time)
+                  ;; Otherwise, confirmation is needed
+                  (yes-or-no-p (format "Replace custom agenda command '%s' with '%s'?"
+                                       old-desc desc)))
+          (setcdr current (cons desc args)))
+      (push `(,key ,desc ,@args) org-agenda-custom-commands))))
+
+;;;###autoload
+(cl-defun org-starter-add-block-agenda-command (key desc
+                                                    &rest list-of-type-match-settings-files
+                                                    &key settings files
+                                                    &allow-other-keys)
+  "Define a block agenda.
+
+An entry consisting KEY, DESC, LIST-OF-TYPE-MATCH-SETTINGS-FILES,
+SETTINGS, and FILES are added to `org-agenda-custom-commands'."
+  (declare (indent 2))
+  (org-starter-add-agenda-custom-command key desc
+    list-of-type-match-settings-files settings files))
+
+(defconst org-starter-agenda-allowed-types
+  '(agenda todo search tags-tags-todo todo-tree tags-tree))
+
+(defun org-starter--verify-agenda-type (type &optional verbose)
+  "Check if an agenda type is an allowed value.
+
+This function checks if TYPE is a value allowed in
+`org-agenda-custom-commands'.
+
+If the value is correct, the function returns non-nil.
+
+If VERBOSE is non-nil, displays an error instead if returning
+nil."
+  (or (or (member type org-starter-agenda-allowed-types)
+          (functionp type)
+          (listp type)                  ; block agenda
+          )
+      (and verbose
+           (user-error "An agenda TYPE must be one of %s, a function, or a list"
+                       org-starter-agenda-allowed-types))))
 
 ;;;; File operations
 
