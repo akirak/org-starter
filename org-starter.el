@@ -1240,6 +1240,7 @@ Some extra features may be added in the future."
         ;; If it has the same description, override it
         (when (or (string-equal desc old-desc)
                   (not after-init-time)
+                  org-starter-suppress-override-messages-once
                   ;; Otherwise, confirmation is needed
                   (yes-or-no-p (format "Replace custom agenda command '%s' with '%s'?"
                                        old-desc desc)))
@@ -1508,11 +1509,14 @@ files are in buffers.
 
 ;;;; Loading external config files
 
+(defvar org-starter-suppress-override-messages-once nil)
+
 ;;;###autoload
 (defun org-starter-load-config-files ()
   "Load config files in `org-starter-path'."
   (interactive)
-  (mapc #'load-file (org-starter--get-existing-config-files)))
+  (mapc #'load-file (org-starter--get-existing-config-files))
+  (setq org-starter-suppress-override-messages-once nil))
 
 (defun org-starter--get-existing-config-files (&optional dirs)
   "Return a list of existing config files.
@@ -1592,6 +1596,7 @@ ITEMS is a list of strings."
   (if after-init-time
       (org-starter-load-config-files)
     ;; Otherwise, load them after startup.
+    (setq org-starter-suppress-override-messages-once t)
     (add-hook 'after-init-hook 'org-starter-load-config-files)))
 
 (provide 'org-starter)
