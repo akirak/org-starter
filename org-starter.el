@@ -1257,6 +1257,8 @@ Some extra features may be added in the future."
 An entry consisting KEY, DESC, LIST-OF-TYPE-MATCH-SETTINGS-FILES,
 SETTINGS, and FILES are added to `org-agenda-custom-commands'."
   (declare (indent 2))
+  (cl-remf list-of-type-match-settings-files :settings)
+  (cl-remf list-of-type-match-settings-files :files)
   (org-starter-add-agenda-custom-command key desc
     list-of-type-match-settings-files settings files))
 
