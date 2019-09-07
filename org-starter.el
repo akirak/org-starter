@@ -1207,6 +1207,8 @@ a template group."
                    (format "'%s'" (car result))))))))
 
 ;;;; Org-agenda
+(defvar org-starter-suppress-override-messages-once nil)
+
 ;;;###autoload
 (defun org-starter-add-agenda-custom-command (key desc
                                                   &optional
@@ -1510,8 +1512,6 @@ files are in buffers.
   (mapc #'org-starter--load-file (org-starter-get-all-files-in-path)))
 
 ;;;; Loading external config files
-
-(defvar org-starter-suppress-override-messages-once nil)
 
 ;;;###autoload
 (defun org-starter-load-config-files ()
