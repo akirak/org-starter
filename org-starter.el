@@ -1292,17 +1292,21 @@ nil."
   (unless (derived-mode-p 'org-mode)
     (user-error "Not in org-mode"))
   (if-let ((filename (buffer-file-name)))
-      (cl-case (read-char "Refile target type [l: level, m: maxlevel, q: tag, t: todo, r: regexp]: ")
-        (?l (org-starter--add-refile-target filename
-              `(:level . ,(org-starter--read-refile-level))))
-        (?m (org-starter--add-refile-target filename
-              `(:maxlevel . ,(org-starter--read-refile-level))))
-        (?q (org-starter--add-refile-target filename
-              `(:tag . ,(org-starter--read-refile-level))))
-        (?t (org-starter--add-refile-target filename
-              `(:tag . ,(org-starter--read-refile-level))))
-        (?r (org-starter--add-refile-target filename
-              `(:regexp . ,(org-starter--read-refile-level)))))
+      (when (or (not (cl-member filename org-refile-targets
+                                :test #'file-equal-p))
+                (yes-or-no-p (message "org-refile-targets already includes %s.\nAre you sure you want to override the entry?"
+                                      filename)))
+        (cl-case (read-char "Refile target type [l: level, m: maxlevel, q: tag, t: todo, r: regexp]: ")
+          (?l (org-starter--add-refile-target filename
+                `(:level . ,(org-starter--read-refile-level))))
+          (?m (org-starter--add-refile-target filename
+                `(:maxlevel . ,(org-starter--read-refile-level))))
+          (?q (org-starter--add-refile-target filename
+                `(:tag . ,(org-starter--read-refile-level))))
+          (?t (org-starter--add-refile-target filename
+                `(:tag . ,(org-starter--read-refile-level))))
+          (?r (org-starter--add-refile-target filename
+                `(:regexp . ,(org-starter--read-refile-level))))))
     (user-error "Not visiting a file")))
 
 (defun org-starter--read-refile-level ()
