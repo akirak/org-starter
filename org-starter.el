@@ -194,6 +194,9 @@ given directory, the file will not be loaded."
   :group 'org-starter
   :type 'boolean)
 
+;;;; Variables
+(defvar org-starter-suppress-override-messages-once nil)
+
 ;;;; The error buffer and error logging
 ;; This is used by `org-starter-verify-configuration'.
 
@@ -1514,8 +1517,6 @@ files are in buffers.
   (mapc #'org-starter--load-file (org-starter-get-all-files-in-path)))
 
 ;;;; Loading external config files
-
-(defvar org-starter-suppress-override-messages-once nil)
 
 ;;;###autoload
 (defun org-starter-load-config-files ()
