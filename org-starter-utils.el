@@ -1,4 +1,4 @@
-;;; org-starter-utils.el --- A collection of utilities for Org mode -*- lexical-binding: t -*-
+;;; org-starter-utils.el --- A collection of utilities for Org mode -*- lexical-binding: t; byte-compile-warnings: (not noruntime) -*-
 
 ;; Copyright (C) 2019 Akira Komamura
 
@@ -31,16 +31,21 @@
 
 ;;; Code:
 
-(declare-function 'avy-jump "avy")
-(declare-function 'avy-goto-line "avy")
+(declare-function 'avy-jump "ext:avy")
+(declare-function 'avy-goto-line "ext:avy")
+(declare-function 'avy-with "ext:avy")
 
 ;;;; Avy utilities for Org mode
 
 ;; Based on part of `avy-org-refile-as-child' in avy.el.
-(defmacro org-starter-utils--with-avy (&rest progn)
-  "Select an Org heading with avy and evaluate PROGN."
-  `(avy-with avy-goto-line
-     (unless (eq 't (avy-jump (rx bol (1+ "*") (1+ space))))
+(eval-when-compile
+  (require 'avy nil t)
+  (defmacro org-starter-utils--with-avy (&rest progn)
+    "Select an Org heading with avy and evaluate PROGN."
+    `(unless (eq 't (progn
+                      (require 'avy)
+                      (avy-with avy-goto-line
+                        (avy-jump (rx bol (1+ "*") (1+ space))))))
        (unless (derived-mode-p 'org-mode)
          (user-error "Not in org-mode"))
        ,@progn)))
@@ -51,7 +56,6 @@
 
 This function generates a new ID if there is no value set on the
 entry and FORCE-CREATION is non-nil."
-  (require 'avy)
   (save-excursion
     (org-starter-utils--with-avy
      (org-id-get-create force-creation))))
@@ -65,7 +69,6 @@ custom ID.
 
 If the selected entry does not have a custom ID, confirm the user
 to create it."
-  (require 'avy)
   (save-excursion
     (org-starter-utils--with-avy
      (cons (or (buffer-file-name)
@@ -79,7 +82,6 @@ to create it."
 ;;;###autoload
 (defun org-starter-utils-avy-store-link-to-heading ()
   "Store a link to an Org heading selected with avy."
-  (require 'avy)
   (save-excursion
     (org-starter-utils--with-avy
      (org-store-link nil))))
