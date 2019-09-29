@@ -4,7 +4,7 @@
 
 ;; Author: Akira Komamura <akira.komamura@gmail.com>
 ;; Version: 0.1
-;; Package-Requires: ((emacs "25.1") (org-starter "0.2") (org-reverse-datetree "0.3"))
+;; Package-Requires: ((emacs "25.1") (org-starter "0.2"))
 ;; URL: https://github.com/akirak/org-starter
 
 ;; This file is not part of GNU Emacs.
@@ -35,7 +35,7 @@
 (require 'cl-lib)
 (require 'org-starter)
 
-(declare 'org-reverse-datetree-refile-to-file "org-reverse-datetree")
+(declare-function 'org-reverse-datetree-refile-to-file "org-reverse-datetree")
 
 ;;;###autoload
 (cl-defmacro org-starter-extras-def-reverse-datetree-refile
@@ -57,6 +57,7 @@ If it is nil, it is determined by the prefix argument."
                                        (file-name-sans-extension filename)))))
     `(defun ,function-name (arg)
        (interactive "P")
+       (require 'org-reverse-datetree)
        (org-reverse-datetree-refile-to-file
         (org-starter-locate-file ,filename nil t) nil
         :ask-always (or ,ask-always arg)
