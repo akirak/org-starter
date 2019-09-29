@@ -1,22 +1,22 @@
 # Space-separated list of the dependencies of your project (include package-lint if
 # you want makel to use this linting tool):
-ELPA_DEPENDENCIES=dash package-lint dash-functional
+ELPA_DEPENDENCIES=dash package-lint dash-functional avy
 
 # List of package archives to download above dependencies
 # from. Available archives are: gnu, melpa, melpa-stable and org:
 ELPA_ARCHIVES=melpa-stable
 
 # List of ERT test files:
-TEST_ERT_FILES=org-starter.el
+TEST_ERT_FILES=org-starter.el org-starter-utils.el
 
 # List of files to check for Emacs conventions:
-LINT_CHECKDOC_FILES=org-starter.el
+LINT_CHECKDOC_FILES=org-starter.el org-starter-utils.el
 
 # List of files to check for packaging guidelines:
-LINT_PACKAGE_LINT_FILES=org-starter.el
+LINT_PACKAGE_LINT_FILES=org-starter.el org-starter-utils.el
 
 # List of files to check for compilation errors and warnings:
-LINT_COMPILE_FILES=org-starter.el
+LINT_COMPILE_FILES=org-starter.el org-starter-utils.el
 
 makel.mk:
 	@if [ -f ../makel/makel.mk ]; then \
