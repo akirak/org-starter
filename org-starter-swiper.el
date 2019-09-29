@@ -73,7 +73,7 @@ cannot be greater than the value."
                                 default-width)))
     (ivy-read "Swiper: " (swiper--multi-candidates buffers)
               :action #'swiper-multi-action-2
-              :update-fn #'org-starter-swiper--update-fn
+              ;; :update-fn #'org-starter-swiper--update-fn
               :unwind #'swiper--cleanup
               :caller 'org-starter-swiper-config-files)))
 
