@@ -1,4 +1,4 @@
-;;; org-starter-utils.el --- Utilities for Org mode not depending on org-starter -*- lexical-binding: t -*-
+;;; org-starter-utils.el --- A collection of utilities for Org mode -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2019 Akira Komamura
 
