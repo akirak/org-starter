@@ -38,6 +38,7 @@
 
 ;; Based on part of `avy-org-refile-as-child' in avy.el.
 (defmacro org-starter-utils--with-avy (&rest progn)
+  "Select an Org heading with avy and evaluate PROGN."
   `(avy-with avy-goto-line
      (unless (eq 't (avy-jump (rx bol (1+ "*") (1+ space))))
        (unless (derived-mode-p 'org-mode)
@@ -46,7 +47,10 @@
 
 ;;;###autoload
 (defun org-starter-utils-avy-id (&optional force-creation)
-  "Retrieve the ID to an entry selected with avy."
+  "Retrieve the ID to an entry selected with avy.
+
+This function generates a new ID if there is no value set on the
+entry and FORCE-CREATION is non-nil."
   (require 'avy)
   (save-excursion
     (org-starter-utils--with-avy
