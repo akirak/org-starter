@@ -51,14 +51,11 @@
        ,@progn)))
 
 ;;;###autoload
-(defun org-starter-utils-avy-id (&optional force-creation)
-  "Retrieve the ID to an entry selected with avy.
-
-This function generates a new ID if there is no value set on the
-entry and FORCE-CREATION is non-nil."
+(defun org-starter-utils-avy-id ()
+  "Retrieve the ID to an entry selected with avy."
   (save-excursion
     (org-starter-utils--with-avy
-     (org-id-get-create force-creation))))
+     (org-id-get-create t))))
 
 ;;;###autoload
 (defun org-starter-utils-avy-custom-id ()
