@@ -303,8 +303,8 @@ FORMAT-STRING is the format spec, and ARGS are parameters."
          (if (featurep 'org-starter)
              (let ((added (-difference value (symbol-value key))))
                (set-default key value)
-               (message "The following directories have been added: %s"
-                        (string-join added "\n"))
+               (message "Add directories to org-starter-path: %s"
+                        (string-join added " "))
                (mapc #'load-file (org-starter--get-existing-config-files added)))
            (set-default key value))))
 
