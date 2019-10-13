@@ -194,6 +194,30 @@ given directory, the file will not be loaded."
   :group 'org-starter
   :type 'boolean)
 
+(defcustom org-starter-refresh-agenda-on-redefinition t
+  "When non-nil, refresh an existing agenda buffer on redefinition.
+
+If you set this variable to non-nil, both
+`org-starter-add-agenda-custom-command' and
+`org-starter-add-block-agenda-command' refreshes a corresponding existing agenda
+buffer if it is updates an existing buffer of the same key.
+This is useful for experimenting with a new custom agenda command.
+
+If `org-agenda-sticky' is non-nil, it checks for a stick agenda
+buffer of the same key.  If such a buffer exists, the buffer is
+killed and the agenda is redispatched.
+
+If `org-agenda-sticky' is nil, it checks if there is an agenda buffer
+and redispatches the redefined agenda, no matter which agenda command
+is currently displayed in the agenda buffer.
+
+If the value is \"confirm\" instead of t, it asks the user if he/she
+wants to redispatches the agenda."
+  :group 'org-starter
+  :type '(choice (const :tag "Without confirmation" t)
+                 (const :tag "With confirmation" confirm)
+                 (const :tag "Never" nil)))
+
 ;;;; Variables
 (defvar org-starter-suppress-override-messages-once nil)
 
@@ -1249,7 +1273,20 @@ Some extra features may be added in the future."
                   ;; Otherwise, confirmation is needed
                   (yes-or-no-p (format "Replace custom agenda command '%s' with '%s'?"
                                        old-desc desc)))
-          (setcdr current (cons desc args)))
+          (setcdr current (cons desc args))
+          (when org-starter-refresh-agenda-on-redefinition
+            (cond
+             (org-agenda-sticky
+              (let ((sticky-agenda-buffer (get-buffer (format "*Org Agenda(%s)*" key))))
+                (when (and sticky-agenda-buffer
+                           (or (not (eq 'confirm org-starter-refresh-agenda-on-redefinition))
+                               (yes-or-no-p (format "Kill existing sticky agenda buffer %s and rerun it?" key))))
+                  (kill-buffer sticky-agenda-buffer)
+                  (org-agenda nil key))))
+             ((and (get-buffer org-agenda-buffer-name)
+                   (or (not (eq 'confirm org-starter-refresh-agenda-on-redefinition))
+                       (yes-or-no-p (format "Run agenda %s immediately?" key))))
+              (org-agenda nil key)))))
       (push `(,key ,desc ,@args) org-agenda-custom-commands))))
 
 ;;;###autoload
