@@ -218,6 +218,31 @@ wants to redispatches the agenda."
                  (const :tag "With confirmation" confirm)
                  (const :tag "Never" nil)))
 
+(defcustom org-starter-override-agenda-window-setup
+  nil
+  "If non-nil, override `org-agenda-window-setup' when redispatching an agenda.
+
+This is effective if and only if an agenda command is dispatched
+by org-starter as documented for
+`org-starter-refresh-agenda-on-redefinition'.
+
+If you are experimenting with a custom agenda command, you
+probably don't want to display the agenda in the same buffer as
+the source code.  To handle such a situation, this option lets you
+override `org-agenda-window-setup' only when an agenda command is
+dispatched due to redefining it.  The options are the same as
+`org-agenda-window-setup'.
+
+If this variable is nil, it doesn't take effect, and the same
+  window setup is used."
+  :group 'org-starter
+  :type '(choice (const current-window)
+                 (const other-window)
+                 (const only-window)
+                 (const reorganize-frame)
+                 (const other-frame)
+                 (const nil)))
+
 ;;;; Variables
 (defvar org-starter-suppress-override-messages-once nil)
 
@@ -1282,12 +1307,18 @@ Some extra features may be added in the future."
                            (or (not (eq 'confirm org-starter-refresh-agenda-on-redefinition))
                                (yes-or-no-p (format "Kill existing sticky agenda buffer %s and rerun it?" key))))
                   (kill-buffer sticky-agenda-buffer)
-                  (org-agenda nil key))))
+                  (org-starter-agenda-with-window-setup nil key))))
              ((and (get-buffer org-agenda-buffer-name)
                    (or (not (eq 'confirm org-starter-refresh-agenda-on-redefinition))
                        (yes-or-no-p (format "Run agenda %s immediately?" key))))
-              (org-agenda nil key)))))
-      (push `(,key ,desc ,@args) org-agenda-custom-commands))))
+              (org-starter-agenda-with-window-setup nil key)))))
+      (push `(,key ,desc ,@argse) org-agenda-custom-commands))))
+
+(defun org-starter-agenda-with-window-setup (&rest args)
+  "Run `org-agenda' with ARGS with `org-starter-override-agenda-window-setup'."
+  (let ((org-agenda-window-setup (or org-starter-override-agenda-window-setup
+                                     org-agenda-window-setup)))
+    (apply #'org-agenda args)))
 
 ;;;###autoload
 (cl-defun org-starter-add-block-agenda-command (key desc
