@@ -1306,22 +1306,33 @@ Some extra features may be added in the future."
                 (when (and sticky-agenda-buffer
                            (or (not (eq 'confirm org-starter-refresh-agenda-on-redefinition))
                                (yes-or-no-p (format "Kill existing sticky agenda buffer %s and rerun it?" key))))
-                  (let ((agenda-window (get-buffer-window sticky-agenda-buffer t)))
-                    (kill-buffer sticky-agenda-buffer)
+                  (let ((agenda-window (get-buffer-window sticky-agenda-buffer t))
+                        (orig-buffer (window-buffer)))
+                    (unwind-protect
+                        (if agenda-window
+                            (with-selected-window agenda-window
+                              (kill-buffer sticky-agenda-buffer)
+                              (let ((org-agenda-window-setup 'current-window))
+                                (org-agenda nil key)))
+                          (kill-buffer sticky-agenda-buffer)
+                          (org-agenda nil key))
+                      (if-let ((orig-window (get-buffer-window orig-buffer)))
+                          (select-window orig-window)
+                        (switch-to-buffer orig-buffer)))))))
+             ((and (get-buffer org-agenda-buffer-name)
+                   (or (not (eq 'confirm org-starter-refresh-agenda-on-redefinition))
+                       (yes-or-no-p (format "Run agenda %s immediately?" key))))
+              (let ((agenda-window (get-buffer-window org-agenda-buffer-name t))
+                    (orig-buffer (window-buffer)))
+                (unwind-protect
                     (if agenda-window
                         (with-selected-window agenda-window
                           (let ((org-agenda-window-setup 'current-window))
                             (org-agenda nil key)))
-                      (org-starter-agenda-with-window-setup nil key))))))
-             ((and (get-buffer org-agenda-buffer-name)
-                   (or (not (eq 'confirm org-starter-refresh-agenda-on-redefinition))
-                       (yes-or-no-p (format "Run agenda %s immediately?" key))))
-              (let ((agenda-window (get-buffer-window org-agenda-buffer-name t)))
-                (if agenda-window
-                    (with-selected-window agenda-window
-                      (let ((org-agenda-window-setup 'current-window))
-                        (org-agenda nil key)))
-                  (org-starter-agenda-with-window-setup nil key))))))
+                      (org-starter-agenda-with-window-setup nil key))
+                  (if-let ((orig-window (get-buffer-window orig-buffer)))
+                      (select-window orig-window)
+                    (switch-to-buffer orig-buffer)))))))
           `(,key ,desc ,@args))
       (push `(,key ,desc ,@args) org-agenda-custom-commands))))
 
