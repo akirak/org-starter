@@ -1312,7 +1312,7 @@ Some extra features may be added in the future."
                    (or (not (eq 'confirm org-starter-refresh-agenda-on-redefinition))
                        (yes-or-no-p (format "Run agenda %s immediately?" key))))
               (org-starter-agenda-with-window-setup nil key)))))
-      (push `(,key ,desc ,@argse) org-agenda-custom-commands))))
+      (push `(,key ,desc ,@args) org-agenda-custom-commands))))
 
 (defun org-starter-agenda-with-window-setup (&rest args)
   "Run `org-agenda' with ARGS with `org-starter-override-agenda-window-setup'."
