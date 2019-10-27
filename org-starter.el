@@ -1317,9 +1317,11 @@ Some extra features may be added in the future."
 
 (defun org-starter-agenda-with-window-setup (&rest args)
   "Run `org-agenda' with ARGS with `org-starter-override-agenda-window-setup'."
-  (let ((org-agenda-window-setup (or org-starter-override-agenda-window-setup
+  (let ((orig-buffer (window-buffer))
+        (org-agenda-window-setup (or org-starter-override-agenda-window-setup
                                      org-agenda-window-setup)))
-    (apply #'org-agenda args)))
+    (apply #'org-agenda args)
+    (select-window (get-buffer-window orig-buffer))))
 
 ;;;###autoload
 (cl-defun org-starter-add-block-agenda-command (key desc
