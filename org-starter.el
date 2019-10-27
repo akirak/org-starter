@@ -1311,7 +1311,8 @@ Some extra features may be added in the future."
              ((and (get-buffer org-agenda-buffer-name)
                    (or (not (eq 'confirm org-starter-refresh-agenda-on-redefinition))
                        (yes-or-no-p (format "Run agenda %s immediately?" key))))
-              (org-starter-agenda-with-window-setup nil key)))))
+              (org-starter-agenda-with-window-setup nil key))))
+          `(,key ,desc ,@args))
       (push `(,key ,desc ,@args) org-agenda-custom-commands))))
 
 (defun org-starter-agenda-with-window-setup (&rest args)
