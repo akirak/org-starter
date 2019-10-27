@@ -1306,12 +1306,22 @@ Some extra features may be added in the future."
                 (when (and sticky-agenda-buffer
                            (or (not (eq 'confirm org-starter-refresh-agenda-on-redefinition))
                                (yes-or-no-p (format "Kill existing sticky agenda buffer %s and rerun it?" key))))
-                  (kill-buffer sticky-agenda-buffer)
-                  (org-starter-agenda-with-window-setup nil key))))
+                  (let ((agenda-window (get-buffer-window sticky-agenda-buffer t)))
+                    (kill-buffer sticky-agenda-buffer)
+                    (if agenda-window
+                        (with-selected-window agenda-window
+                          (let ((org-agenda-window-setup 'current-window))
+                            (org-agenda nil key)))
+                      (org-starter-agenda-with-window-setup nil key))))))
              ((and (get-buffer org-agenda-buffer-name)
                    (or (not (eq 'confirm org-starter-refresh-agenda-on-redefinition))
                        (yes-or-no-p (format "Run agenda %s immediately?" key))))
-              (org-starter-agenda-with-window-setup nil key))))
+              (let ((agenda-window (get-buffer-window org-agenda-buffer-name t)))
+                (if agenda-window
+                    (with-selected-window agenda-window
+                      (let ((org-agenda-window-setup 'current-window))
+                        (org-agenda nil key)))
+                  (org-starter-agenda-with-window-setup nil key))))))
           `(,key ,desc ,@args))
       (push `(,key ,desc ,@args) org-agenda-custom-commands))))
 
