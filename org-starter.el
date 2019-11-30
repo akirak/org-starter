@@ -1565,7 +1565,10 @@ ITEMS is a list of strings."
                (progn
                  (message "org-starter: posframe does not work here, so falling back to the echo area")
                  nil))
-           (not (derived-mode-p 'exwm-mode)))
+           ;; Child frames don't work well by default in EXWM,
+           ;; but it is up to the user to work around this issue.
+           ;; (not (derived-mode-p 'exwm-mode))
+           )
       (let ((lines (cons header
                          (org-starter--format-table
                           items
