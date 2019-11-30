@@ -1557,9 +1557,18 @@ Otherwise, it searches from `org-starter-path'."
 HEADER is a line inserted at the beginning of the string,
 ITEMS is a list of strings."
   (if (and org-starter-use-child-frame
-           (require 'posframe nil t)
-           (posframe-workable-p)
-           (not (derived-mode-p 'exwm-mode)))
+           (or (require 'posframe nil t)
+               (progn
+                 (message "org-starter: posframe is not installed, so falling back to the echo area")
+                 nil))
+           (or (posframe-workable-p)
+               (progn
+                 (message "org-starter: posframe does not work here, so falling back to the echo area")
+                 nil))
+           ;; Child frames don't work well by default in EXWM,
+           ;; but it is up to the user to work around this issue.
+           ;; (not (derived-mode-p 'exwm-mode))
+           )
       (let ((lines (cons header
                          (org-starter--format-table
                           items
@@ -1575,9 +1584,11 @@ ITEMS is a list of strings."
                        :width (-max (-map #'length lines))
                        :poshandler org-starter-child-frame-poshandler)
         (add-hook 'pre-command-hook 'org-starter--delete-message-frame))
-    (message (concat header "\n"
-                     (string-join (org-starter--format-table items
-                                                             (frame-width)))))))
+    (message (string-join
+              (cons header
+                    (org-starter--format-table items
+                                    (frame-width)))
+              "\n"))))
 
 (defun org-starter--format-table (cells frame-width)
   "Format CELLS in columns in FRAME-WIDTH in total."
