@@ -194,6 +194,55 @@ given directory, the file will not be loaded."
   :group 'org-starter
   :type 'boolean)
 
+(defcustom org-starter-refresh-agenda-on-redefinition t
+  "When non-nil, refresh an existing agenda buffer on redefinition.
+
+If you set this variable to non-nil, both
+`org-starter-add-agenda-custom-command' and
+`org-starter-add-block-agenda-command' refreshes a corresponding existing agenda
+buffer if it is updates an existing buffer of the same key.
+This is useful for experimenting with a new custom agenda command.
+
+If `org-agenda-sticky' is non-nil, it checks for a stick agenda
+buffer of the same key.  If such a buffer exists, the buffer is
+killed and the agenda is redispatched.
+
+If `org-agenda-sticky' is nil, it checks if there is an agenda buffer
+and redispatches the redefined agenda, no matter which agenda command
+is currently displayed in the agenda buffer.
+
+If the value is \"confirm\" instead of t, it asks the user if he/she
+wants to redispatches the agenda."
+  :group 'org-starter
+  :type '(choice (const :tag "Without confirmation" t)
+                 (const :tag "With confirmation" confirm)
+                 (const :tag "Never" nil)))
+
+(defcustom org-starter-override-agenda-window-setup
+  nil
+  "If non-nil, override `org-agenda-window-setup' when redispatching an agenda.
+
+This is effective if and only if an agenda command is dispatched
+by org-starter as documented for
+`org-starter-refresh-agenda-on-redefinition'.
+
+If you are experimenting with a custom agenda command, you
+probably don't want to display the agenda in the same buffer as
+the source code.  To handle such a situation, this option lets you
+override `org-agenda-window-setup' only when an agenda command is
+dispatched due to redefining it.  The options are the same as
+`org-agenda-window-setup'.
+
+If this variable is nil, it doesn't take effect, and the same
+  window setup is used."
+  :group 'org-starter
+  :type '(choice (const current-window)
+                 (const other-window)
+                 (const only-window)
+                 (const reorganize-frame)
+                 (const other-frame)
+                 (const nil)))
+
 ;;;; Variables
 (defvar org-starter-suppress-override-messages-once nil)
 
@@ -1249,8 +1298,51 @@ Some extra features may be added in the future."
                   ;; Otherwise, confirmation is needed
                   (yes-or-no-p (format "Replace custom agenda command '%s' with '%s'?"
                                        old-desc desc)))
-          (setcdr current (cons desc args)))
+          (setcdr current (cons desc args))
+          (when org-starter-refresh-agenda-on-redefinition
+            (cond
+             (org-agenda-sticky
+              (let ((sticky-agenda-buffer (get-buffer (format "*Org Agenda(%s)*" key))))
+                (when (and sticky-agenda-buffer
+                           (or (not (eq 'confirm org-starter-refresh-agenda-on-redefinition))
+                               (yes-or-no-p (format "Kill existing sticky agenda buffer %s and rerun it?" key))))
+                  (let ((agenda-window (get-buffer-window sticky-agenda-buffer t))
+                        (orig-buffer (window-buffer)))
+                    (unwind-protect
+                        (if agenda-window
+                            (with-selected-window agenda-window
+                              (kill-buffer sticky-agenda-buffer)
+                              (let ((org-agenda-window-setup 'current-window))
+                                (org-agenda nil key)))
+                          (kill-buffer sticky-agenda-buffer)
+                          (org-agenda nil key))
+                      (if-let ((orig-window (get-buffer-window orig-buffer)))
+                          (select-window orig-window)
+                        (switch-to-buffer orig-buffer)))))))
+             ((and (get-buffer org-agenda-buffer-name)
+                   (or (not (eq 'confirm org-starter-refresh-agenda-on-redefinition))
+                       (yes-or-no-p (format "Run agenda %s immediately?" key))))
+              (let ((agenda-window (get-buffer-window org-agenda-buffer-name t))
+                    (orig-buffer (window-buffer)))
+                (unwind-protect
+                    (if agenda-window
+                        (with-selected-window agenda-window
+                          (let ((org-agenda-window-setup 'current-window))
+                            (org-agenda nil key)))
+                      (org-starter-agenda-with-window-setup nil key))
+                  (if-let ((orig-window (get-buffer-window orig-buffer)))
+                      (select-window orig-window)
+                    (switch-to-buffer orig-buffer)))))))
+          `(,key ,desc ,@args))
       (push `(,key ,desc ,@args) org-agenda-custom-commands))))
+
+(defun org-starter-agenda-with-window-setup (&rest args)
+  "Run `org-agenda' with ARGS with `org-starter-override-agenda-window-setup'."
+  (let ((orig-buffer (window-buffer))
+        (org-agenda-window-setup (or org-starter-override-agenda-window-setup
+                                     org-agenda-window-setup)))
+    (apply #'org-agenda args)
+    (select-window (get-buffer-window orig-buffer))))
 
 ;;;###autoload
 (cl-defun org-starter-add-block-agenda-command (key desc
