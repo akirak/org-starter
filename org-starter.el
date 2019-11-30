@@ -1575,9 +1575,11 @@ ITEMS is a list of strings."
                        :width (-max (-map #'length lines))
                        :poshandler org-starter-child-frame-poshandler)
         (add-hook 'pre-command-hook 'org-starter--delete-message-frame))
-    (message (concat header "\n"
-                     (string-join (org-starter--format-table items
-                                                             (frame-width)))))))
+    (message (string-join
+              (cons header
+                    (org-starter--format-table items
+                                    (frame-width)))
+              "\n"))))
 
 (defun org-starter--format-table (cells frame-width)
   "Format CELLS in columns in FRAME-WIDTH in total."
