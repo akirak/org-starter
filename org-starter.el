@@ -1557,8 +1557,14 @@ Otherwise, it searches from `org-starter-path'."
 HEADER is a line inserted at the beginning of the string,
 ITEMS is a list of strings."
   (if (and org-starter-use-child-frame
-           (require 'posframe nil t)
-           (posframe-workable-p)
+           (or (require 'posframe nil t)
+               (progn
+                 (message "org-starter: posframe is not installed, so falling back to the echo area")
+                 nil))
+           (or (posframe-workable-p)
+               (progn
+                 (message "org-starter: posframe does not work here, so falling back to the echo area")
+                 nil))
            (not (derived-mode-p 'exwm-mode)))
       (let ((lines (cons header
                          (org-starter--format-table
