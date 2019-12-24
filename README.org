@@ -31,6 +31,8 @@ with org-starter:
     -  [[#configuration][Configuration]]
       -  [[#load-path-for-org-files][Load path for org files]]
       -  [[#external-configuration-files][External configuration files]]
+        -  [[#org-starter-swiper-config-files][org-starter-swiper-config-files]]
+      -  [[#extras][Extras]]
       -  [[#loading-local-variables-in-org-files-without-confirmation][Loading local variables in Org files without confirmation]]
     -  [[#usage][Usage]]
       -  [[#configure-directories][Configure directories]]
