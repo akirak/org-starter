@@ -1,4 +1,4 @@
-name: org-starter
+name: org-starter CI
 
 on:
   push:
