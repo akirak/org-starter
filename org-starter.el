@@ -1702,6 +1702,7 @@ ITEMS is a list of strings."
   (posframe-delete-frame org-starter-message-buffer)
   (remove-hook 'pre-command-hook #'org-starter--delete-message-frame))
 
+(provide 'org-starter)
 ;;;; Load external configuration files
 (when org-starter-load-config-files
   ;; If Emacs has been started. load the files immediately.
@@ -1710,6 +1711,4 @@ ITEMS is a list of strings."
     ;; Otherwise, load them after startup.
     (setq org-starter-suppress-override-messages-once t)
     (add-hook 'after-init-hook 'org-starter-load-config-files)))
-
-(provide 'org-starter)
 ;;; org-starter.el ends here
