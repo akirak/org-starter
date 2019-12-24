@@ -3,7 +3,7 @@
 ;; Copyright (C) 2018,2019 by Akira Komamura
 
 ;; Author: Akira Komamura <akira.komamura@gmail.com>
-;; Version: 0.2.6
+;; Version: 0.2.7
 ;; Package-Requires: ((emacs "25.1") (dash "2.12") (dash-functional "1.2.0"))
 ;; URL: https://github.com/akirak/org-starter
 
@@ -43,14 +43,15 @@
 (declare-function posframe-poshandler-frame-center "posframe")
 (declare-function posframe-workable-p "posframe")
 (defvar org-agenda-custom-commands)
+(defvar org-agenda-window-setup)
+(defvar org-agenda-sticky)
+(defvar org-agenda-buffer-name)
 
 ;;;; Compatibility
 
 (eval-and-compile
   (with-no-warnings
-    (if (version< emacs-version "26")
-        (defalias 'org-starter--when-let* #'when-let)
-      (defalias 'org-starter--when-let* #'when-let*))
+    (defalias 'org-starter--when-let* #'when-let)
     (function-put #'org-starter--when-let* 'lisp-indent-function 1)))
 
 (defconst org-starter-message-buffer "*org-starter message*")
@@ -193,6 +194,55 @@ If a file with `org-starter-config-file-name' does not exist in a
 given directory, the file will not be loaded."
   :group 'org-starter
   :type 'boolean)
+
+(defcustom org-starter-refresh-agenda-on-redefinition t
+  "When non-nil, refresh an existing agenda buffer on redefinition.
+
+If you set this variable to non-nil, both
+`org-starter-add-agenda-custom-command' and
+`org-starter-add-block-agenda-command' refreshes a corresponding existing agenda
+buffer if it is updates an existing buffer of the same key.
+This is useful for experimenting with a new custom agenda command.
+
+If `org-agenda-sticky' is non-nil, it checks for a stick agenda
+buffer of the same key.  If such a buffer exists, the buffer is
+killed and the agenda is redispatched.
+
+If `org-agenda-sticky' is nil, it checks if there is an agenda buffer
+and redispatches the redefined agenda, no matter which agenda command
+is currently displayed in the agenda buffer.
+
+If the value is \"confirm\" instead of t, it asks the user if he/she
+wants to redispatches the agenda."
+  :group 'org-starter
+  :type '(choice (const :tag "Without confirmation" t)
+                 (const :tag "With confirmation" confirm)
+                 (const :tag "Never" nil)))
+
+(defcustom org-starter-override-agenda-window-setup
+  nil
+  "If non-nil, override `org-agenda-window-setup' when redispatching an agenda.
+
+This is effective if and only if an agenda command is dispatched
+by org-starter as documented for
+`org-starter-refresh-agenda-on-redefinition'.
+
+If you are experimenting with a custom agenda command, you
+probably don't want to display the agenda in the same buffer as
+the source code.  To handle such a situation, this option lets you
+override `org-agenda-window-setup' only when an agenda command is
+dispatched due to redefining it.  The options are the same as
+`org-agenda-window-setup'.
+
+If this variable is nil, it doesn't take effect, and the same
+  window setup is used."
+  :group 'org-starter
+  :type '(choice (const current-window)
+                 (const other-window)
+                 (const only-window)
+                 (const reorganize-frame)
+                 (const other-frame)
+                 (const nil)))
 
 ;;;; Variables
 (defvar org-starter-suppress-override-messages-once nil)
@@ -592,8 +642,7 @@ EXTRA-HELP is an alist for the items in the extra map."
                              (cl-union extra-help
                                        (mapcar (lambda (cell)
                                                  (cons (car cell)
-                                                       (file-name-nondirectory (cdr cell)))
-                                                 )
+                                                       (file-name-nondirectory (cdr cell))))
                                                org-starter-key-file-alist)
                                        :key #'car))))
     (dolist (cell org-starter-key-file-alist)
@@ -747,15 +796,14 @@ by default."
 
 (defun org-starter--bind-file-key (key fpath)
   "Bind KEY to a command to visit FPATH."
-  (cl-pushnew (cons key fpath) org-starter-key-file-alist
-              :key 'car :test 'equal)
   ;; (let ((command-name (org-starter--file-command-name fpath)))
   ;;   (define-key 'org-starter-file-map key
   ;;     (if (and org-starter-define-file-commands
   ;;              (fboundp command-name))
   ;;         command-name
   ;;       `(lambda () (interactive) (find-file ,fpath)))))
-  )
+  (cl-pushnew (cons key fpath) org-starter-key-file-alist
+              :key 'car :test 'equal))
 
 ;;;;; Defining a file
 
@@ -1235,9 +1283,8 @@ Some extra features may be added in the future."
       (user-error "KEY must be a string"))
     (unless (stringp desc)
       (user-error "DESC must be a string"))
-    (org-starter--verify-agenda-type type t)
     ;; TODO: Verify match, settings, and files
-    )
+    (org-starter--verify-agenda-type type t))
   (let ((args (let ((args (list type match settings files)))
                 (nreverse (-drop-while #'not (nreverse args))))))
     (if-let ((current (assoc key org-agenda-custom-commands))
@@ -1249,8 +1296,59 @@ Some extra features may be added in the future."
                   ;; Otherwise, confirmation is needed
                   (yes-or-no-p (format "Replace custom agenda command '%s' with '%s'?"
                                        old-desc desc)))
-          (setcdr current (cons desc args)))
+          (setcdr current (cons desc args))
+          (when org-starter-refresh-agenda-on-redefinition
+            (cond
+             (org-agenda-sticky
+              (let ((sticky-agenda-buffer (get-buffer (format "*Org Agenda(%s)*" key))))
+                (when (and sticky-agenda-buffer
+                           (or (not (eq 'confirm org-starter-refresh-agenda-on-redefinition))
+                               (yes-or-no-p (format "Kill existing sticky agenda buffer %s and rerun it?" key))))
+                  (let ((agenda-window (get-buffer-window sticky-agenda-buffer t))
+                        (orig-buffer (window-buffer)))
+                    (unwind-protect
+                        (if agenda-window
+                            (with-selected-window agenda-window
+                              (kill-buffer sticky-agenda-buffer)
+                              (let ((org-agenda-window-setup 'current-window))
+                                (org-agenda nil key)))
+                          (kill-buffer sticky-agenda-buffer)
+                          (org-agenda nil key))
+                      (if-let ((orig-window (get-buffer-window orig-buffer)))
+                          (select-window orig-window)
+                        (switch-to-buffer orig-buffer)))))))
+             ((and (get-buffer org-agenda-buffer-name)
+                   (or (not (eq 'confirm org-starter-refresh-agenda-on-redefinition))
+                       (yes-or-no-p (format "Run agenda %s immediately?" key))))
+              (let ((agenda-window (get-buffer-window org-agenda-buffer-name t))
+                    (orig-buffer (window-buffer)))
+                (unwind-protect
+                    (if agenda-window
+                        (with-selected-window agenda-window
+                          (let ((org-agenda-window-setup 'current-window))
+                            (org-agenda nil key)))
+                      (org-starter-agenda-with-window-setup nil key))
+                  (if-let ((orig-window (get-buffer-window orig-buffer)))
+                      (select-window orig-window)
+                    (switch-to-buffer orig-buffer)))))))
+          `(,key ,desc ,@args))
       (push `(,key ,desc ,@args) org-agenda-custom-commands))))
+
+(defun org-starter--agenda-current-window (&rest args)
+  "Call `org-agenda' with ARGS in the current window."
+  (let ((orig-value org-agenda-window-setup))
+    (setq org-agenda-window-setup 'current-window)
+    (unwind-protect
+        (apply #'org-agenda args)
+      (setq org-agenda-window-setup orig-value))))
+
+(defun org-starter-agenda-with-window-setup (&rest args)
+  "Run `org-agenda' with ARGS with `org-starter-override-agenda-window-setup'."
+  (let ((orig-buffer (window-buffer))
+        (org-agenda-window-setup (or org-starter-override-agenda-window-setup
+                                     org-agenda-window-setup)))
+    (apply #'org-agenda args)
+    (select-window (get-buffer-window orig-buffer))))
 
 ;;;###autoload
 (cl-defun org-starter-add-block-agenda-command (key desc
@@ -1282,8 +1380,8 @@ If VERBOSE is non-nil, displays an error instead if returning
 nil."
   (or (or (member type org-starter-agenda-allowed-types)
           (functionp type)
-          (listp type)                  ; block agenda
-          )
+          ;; block agenda
+          (listp type))
       (and verbose
            (user-error "An agenda TYPE must be one of %s, a function, or a list"
                        org-starter-agenda-allowed-types))))
@@ -1398,9 +1496,8 @@ that are already loaded."
            (enable-local-variables (or org-starter-enable-local-variables
                                        enable-local-variables))
            (buf (find-file-noselect fpath)))
-      (with-current-buffer buf
-        ;; Set options
-        )
+      ;; TODO: Set options
+      ;; (with-current-buffer buf)
       buf)))
 
 (defun org-starter--ad-around-find-file-noselect (orig filename &rest args)
@@ -1561,14 +1658,13 @@ ITEMS is a list of strings."
                (progn
                  (message "org-starter: posframe is not installed, so falling back to the echo area")
                  nil))
-           (or (posframe-workable-p)
-               (progn
-                 (message "org-starter: posframe does not work here, so falling back to the echo area")
-                 nil))
            ;; Child frames don't work well by default in EXWM,
            ;; but it is up to the user to work around this issue.
            ;; (not (derived-mode-p 'exwm-mode))
-           )
+           (or (posframe-workable-p)
+               (progn
+                 (message "org-starter: posframe does not work here, so falling back to the echo area")
+                 nil)))
       (let ((lines (cons header
                          (org-starter--format-table
                           items
@@ -1610,6 +1706,7 @@ ITEMS is a list of strings."
   (posframe-delete-frame org-starter-message-buffer)
   (remove-hook 'pre-command-hook #'org-starter--delete-message-frame))
 
+(provide 'org-starter)
 ;;;; Load external configuration files
 (when org-starter-load-config-files
   ;; If Emacs has been started. load the files immediately.
@@ -1618,6 +1715,4 @@ ITEMS is a list of strings."
     ;; Otherwise, load them after startup.
     (setq org-starter-suppress-override-messages-once t)
     (add-hook 'after-init-hook 'org-starter-load-config-files)))
-
-(provide 'org-starter)
 ;;; org-starter.el ends here
