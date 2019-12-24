@@ -1,5 +1,5 @@
 * org-starter
-[[https://travis-ci.org/akirak/org-starter][https://travis-ci.org/akirak/org-starter.svg?branch=master]]
+https://github.com/akirak/org-starter/workflows/org-starter/badge.svg
 [[https://melpa.org/#/org-starter][https://melpa.org/packages/org-starter-badge.svg]]
 
 Org-starter is a framework for basic configuration of Emacs Org Mode. It
