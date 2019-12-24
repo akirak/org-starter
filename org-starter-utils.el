@@ -38,12 +38,11 @@
 ;;;; Avy utilities for Org mode
 
 ;; Based on part of `avy-org-refile-as-child' in avy.el.
-(eval-when-compile
-  (require 'avy nil t)
-  (defmacro org-starter-utils--with-avy (&rest progn)
-    "Select an Org heading with avy and evaluate PROGN."
-    `(unless (eq 't (progn
-                      (require 'avy)
+(defmacro org-starter-utils--with-avy (&rest progn)
+  "Select an Org heading with avy and evaluate PROGN."
+  `(progn
+     (require 'avy)
+     (unless (eq 't (let ((byte-compile-warnings '(not free-vars)))
                       (avy-with avy-goto-line
                         (avy-jump (rx bol (1+ "*") (1+ space))))))
        (unless (derived-mode-p 'org-mode)
