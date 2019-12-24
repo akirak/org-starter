@@ -9,7 +9,7 @@ in
     inherit emacs pkgs;
     name = "org-starter";
     src = ./.;
-    targetFiles = ["org-starter.el" "org-starter-utils.el"];
+    targetFiles = ["org-starter.el"];
     emacsPackages = epkgs: (with epkgs.melpaPackages; [
       dash
       dash-functional
