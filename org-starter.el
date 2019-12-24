@@ -43,14 +43,15 @@
 (declare-function posframe-poshandler-frame-center "posframe")
 (declare-function posframe-workable-p "posframe")
 (defvar org-agenda-custom-commands)
+(defvar org-agenda-window-setup)
+(defvar org-agenda-sticky)
+(defvar org-agenda-buffer-name)
 
 ;;;; Compatibility
 
 (eval-and-compile
   (with-no-warnings
-    (if (version< emacs-version "26")
-        (defalias 'org-starter--when-let* #'when-let)
-      (defalias 'org-starter--when-let* #'when-let*))
+    (defalias 'org-starter--when-let* #'when-let)
     (function-put #'org-starter--when-let* 'lisp-indent-function 1)))
 
 (defconst org-starter-message-buffer "*org-starter message*")
@@ -641,8 +642,7 @@ EXTRA-HELP is an alist for the items in the extra map."
                              (cl-union extra-help
                                        (mapcar (lambda (cell)
                                                  (cons (car cell)
-                                                       (file-name-nondirectory (cdr cell)))
-                                                 )
+                                                       (file-name-nondirectory (cdr cell))))
                                                org-starter-key-file-alist)
                                        :key #'car))))
     (dolist (cell org-starter-key-file-alist)
@@ -796,15 +796,14 @@ by default."
 
 (defun org-starter--bind-file-key (key fpath)
   "Bind KEY to a command to visit FPATH."
-  (cl-pushnew (cons key fpath) org-starter-key-file-alist
-              :key 'car :test 'equal)
   ;; (let ((command-name (org-starter--file-command-name fpath)))
   ;;   (define-key 'org-starter-file-map key
   ;;     (if (and org-starter-define-file-commands
   ;;              (fboundp command-name))
   ;;         command-name
   ;;       `(lambda () (interactive) (find-file ,fpath)))))
-  )
+  (cl-pushnew (cons key fpath) org-starter-key-file-alist
+              :key 'car :test 'equal))
 
 ;;;;; Defining a file
 
@@ -1284,9 +1283,8 @@ Some extra features may be added in the future."
       (user-error "KEY must be a string"))
     (unless (stringp desc)
       (user-error "DESC must be a string"))
-    (org-starter--verify-agenda-type type t)
     ;; TODO: Verify match, settings, and files
-    )
+    (org-starter--verify-agenda-type type t))
   (let ((args (let ((args (list type match settings files)))
                 (nreverse (-drop-while #'not (nreverse args))))))
     (if-let ((current (assoc key org-agenda-custom-commands))
@@ -1336,6 +1334,14 @@ Some extra features may be added in the future."
           `(,key ,desc ,@args))
       (push `(,key ,desc ,@args) org-agenda-custom-commands))))
 
+(defun org-starter--agenda-current-window (&rest args)
+  "Call `org-agenda' with ARGS in the current window."
+  (let ((orig-value org-agenda-window-setup))
+    (setq org-agenda-window-setup 'current-window)
+    (unwind-protect
+        (apply #'org-agenda args)
+      (setq org-agenda-window-setup orig-value))))
+
 (defun org-starter-agenda-with-window-setup (&rest args)
   "Run `org-agenda' with ARGS with `org-starter-override-agenda-window-setup'."
   (let ((orig-buffer (window-buffer))
@@ -1374,8 +1380,8 @@ If VERBOSE is non-nil, displays an error instead if returning
 nil."
   (or (or (member type org-starter-agenda-allowed-types)
           (functionp type)
-          (listp type)                  ; block agenda
-          )
+          ;; block agenda
+          (listp type))
       (and verbose
            (user-error "An agenda TYPE must be one of %s, a function, or a list"
                        org-starter-agenda-allowed-types))))
@@ -1490,9 +1496,8 @@ that are already loaded."
            (enable-local-variables (or org-starter-enable-local-variables
                                        enable-local-variables))
            (buf (find-file-noselect fpath)))
-      (with-current-buffer buf
-        ;; Set options
-        )
+      ;; TODO: Set options
+      ;; (with-current-buffer buf)
       buf)))
 
 (defun org-starter--ad-around-find-file-noselect (orig filename &rest args)
@@ -1653,14 +1658,13 @@ ITEMS is a list of strings."
                (progn
                  (message "org-starter: posframe is not installed, so falling back to the echo area")
                  nil))
-           (or (posframe-workable-p)
-               (progn
-                 (message "org-starter: posframe does not work here, so falling back to the echo area")
-                 nil))
            ;; Child frames don't work well by default in EXWM,
            ;; but it is up to the user to work around this issue.
            ;; (not (derived-mode-p 'exwm-mode))
-           )
+           (or (posframe-workable-p)
+               (progn
+                 (message "org-starter: posframe does not work here, so falling back to the echo area")
+                 nil)))
       (let ((lines (cons header
                          (org-starter--format-table
                           items
