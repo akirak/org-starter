@@ -4,7 +4,7 @@
 
 ;; Author: Akira Komamura <akira.komamura@gmail.com>
 ;; Version: 0.1
-;; Package-Requires: ((emacs "25.1") (org-starter "0.2"))
+;; Package-Requires: ((emacs "25.1") (org-starter "0.2") (avy "0.5"))
 ;; URL: https://github.com/akirak/org-starter
 
 ;; This file is not part of GNU Emacs.
@@ -35,7 +35,54 @@
 (require 'cl-lib)
 (require 'org-starter)
 
+(declare-function 'avy-jump "ext:avy")
+(declare-function 'avy-goto-line "ext:avy")
+(declare-function 'avy-with "ext:avy")
 (declare-function 'org-reverse-datetree-refile-to-file "org-reverse-datetree")
+;;;; avy
+;; Based on part of `avy-org-refile-as-child' in avy.el.
+(defmacro org-starter-extras--with-avy (&rest progn)
+  "Select an Org heading with avy and evaluate PROGN."
+  `(progn
+     (require 'avy)
+     (unless (eq 't (let ((byte-compile-warnings '(not free-vars)))
+                      (avy-with avy-goto-line
+                        (avy-jump (rx bol (1+ "*") (1+ space))))))
+       (unless (derived-mode-p 'org-mode)
+         (user-error "Not in org-mode"))
+       ,@progn)))
+
+(defun org-starter-extras-avy-id ()
+  "Retrieve the ID to an entry selected with avy."
+  (save-excursion
+    (org-starter-extras--with-avy
+     (org-id-get-create t))))
+
+(defun org-starter-extras-avy-custom-id ()
+  "Retrieve the custom ID to an entry selected with avy.
+
+This function returns a pair of a file name of the entry and the
+custom ID.
+
+If the selected entry does not have a custom ID, confirm the user
+to create it."
+  (save-excursion
+    (org-starter-extras--with-avy
+     (cons (or (buffer-file-name)
+               (buffer-file-name (org-base-buffer (current-buffer)))
+               (user-error "This is not a file buffer"))
+           (or (org-entry-get nil "CUSTOM_ID")
+               (progn
+                 (org-set-property "CUSTOM_ID" nil)
+                 (org-entry-get nil "CUSTOM_ID")))))))
+
+(defun org-starter-extras-avy-store-link-to-heading ()
+  "Store a link to an Org heading selected with avy."
+  (save-excursion
+    (org-starter-extras--with-avy
+     (org-store-link nil))))
+
+;;;; org-reverse-datetree
 
 ;;;###autoload
 (cl-defmacro org-starter-extras-def-reverse-datetree-refile
