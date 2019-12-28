@@ -271,7 +271,12 @@ Like the previous commands, you can add extra bindings to the command through =o
 (add-to-list 'org-starter-extra-refile-map
              '("p" org-starter-refile-cpb-datetree "cpb"))
 #+end_src
-*** org-starter-utils library
+*** COMMENT org-starter-utils library                                   :no_export:
+:PROPERTIES:
+:TOC:      ignore
+:END:
+# I have removed this file, so I will hide this subsection.
+
 =org-starter-utils.el= is a collection of utilities related to Org mode.
 It is part of =org-starter= package on MELPA and shipped with it, but it does not depend on =org-starter.el=,
 so you can use it without loading =org-starter.el=.
