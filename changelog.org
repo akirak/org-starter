@@ -1,0 +1,12 @@
+* Changelog
+** org-starter 0.2.8 (2020-03-21)
+=org-starter-def-capture= now accepts non-string files in targets.
+
+For example, the following definition caused an error in the previous versions, but it is considered valid if =my-org-file-symbol= refers to an existing Org file.
+
+#+begin_src emacs-lisp
+  (org-starter-def-capture "x" "My capture template"
+    entry
+    (file my-org-file-symbol)
+    "* %?")
+#+end_src
