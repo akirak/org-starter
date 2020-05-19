@@ -1,6 +1,17 @@
 * org-starter
-[[https://github.com/akirak/org-starter/workflows/org-starter_CI/badge.svg]]
-[[https://melpa.org/#/org-starter][https://melpa.org/packages/org-starter-badge.svg]]
+
+#+BEGIN_HTML
+<a href="https://github.com/akirak/org-starter/actions?query=workflow%3A%22org-starter+CI%22">
+<img src="https://github.com/akirak/org-starter/workflows/org-starter%20CI/badge.svg" alt="CI status">
+</a>
+<a href="https://melpa.org/#/org-starter">
+<img src="https://melpa.org/packages/org-starter-badge.svg" alt="org-starter on MELPA">
+</a>
+<br>
+<a href="https://github.com/akirak/org-starter/actions?query=workflow%3A%22org-starter-swiper+CI%22">
+<img src="https://github.com/akirak/org-starter/workflows/org-starter-swiper%20CI/badge.svg" alt="CI status">
+</a>
+#+END_HTML
 
 Org-starter is a framework for basic configuration of Emacs Org Mode. It
 allows you to configure Org Mode easily even with many files and
@@ -26,30 +37,30 @@ with org-starter:
 :PROPERTIES:
 :TOC:      siblings
 :END:
-    -  [[#prerequisites][Prerequisites]]
-    -  [[#installation][Installation]]
-    -  [[#configuration][Configuration]]
-      -  [[#load-path-for-org-files][Load path for org files]]
-      -  [[#external-configuration-files][External configuration files]]
-        -  [[#org-starter-swiper-config-files][org-starter-swiper-config-files]]
-      -  [[#extras][Extras]]
-      -  [[#loading-local-variables-in-org-files-without-confirmation][Loading local variables in Org files without confirmation]]
-    -  [[#usage][Usage]]
-      -  [[#configure-directories][Configure directories]]
-      -  [[#configure-files][Configure files]]
-        -  [[#quickly-access-a-particular-file-with-a-shortcut-key][Quickly access a particular file with a shortcut key]]
-      -  [[#org-starter-def-macro][org-starter-def macro]]
-      -  [[#configure-capture-templates][Configure capture templates]]
-      -  [[#extras][Extras]]
-        -  [[#locate-a-file][Locate a file]]
-        -  [[#load-all-known-files][Load all known files]]
-        -  [[#jump-to-a-file][Jump to a file]]
-        -  [[#jump-to-a-file-alternative-mode][Jump to a file (alternative mode)]]
-        -  [[#refile-an-entry-to-a-file][Refile an entry to a file]]
-      -  [[#helm-interface-to-visit-an-org-file][Helm interface to visit an Org file]]
-      -  [[#counsel-interface][Counsel interface]]
-    -  [[#related-packages][Related packages]]
-    -  [[#license][License]]
+-  [[#prerequisites][Prerequisites]]
+-  [[#installation][Installation]]
+-  [[#configuration][Configuration]]
+  -  [[#load-path-for-org-files][Load path for org files]]
+  -  [[#external-configuration-files][External configuration files]]
+    -  [[#org-starter-swiper-config-files][org-starter-swiper-config-files]]
+  -  [[#extras][Extras]]
+  -  [[#loading-local-variables-in-org-files-without-confirmation][Loading local variables in Org files without confirmation]]
+-  [[#usage][Usage]]
+  -  [[#configure-directories][Configure directories]]
+  -  [[#configure-files][Configure files]]
+    -  [[#quickly-access-a-particular-file-with-a-shortcut-key][Quickly access a particular file with a shortcut key]]
+  -  [[#org-starter-def-macro][org-starter-def macro]]
+  -  [[#configure-capture-templates][Configure capture templates]]
+  -  [[#extras][Extras]]
+    -  [[#locate-a-file][Locate a file]]
+    -  [[#load-all-known-files][Load all known files]]
+    -  [[#jump-to-a-file][Jump to a file]]
+    -  [[#jump-to-a-file-alternative-mode][Jump to a file (alternative mode)]]
+    -  [[#refile-an-entry-to-a-file][Refile an entry to a file]]
+  -  [[#helm-interface-to-visit-an-org-file][Helm interface to visit an Org file]]
+  -  [[#counsel-interface][Counsel interface]]
+-  [[#related-packages][Related packages]]
+-  [[#license][License]]
 
 ** Prerequisites
 - Emacs 25.1

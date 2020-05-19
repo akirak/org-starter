@@ -1,0 +1,38 @@
+{
+    "melpa-check": {
+        "branch": "v3",
+        "description": "Check your Emacs package before publishing it to MELPA",
+        "homepage": "",
+        "owner": "akirak",
+        "repo": "melpa-check",
+        "rev": "4c24a25f43fbfbd33484c682e0f21b512f5b1a89",
+        "sha256": "0pdjdi10pp27jwm41p18qbd22xvkjciar5zn59nkm8n75ky83vpk",
+        "type": "tarball",
+        "url": "https://github.com/akirak/melpa-check/archive/4c24a25f43fbfbd33484c682e0f21b512f5b1a89.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "niv": {
+        "branch": "master",
+        "description": "Easy dependency management for Nix projects",
+        "homepage": "https://github.com/nmattia/niv",
+        "owner": "nmattia",
+        "repo": "niv",
+        "rev": "f73bf8d584148677b01859677a63191c31911eae",
+        "sha256": "0jlmrx633jvqrqlyhlzpvdrnim128gc81q5psz2lpp2af8p8q9qs",
+        "type": "tarball",
+        "url": "https://github.com/nmattia/niv/archive/f73bf8d584148677b01859677a63191c31911eae.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "nixpkgs": {
+        "branch": "nixos-19.09",
+        "description": "A read-only mirror of NixOS/nixpkgs tracking the released channels. Send issues and PRs to",
+        "homepage": "https://github.com/NixOS/nixpkgs",
+        "owner": "NixOS",
+        "repo": "nixpkgs-channels",
+        "rev": "31dcaa5eb67cf1e10ec5f8403930e1a7246bb5ba",
+        "sha256": "18jswrhicjj5sfmrmfpigwipza6m4kpra4r9998xx73ymaxq08ki",
+        "type": "tarball",
+        "url": "https://github.com/NixOS/nixpkgs-channels/archive/31dcaa5eb67cf1e10ec5f8403930e1a7246bb5ba.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    }
+}
