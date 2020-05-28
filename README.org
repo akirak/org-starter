@@ -11,6 +11,7 @@
 <a href="https://github.com/akirak/org-starter/actions?query=workflow%3A%22org-starter-swiper+CI%22">
 <img src="https://github.com/akirak/org-starter/workflows/org-starter-swiper%20CI/badge.svg" alt="CI status">
 </a>
+<a href="https://melpa.org/#/org-starter-swiper"><img alt="org-starter-swiper on MELPA" src="https://melpa.org/packages/org-starter-swiper-badge.svg"/></a>
 #+END_HTML
 
 Org-starter is a framework for basic configuration of Emacs Org Mode. It
