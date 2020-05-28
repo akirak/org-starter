@@ -15,7 +15,7 @@ in  [ Package::{
       }
     , Package::{
       , pname = "org-starter"
-      , version = "0.2.7"
+      , version = "0.2.8"
       , emacsVersion = "25.1"
       , files = [ "org-starter.el" ]
       , dependencies = [ "dash", "dash-functional" ]
