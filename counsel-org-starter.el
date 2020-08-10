@@ -4,7 +4,7 @@
 
 ;; Author: Akira Komamura <akira.komamura@gmail.com>
 ;; Version: 1.0-pre
-;; Package-Requires: ((emacs "25.1") (ivy "0.10") (memoize "1.1"))
+;; Package-Requires: ((emacs "25.1") (ivy "0.10") (memoize "1.1") (org-starter "0.1"))
 ;; URL: https://github.com/akirak/org-starter
 
 ;; This file is not part of GNU Emacs.

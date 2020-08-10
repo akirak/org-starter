@@ -4,7 +4,7 @@
 
 ;; Author: Akira Komamura <akira.komamura@gmail.com>
 ;; Version: 0.1.0
-;; Package-Requires: ((emacs "25") (helm "1.9.4"))
+;; Package-Requires: ((emacs "25.1") (helm "1.9.4") (org-starter "0.1"))
 ;; URL: https://github.com/akirak/org-starter
 
 ;; This file is not part of GNU Emacs.
