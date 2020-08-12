@@ -493,16 +493,19 @@ DPATH is a path to the directory. This option cannot be nil.
 
 If AGENDA is non-nil, the directory is added to `org-agenda-files'.
 
-If REFILE is set, files in the directory are added to `org-refile-targets'.
-In this case, you have to also specify ID to uniquely identify the directory.
-This identifier is used to determine the name of a function to glob files in
-the directory, which is called by `org-refile'.
+If REFILE is set, files in the directory are added to
+`org-refile-targets'.  In this case, you have to also specify ID
+to uniquely identify the directory.  This identifier is used to
+determine the name of a function to glob files in the directory,
+which is called by `org-refile'.
 
-ORIGIN is a repository URL from which you want to clone the repository. If this
-option is set and ENSURE option is non-nil, this function automatically clones
-the repository when the directory does not exist.
+ORIGIN is a repository URL from which you want to clone the
+repository.  If this option is set and ENSURE option is non-nil,
+this function automatically clones the repository when the
+directory does not exist.
 
-If ADD-TO-PATH is non-nil, the directory is added to `org-starter-path'.
+If ADD-TO-PATH is non-nil, the directory is added to
+`org-starter-path'.
 
 CUSTOM-VARS can be either a symbol or a list of symbols.
 These symbols are names of variables that should be set to the path
@@ -513,8 +516,9 @@ the directory will not be loaded even if
 `org-starter-load-config-files' is set and the directory contains
 the file.
 
-FILES is a list whose item accepts the same options as `org-starter-define-file',
-except for `:directory' option. You can define files in the directory.
+FILES is a list whose item accepts the same options as
+`org-starter-define-file', except for `:directory' option.
+You can define files in the directory.
 
 If the directory exists and the configuration is done properly,
 the path to the directory is returned as the result of this function."
