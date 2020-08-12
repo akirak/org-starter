@@ -487,7 +487,7 @@ identify the directory."
                                               custom-vars
                                               no-config-file
                                               files)
-  "Define a directory that contains org files.
+  "Define a directory for org files.
 
 DPATH is a path to the directory. This option cannot be nil.
 
