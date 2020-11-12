@@ -297,14 +297,14 @@ This includes the following features:
   (cond
    ;; Turn on
    (org-starter-mode
-    (add-hook 'org-mode-hook #'org-starter-load-local-variables t)
+    (add-hook 'org-mode-hook #'org-starter-org-mode-hook t)
     (advice-add #'find-file-noselect :around
                 #'org-starter--ad-around-find-file-noselect))
    ;; Turn off
    (t
     (advice-remove #'find-file-noselect
                    #'org-starter--ad-around-find-file-noselect)
-    (remove-hook 'org-mode-hook #'org-starter-load-local-variables))))
+    (remove-hook 'org-mode-hook #'org-starter-org-mode-hook))))
 
 (defun org-starter--clear-errors ()
   "Reset the status of the error buffer."
@@ -563,21 +563,31 @@ the path to the directory is returned as the result of this function."
     dpath))
 
 ;;;; Defining files
-;;;;; File-local variables
+;;;;; File-local variables and modes
 (defvar org-starter-file-local-variables nil
   "Alist of file-local variable definitions.")
 
-(defun org-starter-load-local-variables ()
-  "Load local variables defined for the current buffer file by org-starter."
-  (org-starter--when-let* ((fpath (buffer-file-name))
-                           (vars (cdr (cl-assoc fpath org-starter-file-local-variables
-                                                :test #'file-equal-p))))
-    (cl-loop for (symbol . value) in vars
-             do (cond
-                 ((symbolp symbol) (set (make-local-variable symbol) value))
-                 (t (error "Not a symbol: %s in %s"
-                           (prin1-to-string symbol)
-                           (prin1-to-string value)))))))
+(defvar org-starter-file-local-minor-modes nil
+  "Alist of file-local minor modes.")
+
+(defun org-starter-org-mode-hook ()
+  "Apply file-local settings."
+  (org-starter--when-let* ((fpath (buffer-file-name)))
+    (mapc (pcase-lambda
+            (`(,symbol . ,value))
+            (cl-assert (symbolp symbol))
+            (set (make-local-variable symbol) value))
+          (cdr (cl-assoc fpath org-starter-file-local-variables
+                         :test #'file-equal-p)))
+    (mapc (pcase-lambda
+            ((or `(,mode ,arg) (and (let arg 1) mode)))
+            (funcall mode arg))
+          (cdr (cl-assoc fpath org-starter-file-local-minor-modes
+                         :test #'file-equal-p)))))
+
+(define-obsolete-function-alias 'org-starter-load-local-variables
+  'org-starter-org-mode-hook
+  "0.2.9")
 
 ;;;;; Keymap for visiting a known file (deprecated)
 (defvar org-starter-file-map (make-sparse-keymap)
@@ -817,6 +827,7 @@ by default."
                                             agenda
                                             refile
                                             custom-vars
+                                            minor-modes
                                             set-default
                                             capture
                                             key
@@ -854,6 +865,12 @@ variables are set to the path of the defined file using
 `customize-set-variable'.
 For example, you can use this function to set `org-default-notes-file' based
 on the actual path.
+
+MINOR-MODES is a list of minor modes to turn on in the file. Each
+item is usually a symbol like `org-recur-mode', and in that case,
+the mode is turned on after the file is loaded. Alternatively, it
+can be a cell like \"(org-recur-mode -1)\" to ensure the mode is
+turned off in the file.
 
 SET-DEFAULT is almost the same as CUSTOM-VARS.  It exists only for
 backwards-compatibility.  It uses `set-default' instead of
@@ -918,6 +935,8 @@ is returned as the result of this function."
                 (org-starter--bind-file-key key fpath))
               (when local-variables
                 (push (cons fpath local-variables) org-starter-file-local-variables))
+              (when minor-modes
+                (push (cons fpath minor-modes) org-starter-file-local-minor-modes))
               (add-to-list 'org-starter-known-files fpath)
               fpath))
      ((and (not deprecated)
