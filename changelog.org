@@ -1,4 +1,16 @@
 * Changelog
+** org-starter 0.2.9 (2020-11-12)
+=org-starter-define-file= now accepts =:minor-modes= argument, which can be used to activate certain monor modes in only in specific files:
+
+#+begin_src emacs-lisp
+  (org-starter-define-file "practice.org"
+    :minor-modes
+    '(org-recur-mode
+      (org-bullets-mode 1)
+      (org-edna-mode -1)))
+#+end_src
+
+In the example above, =org-recur-mode= and =org-bullets-mode= is turned on in =practice.org=, and =org-edna-mode= is turned off in the file.
 ** org-starter 0.2.8 (2020-03-21)
 =org-starter-def-capture= now accepts non-string files in targets.
 
