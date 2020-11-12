@@ -1,6 +1,6 @@
 ;;; org-starter.el --- A basic configuration framework for org mode -*- lexical-binding: t -*-
 
-;; Copyright (C) 2018,2019 by Akira Komamura
+;; Copyright (C) 2018-2020 by Akira Komamura
 
 ;; Author: Akira Komamura <akira.komamura@gmail.com>
 ;; Version: 0.2.8
