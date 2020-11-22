@@ -1,15 +1,11 @@
 * org-starter
 
 #+BEGIN_HTML
-<a href="https://github.com/akirak/org-starter/actions?query=workflow%3A%22org-starter+CI%22">
-<img src="https://github.com/akirak/org-starter/workflows/org-starter%20CI/badge.svg" alt="CI status">
+<a href="https://github.com/akirak/org-starter/actions?query=workflow%3A%22CI%22">
+<img src="https://github.com/akirak/org-starter/workflows/CI/badge.svg" alt="CI status">
 </a>
 <a href="https://melpa.org/#/org-starter">
 <img src="https://melpa.org/packages/org-starter-badge.svg" alt="org-starter on MELPA">
-</a>
-<br>
-<a href="https://github.com/akirak/org-starter/actions?query=workflow%3A%22org-starter-swiper+CI%22">
-<img src="https://github.com/akirak/org-starter/workflows/org-starter-swiper%20CI/badge.svg" alt="CI status">
 </a>
 <a href="https://melpa.org/#/org-starter-swiper"><img alt="org-starter-swiper on MELPA" src="https://melpa.org/packages/org-starter-swiper-badge.svg"/></a>
 #+END_HTML
