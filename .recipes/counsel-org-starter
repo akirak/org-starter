@@ -1,1 +1,2 @@
-(counsel-org-starter :fetcher github :repo akirak/org-starter :files (counsel-org-starter.el))
+(counsel-org-starter :fetcher github :repo "akirak/org-starter"
+                     :files ("counsel-org-starter.el"))
