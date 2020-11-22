@@ -1559,7 +1559,7 @@ ARGS is the rest of arguments passed to the function."
 
 PROMPT is the prompt displayed in the selection interface.
 
-When `excluded-loaded' is set to non-nil, exclude files that have
+When EXCLUDED-LOADED-FILES is set to non-nil, exclude files that have
 been loaded."
   (expand-file-name
    (completing-read prompt
