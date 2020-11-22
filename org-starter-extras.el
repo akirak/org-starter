@@ -43,8 +43,7 @@
   "Define a refile function to a reverse datetree.
 
 FILENAME is the name of the file which usually doesn't contain a
-directory
-(see `org-starter-define-file').
+directory. See `org-starter-define-file'.
 
 DATE-PROPERTIES is a list of property names to be used as the
 target date.

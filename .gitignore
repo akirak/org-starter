@@ -4,3 +4,6 @@
 /emake.el
 /emake.mk
 *.elc
+
+.elinter-cache
+.pre-commit-config.yaml

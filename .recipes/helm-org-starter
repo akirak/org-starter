@@ -1,1 +1,2 @@
-(helm-org-starter :fetcher github :repo akirak/org-starter :files (helm-org-starter.el))
+(helm-org-starter :fetcher github :repo "akirak/org-starter"
+                  :files ("helm-org-starter.el"))
