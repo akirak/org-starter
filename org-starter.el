@@ -1664,12 +1664,16 @@ files are in buffers.
 DIRS is a list of directories to check.
 If it is non-nil, search config files from the directories.
 Otherwise, it searches from `org-starter-path'."
-  (let ((-compare-fn #'file-equal-p))
-    (->> (cons org-directory (-clone (or dirs org-starter-path)))
-         (-non-nil)
-         (-distinct)
-         (--filter (not (member it org-starter-prevent-local-config-directories)))
-         (--map (expand-file-name org-starter-config-file-name it))
+  (let ((dirs (or dirs org-starter-path)))
+    (->> (if org-directory
+             (cons org-directory
+                   (cl-remove org-directory dirs :test #'file-equal-p))
+           (copy-sequence dirs))
+         (-map #'expand-file-name)
+         (funcall (-flip #'-difference)
+                  (-map #'expand-file-name
+                        org-starter-prevent-local-config-directories))
+         (--map (concat (file-name-as-directory it) org-starter-config-file-name))
          (-filter #'file-exists-p))))
 
 ;;;###autoload
