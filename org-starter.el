@@ -1665,7 +1665,7 @@ DIRS is a list of directories to check.
 If it is non-nil, search config files from the directories.
 Otherwise, it searches from `org-starter-path'."
   (let ((-compare-fn #'file-equal-p))
-    (->> (cons org-directory (nreverse (-clone (or dirs org-starter-path))))
+    (->> (cons org-directory (-clone (or dirs org-starter-path)))
          (-non-nil)
          (-distinct)
          (--filter (not (member it org-starter-prevent-local-config-directories)))
