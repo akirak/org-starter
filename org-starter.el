@@ -1735,7 +1735,7 @@ ITEMS is a list of strings."
     (message (string-join
               (cons header
                     (org-starter--format-table items
-                                    (frame-width)))
+                                               (frame-width)))
               "\n"))))
 
 (defun org-starter--format-table (cells frame-width)
