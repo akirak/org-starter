@@ -290,7 +290,7 @@ This includes the following features:
 
 - When Org files are loaded, set file-local variables defined as
   :local-variables option in `org-starter-define-file'."
-  :lighter "Org-Starter"
+  :lighter " Org-Starter"
   :require 'org-starter
   :global t
   :group 'org-starter
@@ -586,7 +586,7 @@ the path to the directory is returned as the result of this function."
                          :test #'file-equal-p)))))
 
 (define-obsolete-function-alias 'org-starter-load-local-variables
-  'org-starter-org-mode-hook
+  #'org-starter-org-mode-hook
   "0.2.9")
 
 ;;;;; Keymap for visiting a known file (deprecated)
@@ -1688,7 +1688,7 @@ It returns only existing files."
 
 ;; Export it as a utility function
 ;;;###autoload
-(defalias 'org-starter-get-files-in-path 'org-starter--get-files-in-path)
+(defalias 'org-starter-get-files-in-path #'org-starter--get-files-in-path)
 
 ;;;###autoload
 (defun org-starter-find-config-file ()

@@ -4,7 +4,7 @@
 
 ;; Author: Akira Komamura <akira.komamura@gmail.com>
 ;; Version: 0.1.0
-;; Package-Requires: ((emacs "25.1") (helm "1.9.4") (org-starter "0.1"))
+;; Package-Requires: ((emacs "25.1") (helm "1.9.4") (org-starter "0.1") (s "1.12"))
 ;; URL: https://github.com/akirak/org-starter
 
 ;; This file is not part of GNU Emacs.
@@ -34,6 +34,7 @@
 (require 'seq)
 (require 'helm)
 (require 'cl-lib)
+(require 's)
 
 (defclass helm-org-starter-known-file-source-class (helm-source-sync)
   ((candidates :initform
@@ -85,22 +86,22 @@ The result is an alist."
 
 (defun helm-org-starter--format-buffer-candidate (buf)
   "Generate a Helm candidate title from BUF."
-  (format (concat "%-" (int-to-string helm-org-starter-column-width)
-                  "s : %s")
-          (let ((fpath (buffer-file-name buf)))
-            (concat (if fpath
-                        (concat (abbreviate-file-name (file-name-directory fpath))
-                                (propertize (file-name-nondirectory fpath) 'face 'helm-buffer-file))
-                      (buffer-name buf))
-                    (if (buffer-modified-p buf) " *" "")))
-          (let-alist (helm-org-starter--get-file-info buf)
-            (concat (cond
-                     ((and .title .subtitle)
-                      (concat (propertize .title 'face 'org-document-title)
-                              " --- " .subtitle))
-                     (.title (propertize .title 'face 'org-document-title))
-                     (t ""))
-                    (if .filetags (propertize .filetags 'face 'org-tag) "")))))
+  (let* ((fpath (buffer-file-name buf))
+         (title (concat (if fpath
+                            (concat (abbreviate-file-name (file-name-directory fpath))
+                                    (propertize (file-name-nondirectory fpath) 'face 'helm-buffer-file))
+                          (buffer-name buf))
+                        (if (buffer-modified-p buf) " *" ""))))
+    (let-alist (helm-org-starter--get-file-info buf)
+      (concat (s-pad-right helm-org-starter-column-width " " title)
+              " : "
+              (cond
+               ((and \.title \.subtitle)
+                (concat (propertize \.title 'face 'org-document-title)
+                        " --- " \.subtitle))
+               (\.title (propertize \.title 'face 'org-document-title))
+               (t ""))
+              (if \.filetags (propertize \.filetags 'face 'org-tag) "")))))
 
 (defun helm-org-starter--group-buffers ()
   "Group live Org buffers."
