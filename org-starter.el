@@ -22,7 +22,7 @@
 ;; GNU General Public License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
-;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
@@ -330,7 +330,7 @@ FORMAT-STRING is the format spec, and ARGS are parameters."
   (declare (indent 0))
   (with-current-buffer (org-starter--create-error-buffer)
     (let ((inhibit-read-only t))
-      (insert (apply 'format format-string args))))
+      (insert (apply #'format format-string args))))
   (setq org-starter-found-errors (1+ (or org-starter-found-errors 0))))
 
 (defun org-starter--log-error (format-string &rest args)
@@ -441,7 +441,7 @@ OBJ should be a symbol, or a list of symbols."
                 (cl-member (file-name-directory file) org-starter-path
                            :test #'file-equal-p)))))
 
-(add-hook 'recentf-exclude 'org-starter-recentf-excluded-p t)
+(add-hook 'recentf-exclude #'org-starter-recentf-excluded-p t)
 
 ;;;; Defining directories
 
@@ -1559,7 +1559,7 @@ ARGS is the rest of arguments passed to the function."
 
 PROMPT is the prompt displayed in the selection interface.
 
-When EXCLUDED-LOADED-FILES is set to non-nil, exclude files that have
+When EXCLUDE-LOADED-FILES is set to non-nil, exclude files that have
 been loaded."
   (expand-file-name
    (completing-read prompt
@@ -1731,7 +1731,7 @@ ITEMS is a list of strings."
                        :height (1+ (length lines))
                        :width (-max (-map #'length lines))
                        :poshandler org-starter-child-frame-poshandler)
-        (add-hook 'pre-command-hook 'org-starter--delete-message-frame))
+        (add-hook 'pre-command-hook #'org-starter--delete-message-frame))
     (message (string-join
               (cons header
                     (org-starter--format-table items
@@ -1766,5 +1766,5 @@ ITEMS is a list of strings."
       (org-starter-load-config-files)
     ;; Otherwise, load them after startup.
     (setq org-starter-suppress-override-messages-once t)
-    (add-hook 'after-init-hook 'org-starter-load-config-files)))
+    (add-hook 'after-init-hook #'org-starter-load-config-files)))
 ;;; org-starter.el ends here
