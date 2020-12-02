@@ -1664,6 +1664,16 @@ files are in buffers.
 DIRS is a list of directories to check.
 If it is non-nil, search config files from the directories.
 Otherwise, it searches from `org-starter-path'."
+  (org-starter--get-files-in-path org-starter-config-file-name dirs))
+
+(defun org-starter--get-files-in-path (filename &optional dirs)
+  "Return a list of files in the path with a particular file name.
+
+This function looks for files with FILENAME in directories. By
+default, the directories are `org-starter-path', but you can also
+specify DIRS.
+
+It returns only existing files."
   (let ((dirs (or dirs org-starter-path)))
     (->> (if org-directory
              (cons org-directory
@@ -1673,8 +1683,12 @@ Otherwise, it searches from `org-starter-path'."
          (funcall (-flip #'-difference)
                   (-map #'expand-file-name
                         org-starter-prevent-local-config-directories))
-         (--map (concat (file-name-as-directory it) org-starter-config-file-name))
+         (--map (concat (file-name-as-directory it) filename))
          (-filter #'file-exists-p))))
+
+;; Export it as a utility function
+;;;###autoload
+(defalias 'org-starter-get-files-in-path 'org-starter--get-files-in-path)
 
 ;;;###autoload
 (defun org-starter-find-config-file ()
@@ -1721,7 +1735,7 @@ ITEMS is a list of strings."
     (message (string-join
               (cons header
                     (org-starter--format-table items
-                                    (frame-width)))
+                                               (frame-width)))
               "\n"))))
 
 (defun org-starter--format-table (cells frame-width)
