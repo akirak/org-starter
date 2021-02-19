@@ -4,7 +4,7 @@
 
 ;; Author: Akira Komamura <akira.komamura@gmail.com>
 ;; Version: 0.2.9
-;; Package-Requires: ((emacs "25.1") (dash "2.12") (dash-functional "1.2.0"))
+;; Package-Requires: ((emacs "25.1") (dash "2.18"))
 ;; URL: https://github.com/akirak/org-starter
 
 ;; This file is not part of GNU Emacs.
@@ -34,7 +34,6 @@
 (require 'cl-lib)
 (require 'subr-x)
 (require 'dash)
-(require 'dash-functional)
 (require 'org-capture)
 
 (declare-function posframe-show "ext:posframe")
