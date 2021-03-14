@@ -569,6 +569,9 @@ the path to the directory is returned as the result of this function."
 (defvar org-starter-file-local-minor-modes nil
   "Alist of file-local minor modes.")
 
+(defvar org-starter-file-local-hooks nil
+  "Alist of file-local load hooks.")
+
 (defun org-starter-org-mode-hook ()
   "Apply file-local settings."
   (org-starter--when-let* ((fpath (buffer-file-name)))
@@ -582,7 +585,11 @@ the path to the directory is returned as the result of this function."
             ((or `(,mode ,arg) (and (let arg 1) mode)))
             (funcall mode arg))
           (cdr (cl-assoc fpath org-starter-file-local-minor-modes
-                         :test #'file-equal-p)))))
+                         :test #'file-equal-p)))
+    (org-starter--when-let*
+        ((hook (cdr (cl-assoc fpath org-starter-file-local-hooks
+                              :test #'file-equal-p))))
+      (funcall hook))))
 
 (define-obsolete-function-alias 'org-starter-load-local-variables
   #'org-starter-org-mode-hook
@@ -830,7 +837,8 @@ by default."
                                             set-default
                                             capture
                                             key
-                                            local-variables)
+                                            local-variables
+                                            local-config)
   "Define an org file.
 
 FILENAME is the file name of the org file. This can be either a file name
@@ -888,6 +896,10 @@ sometimes convenient to be able to define them outside of the file, especially
 if you define a complex function. This option should be an alist of variable
 names and values.
 
+LOCAL-CONFIG can be a function or an expression called or
+evaluated after the file is loaded. For example, you can call
+`add-hook' to add buffer-local hooks via this property.
+
 If the file exists and it is properly defined, the path to the file
 is returned as the result of this function."
   (declare (indent 1))
@@ -936,6 +948,13 @@ is returned as the result of this function."
                 (push (cons fpath local-variables) org-starter-file-local-variables))
               (when minor-modes
                 (push (cons fpath minor-modes) org-starter-file-local-minor-modes))
+              (when local-config
+                (push (cons fpath
+                            (cl-etypecase local-config
+                              (function local-config)
+                              ;; sexp
+                              (list `(lambda () ,local-config))))
+                      org-starter-file-local-hooks))
               (add-to-list 'org-starter-known-files fpath)
               fpath))
      ((and (not deprecated)
