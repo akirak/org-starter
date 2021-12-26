@@ -298,17 +298,6 @@ You need to install avy to use these functions.
 - Similarly, =org-starter-utils-avy-custom-id= is a function which returns =CUSTOM_ID= property of an entry selected with avy.
   If the property is not set on the entry, it generates a new one.
 - =org-starter-utils-avy-store-link-to-heading= stores a link to an entry selected with avy.
-*** Helm interface to visit an Org file
-A separate package =helm-org-starter.el= provides a Helm command named
-=helm-org-starter= which you can use to select an Org file in various
-categories or create a new one in a known directory.
-
-*** Counsel interface
-=counsel-org-starter.el= provides the following commands:
-
-- =counsel-org-starter-known-file=, which lets you choose a known file.
-- =counsel-org-starter=, which lets you choose a known file or a file in
-  =org-agenda-files=.
 ** Related packages
 You may find the following packages useful if you use org-starter:
 
