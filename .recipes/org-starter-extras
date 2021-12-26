@@ -1,2 +1,0 @@
-(org-starter-extras :fetcher github :repo "akirak/org-starter"
-                    :files ("org-starter-extras.el"))
