@@ -344,7 +344,7 @@ FORMAT-STRING is the format spec, and ARGS are parameters."
   "List of files registered by `org-starter-define-file'.")
 
 (defcustom org-starter-path nil
-  "List of directories to search org files for."
+  "List of directories from which org files are searched."
   :group 'org-starter
   :type '(repeat string)
   :set (lambda (key value)
