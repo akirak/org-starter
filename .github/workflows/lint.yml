@@ -1,4 +1,4 @@
-name: 'package-lint'
+name: 'Lint and compile'
 # on: { push: { paths: [ '**.el' ] } }
 on:
   push:
@@ -32,16 +32,49 @@ jobs:
                                            '(org-starter org-starter-swiper))))
                        (package-install (cadr (assq package 
                                                     package-archive-contents)))))))"
+    - name: Run package-lint
+      run: |
+        for file in org-starter.el org-starter-swiper.el
+        do
+          emacs -l package --eval "(push '(\"melpa\" . \"https://melpa.org/packages/\") package-archives)" --eval "(package-initialize)" -L . -batch -l package-lint \
+            -f package-lint-batch-and-exit $file
+        done
+
+  byte-compile:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        emacs_version: ["25.1","25.2","25.3","26.1","26.2","26.3","27.1","27.2","snapshot"]
+    steps:
+    - uses: purcell/setup-emacs@master
+      with:
+        version: ${{ matrix.emacs_version }}
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: |
+        cat <(jq -r '.nodes.root.inputs | map(.) | .[]' .nomake/flake.lock) \
+            <(jq -r 'keys | .[]' .nomake/archive.lock) \
+            <(echo 'package-lint') \
+            | xargs emacs -batch -l package --eval \
+            "(progn
+                (push '(\"melpa\" . \"https://melpa.org/packages/\")
+                      package-archives)
+                (package-initialize)
+                (when command-line-args-left
+                  (package-refresh-contents))
+                (dolist (package-name command-line-args-left)
+                  (let ((package (intern package-name)))
+                     (when (and package
+                                (not (memq package
+                                           '(org-starter org-starter-swiper))))
+                       (package-install (cadr (assq package 
+                                                    package-archive-contents)))))))"
     - name: Byte-compile
       if: ${{ true }}
       run: |
-        emacs -batch -l bytecomp -l package --eval "(push '(\"melpa\" . \"https://melpa.org/packages/\") package-archives)" --eval "(package-initialize)" -L . \
-          --eval "(setq byte-compile-error-on-warn t)" \
-          -f batch-byte-compile 'org-starter.el' 'org-starter-swiper.el'
-    - name: Run package-lint
-      run: |
-        emacs -l package --eval "(push '(\"melpa\" . \"https://melpa.org/packages/\") package-archives)" --eval "(package-initialize)" -L . -batch -l package-lint \
-          -f package-lint-batch-and-exit 'org-starter.el'
-
-        emacs -l package --eval "(push '(\"melpa\" . \"https://melpa.org/packages/\") package-archives)" --eval "(package-initialize)" -L . -batch -l package-lint \
-          -f package-lint-batch-and-exit 'org-starter-swiper.el'
+        for file in org-starter.el org-starter-swiper.el
+        do
+          emacs -batch -l bytecomp -l package --eval "(push '(\"melpa\" . \"https://melpa.org/packages/\") package-archives)" --eval "(package-initialize)" -L . \
+            --eval "(setq byte-compile-error-on-warn t)" \
+            -f batch-byte-compile $file
+        done
