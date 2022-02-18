@@ -168,6 +168,7 @@ This option does not affect the behavior of directory definitions."
   "File name of external config files for org-starter.
 
 See function `org-starter-load-config-files' for details."
+  :risky t
   :group 'org-starter
   :type 'string)
 
@@ -347,6 +348,7 @@ FORMAT-STRING is the format spec, and ARGS are parameters."
   "List of directories from which org files are searched."
   :group 'org-starter
   :type '(repeat string)
+  :risky t
   :set (lambda (key value)
          (if (featurep 'org-starter)
              (let ((added (-difference value (symbol-value key))))
