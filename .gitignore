@@ -1,9 +1,3 @@
-/.elpa/
-/.elpa.test/
-/emacs-travis.mk
-/emake.el
-/emake.mk
 *.elc
-
-.elinter-cache
 .pre-commit-config.yaml
+result

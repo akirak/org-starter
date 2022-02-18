@@ -1,0 +1,95 @@
+{
+  "nodes": {
+    "dash": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1632096711,
+        "narHash": "sha256-oeIUEe5OGgij6IessN6bmS7re5r+D5BlrU4MOsaK3JE=",
+        "owner": "magnars",
+        "repo": "dash.el",
+        "rev": "da167c51e9fd167a48d06c7c0ee8e3ac7abd9718",
+        "type": "github"
+      },
+      "original": {
+        "owner": "magnars",
+        "repo": "dash.el",
+        "type": "github"
+      }
+    },
+    "ivy": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1640971806,
+        "narHash": "sha256-4pnpTYwvMRE9Wv2MUNGoLgX+WD1QZnCLbT0aarBuOxY=",
+        "owner": "abo-abo",
+        "repo": "swiper",
+        "rev": "c97ea72285f2428ed61b519269274d27f2b695f9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "abo-abo",
+        "repo": "swiper",
+        "type": "github"
+      }
+    },
+    "org-starter": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1640880380,
+        "narHash": "sha256-5H+V2bIjTV50FNXtzU97O5A/jVAIObJTz3NKZt0iMH4=",
+        "owner": "akirak",
+        "repo": "org-starter",
+        "rev": "6b1b3b045390bf1cff8214ece54da07c7a0aa8ad",
+        "type": "github"
+      },
+      "original": {
+        "owner": "akirak",
+        "repo": "org-starter",
+        "type": "github"
+      }
+    },
+    "org-starter-swiper": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1640880380,
+        "narHash": "sha256-5H+V2bIjTV50FNXtzU97O5A/jVAIObJTz3NKZt0iMH4=",
+        "owner": "akirak",
+        "repo": "org-starter",
+        "rev": "6b1b3b045390bf1cff8214ece54da07c7a0aa8ad",
+        "type": "github"
+      },
+      "original": {
+        "owner": "akirak",
+        "repo": "org-starter",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "dash": "dash",
+        "ivy": "ivy",
+        "org-starter": "org-starter",
+        "org-starter-swiper": "org-starter-swiper",
+        "swiper": "swiper"
+      }
+    },
+    "swiper": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1640971806,
+        "narHash": "sha256-4pnpTYwvMRE9Wv2MUNGoLgX+WD1QZnCLbT0aarBuOxY=",
+        "owner": "abo-abo",
+        "repo": "swiper",
+        "rev": "c97ea72285f2428ed61b519269274d27f2b695f9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "abo-abo",
+        "repo": "swiper",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
