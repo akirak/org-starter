@@ -2,7 +2,7 @@
 
 #+BEGIN_HTML
 <a href="https://github.com/akirak/org-starter/actions/workflows/lint.yml">
-<img src="https://github.com/akirak/org-starter/workflows/lint.yml/badge.svg" alt="CI status">
+<img src="https://github.com/akirak/org-starter/actions/workflows/lint.yml/badge.svg" alt="CI status">
 </a>
 <a href="https://melpa.org/#/org-starter">
 <img src="https://melpa.org/packages/org-starter-badge.svg" alt="org-starter on MELPA">
