@@ -3,7 +3,7 @@
 ;; Copyright (C) 2018-2022 by Akira Komamura
 
 ;; Author: Akira Komamura <akira.komamura@gmail.com>
-;; Version: 0.2.9
+;; Version: 0.2.9.1
 ;; Package-Requires: ((emacs "25.1") (dash "2.18"))
 ;; URL: https://github.com/akirak/org-starter
 
