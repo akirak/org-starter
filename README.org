@@ -10,13 +10,13 @@
 <a href="https://melpa.org/#/org-starter-swiper"><img alt="org-starter-swiper on MELPA" src="https://melpa.org/packages/org-starter-swiper-badge.svg"/></a>
 #+END_HTML
 
-Org-starter is a framework for basic configuration of Emacs Org Mode. It
+Org Starter is a framework for basic configuration of Emacs Org Mode. It
 allows you to configure Org Mode easily even with many files and
 directories.
 
 The standard way to configure Org Mode is set a bunch of variables such
 as =org-agenda-files= and =org-refile-targets=. This makes it hard to
-add/delete files to/from the configuration. Org-starter lets you
+add/delete files to/from the configuration. Org Starter lets you
 configure Org Mode in a file-centric and incremental manner, which
 scales well especially if you have many Org files and sometimes have to
 tweak the file list.
@@ -81,7 +81,7 @@ customize =org-starter-path=.
 You can also add directories to the load path by calling
 =org-starter-define-directory= with =:add-to-path= option.
 *** External configuration files
-An obvious way to configure Org files using org-starter is to put the configuration in your Emacs initialization file, i.e. =~/.emacs.d/init.el=.  Org-starter also allows you to put it in an external configuration file residing in the same directory as your Org files. This is useful if have some host-local configuration and don't want to put it in your =init.el=. Org-starter is about Org files, so it makes sense to configure the package in alongside the files.
+An obvious way to configure Org files using org-starter is to put the configuration in your Emacs initialization file, i.e. =~/.emacs.d/init.el=.  Org Starter also allows you to put it in an external configuration file residing in the same directory as your Org files. This is useful if have some host-local configuration and don't want to put it in your =init.el=. Org Starter is about Org files, so it makes sense to configure the package in alongside the files.
 
 To use this feature, set =org-starter-load-config-files= custom variable to t.
 Now you can put your configuration in =~/org/.org-config.el= if =~/org/= is included in =org-starter-path=:
@@ -209,7 +209,7 @@ multiple arguments:
       (do-another-thing))
 #+END_SRC
 *** Configure capture templates
-Org-starter provides two ways to incrementally define org-capture templates:
+Org Starter provides two ways to incrementally define org-capture templates:
 
 - =:capture= property in =org-starter-define-file=, which lets you omit the file name of each template target. =(file FILENAME)= becomes =file= here.
 - =org-starter-def-capture= macro, which lets you omit the directory of a file name in template target. The file is searched from the load path. If there is no file existing in the load path, the template is not added.
