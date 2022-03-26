@@ -577,20 +577,19 @@ the path to the directory is returned as the result of this function."
 (defun org-starter-org-mode-hook ()
   "Apply file-local settings."
   (org-starter--when-let* ((fpath (buffer-file-name)))
-    (mapc (pcase-lambda
-            (`(,symbol . ,value))
-            (cl-assert (symbolp symbol))
-            (set (make-local-variable symbol) value))
-          (cdr (cl-assoc fpath org-starter-file-local-variables
-                         :test #'file-equal-p)))
-    (mapc (pcase-lambda
-            ((or `(,mode ,arg) (and (let arg 1) mode)))
-            (funcall mode arg))
-          (cdr (cl-assoc fpath org-starter-file-local-minor-modes
-                         :test #'file-equal-p)))
+    (dolist (x (cdr (assoc fpath org-starter-file-local-variables)))
+      (pcase x
+        (`(,symbol . ,value)
+         (cl-assert (symbolp symbol))
+         (set (make-local-variable symbol) value))))
+
+    (dolist (x (cdr (assoc fpath org-starter-file-local-minor-modes)))
+      (pcase x
+        ((pred symbolp) (funcall x 1))
+        (`(,mode ,arg) (funcall mode arg))))
+
     (org-starter--when-let*
-        ((hook (cdr (cl-assoc fpath org-starter-file-local-hooks
-                              :test #'file-equal-p))))
+        ((hook (cdr (assoc fpath org-starter-file-local-hooks))))
       (funcall hook))))
 
 (define-obsolete-function-alias 'org-starter-load-local-variables
