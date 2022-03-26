@@ -432,13 +432,13 @@ OBJ should be a symbol, or a list of symbols."
 
 (defun org-starter-recentf-excluded-p (file)
   "Check if FILE is an org-starter file that should be excluded from recentf."
-  (and (listp org-starter-exclude-from-recentf)
+  (and (string-match-p org-agenda-file-regexp file)
+       (listp org-starter-exclude-from-recentf)
        org-starter-exclude-from-recentf
        (or (and (memq 'known-files org-starter-exclude-from-recentf)
                 (cl-member file org-starter-known-files
                            :test #'file-equal-p))
            (and (memq 'path org-starter-exclude-from-recentf)
-                (string-match-p org-agenda-file-regexp file)
                 (cl-member (file-name-directory file) org-starter-path
                            :test #'file-equal-p)))))
 
